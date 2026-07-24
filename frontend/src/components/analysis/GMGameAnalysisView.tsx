@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { Chess } from "chess.js";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Loader2, CheckCircle, XCircle, AlertCircle, Info, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { submitGameAnalysis, getGameAnalysis } from "@/lib/api";
+import { submitGameAnalysis } from "@/lib/api";
 import { UserGameAnalysisResponse, UserGameAnalysisSubmit, GeminiFeedback } from "@/lib/types";
 
 const DynamicChessboard = dynamic(
@@ -21,7 +21,7 @@ const DynamicChessboard = dynamic(
 
 interface GMGameAnalysisViewProps {
   gmGame: {
-    id: number;
+    id: string;
     white: string;
     black: string;
     pgn: string;
@@ -35,7 +35,6 @@ interface GMGameAnalysisViewProps {
 
 export function GMGameAnalysisView({ gmGame, onComplete }: GMGameAnalysisViewProps) {
   const [viewIndex, setViewIndex] = useState(0);
-  const [userMoveHistory, setUserMoveHistory] = useState<string[]>([]);
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
   const [analysisResult, setAnalysisResult] = useState<UserGameAnalysisResponse | null>(null);
@@ -50,24 +49,43 @@ export function GMGameAnalysisView({ gmGame, onComplete }: GMGameAnalysisViewPro
     idea_a_repasar: "" 
   });
 
-  // Parse PGN and compute positions
-  const { positions, totalMoves } = useMemo(() => {
+  // Parse PGN once and derive all data
+  const { positions, totalMoves, groupedMoves } = useMemo(() => {
     const game = new Chess();
-    const pgnText = gmGame.pgn;
     try {
-      game.loadPgn(pgnText);
+      game.loadPgn(gmGame.pgn);
     } catch (e) {
-      return { positions: ["start"], totalMoves: 0 };
+      return { positions: ["start"], totalMoves: 0, groupedMoves: [] };
     }
 
     const fens = [game.fen()];
-    const moveHistory = game.history({ verbose: true });
-    for (const move of moveHistory) {
-      const san = move.san;
-      game.move(san);
+    const history = game.history({ verbose: true });
+    for (const move of history) {
+      game.move(move.san);
       fens.push(game.fen());
     }
-    return { positions: fens, totalMoves: fens.length - 1 };
+
+    const groups: Array<{
+      moveNumber: number;
+      whiteMove?: { san: string; index: number };
+      blackMove?: { san: string; index: number };
+    }> = [];
+
+    history.forEach((move, index) => {
+      const moveNumber = Math.floor(index / 2) + 1;
+      if (move.color === "w") {
+        groups.push({ moveNumber, whiteMove: { san: move.san, index } });
+      } else {
+        const lastGroup = groups[groups.length - 1];
+        if (lastGroup && lastGroup.moveNumber === moveNumber) {
+          lastGroup.blackMove = { san: move.san, index };
+        } else {
+          groups.push({ moveNumber, blackMove: { san: move.san, index } });
+        }
+      }
+    });
+
+    return { positions: fens, totalMoves: fens.length - 1, groupedMoves: groups };
   }, [gmGame.pgn]);
 
   const currentFen = positions[viewIndex] || positions[0];
@@ -107,39 +125,6 @@ export function GMGameAnalysisView({ gmGame, onComplete }: GMGameAnalysisViewPro
       setStatus("error");
     }
   };
-
-  // Group moves for PGN viewer
-  const groupedMoves = useMemo(() => {
-    const game = new Chess();
-    try {
-      game.loadPgn(gmGame.pgn);
-    } catch (e) {
-      return [];
-    }
-    const history = game.history({ verbose: true });
-    
-    const groups: Array<{
-      moveNumber: number;
-      whiteMove?: { san: string; index: number };
-      blackMove?: { san: string; index: number };
-    }> = [];
-    
-    history.forEach((move, index) => {
-      const moveNumber = Math.floor(index / 2) + 1;
-      if (move.color === "w") {
-        groups.push({ moveNumber, whiteMove: { san: move.san, index } });
-      } else {
-        const lastGroup = groups[groups.length - 1];
-        if (lastGroup && lastGroup.moveNumber === moveNumber) {
-          lastGroup.blackMove = { san: move.san, index };
-        } else {
-          groups.push({ moveNumber, blackMove: { san: move.san, index } });
-        }
-      }
-    });
-    
-    return groups;
-  }, [gmGame.pgn]);
 
   return (
     <div className="space-y-6">

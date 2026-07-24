@@ -165,7 +165,7 @@ export interface ConclusionesPlan {
 }
 
 export interface UserGameAnalysisSubmit {
-  gm_game_id: number;
+  gm_game_id: string;
   fases_analisis: FasesAnalisis;
   momentos_criticos: MomentosCriticos;
   factores_posicionales: FactoresPosicionales;
