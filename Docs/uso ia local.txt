@@ -1,0 +1,173 @@
+
+{
+  "username": "pedro",
+  "full_name": "Rendo Quindos, Pedro",
+  "chess_online_nick": "perendo",
+  "current_elo": 1604,
+  "target_elo": 2000,
+  "password": "0123456@P"
+}
+
+
+Perfecto, aquí tienes el **prompt exacto** que debes copiar y pegar para reescribir el archivo `AGENTS.md` en tu proyecto: 
+
+---
+
+## 📋 PROMPT PARA REESCRIBIR AGENTS.md
+
+```markdown
+# INSTRUCCIÓN DE ESCRITURA - Archivo AGENTS.md
+
+## 1. ACCESO AL SISTEMA (CONFIRMA)
+- ✅ Permiso de LECTURA: List, glob, grep, read
+- ✅ Permiso de ESCRITURA: Create, edit
+- Ruta base del proyecto: `D:\AItrainingV4`
+
+## 2. TAREA ESPECÍFICA
+Reescribir el archivo `AGENTS.md` en la raíz del proyecto (`D:\AItrainingV4\AGENTS.md`), si no existe crealo
+
+## 3. CONTENIDO REQUERIDO PARA AGENTS.md
+El archivo debe incluir:
+- **Descripción del proyecto**: EntrenadorIA - Aplicación full-stack para entrenamiento de ajedrez con IA
+- **Stack tecnológico**: Backend FastAPI + Frontend Next.js/React
+- **Estructura de archivos**: Mapa completo de directorios y archivos clave
+- **Reglas de comportamiento**: Cómo interactuar con el asistente AI
+- **Capacidades disponibles**: Qué herramientas puedo usar (list, glob, grep, read, create, edit)
+- **Flujo de trabajo recomendado**: Pasos para desarrollo, pruebas y despliegue
+
+## 4. INSTRUCCIONES DE EJECUCIÓN
+1. Lee el archivo actual `D:\AItrainingV4\AGENTS.md` (si existe)
+2. Genera el nuevo contenido basado en la estructura del proyecto
+3. Usa la herramienta `edit` con `overwriteFile=true` para reescribirlo
+
+## 5. FORMATO DE RESPUESTA ESPERADO
+- Confirma que has leído el archivo existente
+- Muestra el contenido propuesto para el nuevo AGENTS.md
+- Ejecuta la escritura solo después de mi confirmación explícita
+```
+
+---
+
+## 🎯 ¿Cómo usarlo?
+
+1. **Copia todo el bloque anterior** (desde `# INSTRUCCIÓN` hasta `confirmación explícita`)
+2. **Pégalo en tu chat con Copilot**
+3. **Espera mi confirmación** antes de que escriba el archivo
+
+---
+
+## 💡 ¿Quieres aprender más sobre mis capacidades?
+
+Después de crear AGENTS.md, puedo mostrarte:
+
+| Herramienta | Uso Principal | Ejemplo |
+|-------------|---------------|---------|
+| `list` | Explorar directorios | Ver qué archivos existen en una carpeta |
+| `glob` | Buscar archivos por patrón | Encontrar todos los `.py` o `.ts` |
+| `grep` | Buscar texto en código | Encontrar todas las funciones `def` |
+| `read` | Leer archivo completo | Ver contenido de un archivo específico |
+| `create` | Crear nuevo archivo | Escribir desde cero con contenido inicial |
+| `edit` | Modificar archivo existente | Reemplazar texto o añadir líneas |
+
+---
+
+**¿Quieres que ejecute el prompt ahora mismo para crear AGENTS.md?** 🚀
+
+
+
+Actúa como desarrollador Senior de Python y FastAPI.
+
+He actualizado mi servicio `app/services/gm_service.py` y mi endpoint `app/api/v1/endpoints/gm_games.py` para utilizar Google Gemini (`google-genai`) como generador de partidas famosas cuando la base de datos local SQLite está vacía. Sin embargo, al realizar la petición GET a `/api/v1/gm-games/search?gm_name=Capablanca` estoy obteniendo un error HTTP 500 o un fallo en el procesamiento.
+
+Por favor, revisa mis dos archivos (`app/services/gm_service.py` y `app/api/v1/endpoints/gm_games.py`) e identifica los siguientes puntos críticos:
+
+1. **Integración del cliente `google-genai`**: Asegúrate de que el SDK se esté importando e instanciando correctamente según el estándar actual de la librería (`from google import genai` y `client = genai.Client(api_key=...)`), manejando correctamente las variables de entorno (`GEMINI_API_KEY`).
+2. **Validación del JSON generado por Gemini**: Verifica que el parseo con `json.loads(response.text)` no falle por bloques de código Markdown (```json ... ```) que Gemini suele incluir. Aplica una limpieza de la cadena si es necesario antes de parsear.
+3. **Validación de tipos para Pydantic y SQLAlchemy**: Revisa que los nombres de los campos del JSON devuelto por Gemini coincidan exactamente con la tabla `GMGame` y con el esquema de respuesta `GMGameResponse` (evitando valores `None` en campos requeridos o tipos incompatibles en `year`).
+4. **Manejo de Excepciones**: Asegúrate de que el servicio capture las excepciones de forma limpia, registe el log detallado con `logger.error(..., exc_info=True)` y garantice devolver una lista (incluso vacía `[]`) para evitar que el endpoint colapse con un 500 no controlado.
+
+Por favor, analiza el flujo de ambos archivos y proporciona las correcciones exactas para dejar la búsqueda operativa y blindada.
+
+
+1 Analisis por fases del juego:
+* Apertura.
+* Medio juego.
+* Final.
+
+2 identificacion de momentos criticos.
+
+	Hazte preguntas: En lugar de buscar la jugada perfecta, pregúntate: ¿Qué otra pieza pude haber mejorado? ¿Cuál era la amenaza real del rival en esa jugada?
+
+3 Evaluacion de factores posicionales:
+	Material
+	Seguridad del rey
+	Espacio
+4 Redaccion de conclusiones y planes de accion
+
+Anota de forma esquemática las ideas principales para que puedas aplicar este conocimiento en el futuro. Plasma:
+	El plan estratégico principal que funcionó (o falló).
+	El error conceptual más grave cometido 
+	Una idea de apertura o mediojuego que necesites repasar posteriormente.
+
+
+A ver el sistema pasa un puzzle como fen = r6k/pp2r2p/4Rp1Q/3p4/8/1N1P2R1/PqP2bPP/7K b - - 0 24 y moves: f2g3 e6e7 b2b1 b3c1 b1c1 h6c1, cuando se entra en el puzzle se realiza la primera jugada de la solucioon f2g3 y hay que poner juegan Blancas, A partir de ahí el usuario debe hacer e6e7, la maquina b2b1 e usuario b3c1, la maquina b1c1 y el usuario h6c1, en ese momento se pone CORRECTO en verde grande, si el usuario hace otro movimiento distinto de la solucion, se marca INCORRECTO en rojo, y se muestra la solucion correcta tardando 1/2 segundo en cada movimiento para que el usuario pueda verlo bien, desde el ulitmo movimiento realizado por la maquina. Esta es la logica de los puzzles
+
+
+
+
+Pedro rendo quindos
+
+Quiero implementar la pantalla y el flujo completo para el "Análisis de Partida de GM" (módulo de entrenamiento), basado en la metodología de autodiagnóstico de la escuela soviética (evaluación por fases, preguntas críticas, factores posicionales y conclusiones).
+
+Por favor, implementa los cambios en el Backend y Frontend siguiendo estas especificaciones:
+
+---
+
+### 1. BACKEND (FastAPI / SQLite)
+
+A. **Base de Datos (`entrenador_ia.db` / SQLAlchemy models):**
+   - Crea la tabla/modelo `user_game_analyses` con el siguiente esquema:
+     * `id`: INTEGER PRIMARY KEY AUTOINCREMENT
+     * `user_id`: INTEGER NOT NULL
+     * `game_id`: INTEGER NULLABLE (FK a `gm_games.id`)
+     * `game_type`: TEXT DEFAULT 'GM' ('GM' o 'USER')
+     * `fases_analisis`: TEXT (JSON con keys: `apertura`, `medio_juego`, `final`)
+     * `momentos_criticos`: TEXT (JSON con keys: `pieza_a_mejorar`, `amenaza_rival`)
+     * `factores_posicionales`: TEXT (JSON con keys: `material`, `seguridad_rey`, `espacio`)
+     * `conclusiones_plan`: TEXT (JSON con keys: `plan_estrategico`, `error_conceptual_grave`, `idea_a_repasar`)
+     * `gemini_feedback`: TEXT (JSON con la auditoría generada por la IA)
+     * `created_at`: TEXT NOT NULL
+
+B. **Servicio Tutor de Gemini (`app/services/tutor_service.py`):**
+   - Implementa la función que toma el PGN de la partida y el formulario completado por el usuario.
+   - Utiliza Gemini (ej. `gemini-2.5-flash`) configurado con `response_mime_type="application/json"` actuando como un Gran Maestro/Tutor sin motor táctico.
+   - El prompt debe exigir una respuesta JSON estructurada con:
+     1. `feedback_fases`: { apertura, medio_juego, final }
+     2. `respuestas_preguntas_criticas`: { mejora_piezas, amenaza_real }
+     3. `matriz_posicional`: { material_rey_espacio }
+     4. `auditoria_conclusiones`: { plan_correcto (bool), evaluacion_error, concepto_reforzar }
+
+C. **Endpoints (`/api/v1/game-analysis`):**
+   - `POST /api/v1/game-analysis/submit`: Recibe los datos del formulario + `game_id`. Guarda en BD, llama a Gemini, actualiza el registro con el feedback y devuelve la evaluación.
+   - `GET /api/v1/game-analysis/{analysis_id}`: Recupera un análisis guardado previamente para no volver a consumir la API.
+
+---
+
+### 2. FRONTEND (React / Vue)
+
+A. **Estructura de la Vista (`GMGameAnalysisView`):**
+   - **Distribución en 2 columnas:**
+     * **Izquierda (50-60%):** Tablero interactivo reutilizable (`InteractiveChessBoard` con soporte PGN para avanzar/retroceder jugadas y ver la notación completa).
+     * **Derecha (40-50%):** Formulario multinivel o por pestañas/acordeón con los 4 bloques de la metodología:
+       1. *Fases:* Textareas para Apertura, Medio Juego y Final.
+       2. *Preguntas Críticas:* "¿Qué pieza pude haber mejorado?", "¿Cuál era la amenaza real del rival?".
+       3. *Factores Posicionales:* Evaluación de Material, Seguridad del Rey y Espacio.
+       4. *Conclusiones:* Plan que funcionó/falló, Error conceptual grave e Idea a repasar.
+
+B. **Interacción y Flujo de Usuario:**
+   - Botón destacado: **"Enviar a Evaluación del Gran Maestro"**.
+   - Muestra un estado de carga/spinner mientras Gemini analiza el formulario.
+   - Al finalizar, reemplaza o despliega un modal/panel con la **Auditoría de Gemini** mostrada en tarjetas limpias (Feedback por fases, correcciones a sus reflexiones y badge de Plan Correcto/Incorrecto).
+   - Marca la tarea de entrenamiento actual como COMPLETADA.
+
+Por favor, localiza los archivos correspondientes en backend y frontend, implementa este flujo end-to-end y resume los componentes creados o modificados.

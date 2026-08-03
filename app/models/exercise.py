@@ -10,6 +10,7 @@ class ExerciseCategory(str, enum.Enum):
     STRATEGY = "Estrategia y Posicional"
     TACTICS = "Táctica y Capturas"
     ENDGAME = "Seguridad del Rey y Finales"
+    GM_GAME_ANALYSIS = "Análisis de Partida de GM"
 
 
 # 2. Declaramos el modelo TrainingTask primero (o WeeklyPlan, SQLAlchemy lo resuelve bien)

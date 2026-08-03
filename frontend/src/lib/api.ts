@@ -111,3 +111,8 @@ export const getGameAnalysis = (analysisId: number): Promise<UserGameAnalysisRes
 export const listGameAnalyses = (): Promise<UserGameAnalysisResponse[]> => {
   return apiFetch<UserGameAnalysisResponse[]>("/api/v1/game-analysis/");
 };
+
+// GM Games API
+export const getGmGameById = (gameId: string): Promise<import("./types").GMGameResponse> => {
+  return apiFetch<import("./types").GMGameResponse>(`/api/v1/gm-games/${gameId}`);
+};

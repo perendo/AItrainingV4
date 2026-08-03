@@ -8,6 +8,8 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.repositories.gm_game_repo import gm_game_repo
 from app.models.user_game_analysis import UserGameAnalysis
+from app.models.user_analyzed_gm_game import UserAnalyzedGMGame
+from app.models.user import User
 from app.schemas.analysis import (
     FasesAnalisis, MomentosCriticos, FactoresPosicionales,
     ConclusionesPlan, GeminiFeedback, GameAnalysisCreate,
@@ -80,6 +82,21 @@ class TutorGeminiService:
             db.add(new_analysis)
             db.commit()
             db.refresh(new_analysis)
+
+            # Marcar la partida como analizada para que no se recomiende de nuevo
+            already_analyzed = db.query(UserAnalyzedGMGame).filter(
+                UserAnalyzedGMGame.user_id == user_id,
+                UserAnalyzedGMGame.gm_game_id == gm_game.id,
+            ).first()
+            if not already_analyzed:
+                db.add(UserAnalyzedGMGame(user_id=user_id, gm_game_id=gm_game.id))
+
+            # Limpiar la asignación actual del usuario para que se asigne una nueva en la siguiente ronda
+            user_record = db.query(User).filter(User.id == user_id).first()
+            if user_record:
+                user_record.current_assigned_gm_game_id = None
+
+            db.commit()
 
             logger.info(f"Autodiagnóstico #{new_analysis.id} guardado con auditoría de Gemini")
             return new_analysis

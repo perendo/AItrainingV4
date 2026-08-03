@@ -8,10 +8,29 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.schemas.gm_game import GMGameResponse
 from app.services.gm_service import gm_game_service
+from app.repositories.gm_game_repo import gm_game_repo
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+@router.get(
+    "/{game_id}",
+    response_model=GMGameResponse,
+    summary="Obtener una partida GM por ID"
+)
+def get_gm_game_by_id(
+    game_id: str,
+    db: Session = Depends(get_db)
+):
+    game = gm_game_repo.get_by_id(db, game_id)
+    if not game:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Partida GM con ID {game_id} no encontrada."
+        )
+    return GMGameResponse.model_validate(game)
+
 
 @router.get(
     "/search",

@@ -1,23 +1,57 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { Chess } from "chess.js";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, CheckCircle, XCircle, AlertCircle, Info, ChevronLeft, ChevronRight } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import {
+  Loader2,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  Info,
+  ChevronLeft,
+  ChevronRight,
+  ChevronDown,
+  ChevronUp,
+  Save,
+  Trash2,
+  BookOpen,
+  HelpCircle,
+  Layers,
+  ClipboardCheck,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { submitGameAnalysis } from "@/lib/api";
-import { UserGameAnalysisResponse, UserGameAnalysisSubmit, GeminiFeedback } from "@/lib/types";
+import {
+  UserGameAnalysisResponse,
+  UserGameAnalysisSubmit,
+  GeminiFeedback,
+} from "@/lib/types";
 
 const DynamicChessboard = dynamic(
   () => import("react-chessboard").then((mod) => mod.Chessboard),
   { ssr: false }
 );
+
+const DRAFT_KEY_PREFIX = "gm_analysis_draft_";
+
+interface DraftData {
+  fases: { apertura: string; medio_juego: string; final: string };
+  momentos: { pieza_a_mejorar: string; amenaza_rival: string };
+  factores: { material: string; seguridad_rey: string; espacio: string };
+  conclusiones: {
+    plan_estrategico: string;
+    error_conceptual_grave: string;
+    idea_a_repasar: string;
+  };
+  savedAt: string;
+}
 
 interface GMGameAnalysisViewProps {
   gmGame: {
@@ -33,66 +67,138 @@ interface GMGameAnalysisViewProps {
   onComplete?: () => void;
 }
 
-export function GMGameAnalysisView({ gmGame, onComplete }: GMGameAnalysisViewProps) {
+export function GMGameAnalysisView({
+  gmGame,
+  onComplete,
+}: GMGameAnalysisViewProps) {
+  const draftKey = `${DRAFT_KEY_PREFIX}${gmGame.id}`;
   const [viewIndex, setViewIndex] = useState(0);
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
   const [error, setError] = useState<string | null>(null);
-  const [analysisResult, setAnalysisResult] = useState<UserGameAnalysisResponse | null>(null);
-  
+  const [analysisResult, setAnalysisResult] =
+    useState<UserGameAnalysisResponse | null>(null);
+  const [draftSavedAt, setDraftSavedAt] = useState<string | null>(null);
+
+  // Collapsible blocks state — all start closed
+  const [openBlocks, setOpenBlocks] = useState<Record<string, boolean>>({});
+
+  const toggleBlock = (key: string) =>
+    setOpenBlocks((prev) => ({ ...prev, [key]: !prev[key] }));
+
   // Form state
-  const [fases, setFases] = useState({ apertura: "", medio_juego: "", final: "" });
-  const [momentos, setMomentos] = useState({ pieza_a_mejorar: "", amenaza_rival: "" });
-  const [factores, setFactores] = useState({ material: "", seguridad_rey: "", espacio: "" });
-  const [conclusiones, setConclusiones] = useState({ 
-    plan_estrategico: "", 
-    error_conceptual_grave: "", 
-    idea_a_repasar: "" 
+  const [fases, setFases] = useState({
+    apertura: "",
+    medio_juego: "",
+    final: "",
   });
+  const [momentos, setMomentos] = useState({
+    pieza_a_mejorar: "",
+    amenaza_rival: "",
+  });
+  const [factores, setFactores] = useState({
+    material: "",
+    seguridad_rey: "",
+    espacio: "",
+  });
+  const [conclusiones, setConclusiones] = useState({
+    plan_estrategico: "",
+    error_conceptual_grave: "",
+    idea_a_repasar: "",
+  });
+
+  // Load draft on mount
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(draftKey);
+      if (raw) {
+        const draft: DraftData = JSON.parse(raw);
+        setFases(draft.fases);
+        setMomentos(draft.momentos);
+        setFactores(draft.factores);
+        setConclusiones(draft.conclusiones);
+        setDraftSavedAt(draft.savedAt);
+      }
+    } catch {
+      // ignore corrupted draft
+    }
+  }, [draftKey]);
+
+  // Save draft
+  const handleSaveDraft = useCallback(() => {
+    const draft: DraftData = {
+      fases,
+      momentos,
+      factores,
+      conclusiones,
+      savedAt: new Date().toISOString(),
+    };
+    localStorage.setItem(draftKey, JSON.stringify(draft));
+    setDraftSavedAt(draft.savedAt);
+  }, [fases, momentos, factores, conclusiones, draftKey]);
+
+  // Clear draft
+  const handleClearDraft = useCallback(() => {
+    localStorage.removeItem(draftKey);
+    setDraftSavedAt(null);
+  }, [draftKey]);
 
   // Parse PGN once and derive all data
   const { positions, totalMoves, groupedMoves } = useMemo(() => {
     const game = new Chess();
     try {
       game.loadPgn(gmGame.pgn);
-    } catch (e) {
+    } catch {
       return { positions: ["start"], totalMoves: 0, groupedMoves: [] };
     }
 
-    const fens = [game.fen()];
-    const history = game.history({ verbose: true });
-    for (const move of history) {
-      game.move(move.san);
-      fens.push(game.fen());
-    }
-
+    const fens: string[] = [];
     const groups: Array<{
       moveNumber: number;
       whiteMove?: { san: string; index: number };
       blackMove?: { san: string; index: number };
     }> = [];
 
-    history.forEach((move, index) => {
-      const moveNumber = Math.floor(index / 2) + 1;
+    const replay = new Chess();
+    fens.push(replay.fen());
+
+    const history = game.history({ verbose: true });
+    for (let i = 0; i < history.length; i++) {
+      const move = history[i];
+      replay.move(move.san);
+      fens.push(replay.fen());
+
+      const moveNumber = Math.floor(i / 2) + 1;
       if (move.color === "w") {
-        groups.push({ moveNumber, whiteMove: { san: move.san, index } });
+        groups.push({
+          moveNumber,
+          whiteMove: { san: move.san, index: i },
+        });
       } else {
         const lastGroup = groups[groups.length - 1];
         if (lastGroup && lastGroup.moveNumber === moveNumber) {
-          lastGroup.blackMove = { san: move.san, index };
+          lastGroup.blackMove = { san: move.san, index: i };
         } else {
-          groups.push({ moveNumber, blackMove: { san: move.san, index } });
+          groups.push({
+            moveNumber,
+            blackMove: { san: move.san, index: i },
+          });
         }
       }
-    });
+    }
 
     return { positions: fens, totalMoves: fens.length - 1, groupedMoves: groups };
   }, [gmGame.pgn]);
 
   const currentFen = positions[viewIndex] || positions[0];
 
-  const handleGoToMove = useCallback((index: number) => {
-    setViewIndex(Math.max(0, Math.min(index, positions.length - 1)));
-  }, [positions.length]);
+  const handleGoToMove = useCallback(
+    (index: number) => {
+      setViewIndex(Math.max(0, Math.min(index, positions.length - 1)));
+    },
+    [positions.length]
+  );
 
   const handlePrev = useCallback(() => {
     handleGoToMove(viewIndex - 1);
@@ -105,7 +211,7 @@ export function GMGameAnalysisView({ gmGame, onComplete }: GMGameAnalysisViewPro
   const handleSubmit = async () => {
     setStatus("loading");
     setError(null);
-    
+
     try {
       const submitData: UserGameAnalysisSubmit = {
         gm_game_id: gmGame.id,
@@ -114,13 +220,15 @@ export function GMGameAnalysisView({ gmGame, onComplete }: GMGameAnalysisViewPro
         factores_posicionales: factores,
         conclusiones_plan: conclusiones,
       };
-      
+
       const result = await submitGameAnalysis(submitData);
       setAnalysisResult(result);
       setStatus("success");
+      handleClearDraft();
       onComplete?.();
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Error al enviar análisis";
+      const message =
+        err instanceof Error ? err.message : "Error al enviar análisis";
       setError(message);
       setStatus("error");
     }
@@ -129,13 +237,26 @@ export function GMGameAnalysisView({ gmGame, onComplete }: GMGameAnalysisViewPro
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Análisis de Partida GM: {gmGame.white} vs {gmGame.black}
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {gmGame.event} · {gmGame.year} · {gmGame.result} · GM: {gmGame.gm_name}
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Análisis de Partida GM: {gmGame.white} vs {gmGame.black}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {gmGame.event} · {gmGame.year} · {gmGame.result} · GM:{" "}
+            {gmGame.gm_name}
+          </p>
+        </div>
+        {draftSavedAt && (
+          <Badge variant="secondary" className="text-xs w-fit">
+            <Save className="mr-1 h-3 w-3" />
+            Borrador guardado{" "}
+            {new Date(draftSavedAt).toLocaleTimeString("es-ES", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </Badge>
+        )}
       </div>
 
       {/* Main Layout: 2 Columns */}
@@ -150,7 +271,7 @@ export function GMGameAnalysisView({ gmGame, onComplete }: GMGameAnalysisViewPro
               <div className="w-full aspect-square max-w-[720px] mx-auto p-4">
                 <DynamicChessboard
                   position={currentFen}
-                  boardOrientation={(new Chess(currentFen).turn() === "w" ? "white" : "black") as "white" | "black"}
+                  boardOrientation="white"
                   customBoardStyle={{ borderRadius: "4px" }}
                   arePiecesDraggable={false}
                 />
@@ -161,14 +282,29 @@ export function GMGameAnalysisView({ gmGame, onComplete }: GMGameAnalysisViewPro
           {/* Move List / Notation */}
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Notación de la Partida</CardTitle>
+              <CardTitle className="text-lg">
+                Notación de la Partida
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-center gap-2 mb-3">
-                <Button variant="outline" size="icon" onClick={handlePrev} disabled={viewIndex === 0}>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handlePrev}
+                  disabled={viewIndex === 0}
+                >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                <Button variant="outline" size="icon" onClick={handleNext} disabled={viewIndex >= positions.length - 1}>
+                <span className="text-sm text-muted-foreground min-w-[80px] text-center">
+                  {viewIndex} / {totalMoves}
+                </span>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleNext}
+                  disabled={viewIndex >= positions.length - 1}
+                >
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
@@ -178,21 +314,30 @@ export function GMGameAnalysisView({ gmGame, onComplete }: GMGameAnalysisViewPro
                     onClick={() => handleGoToMove(0)}
                     className={cn(
                       "p-1 rounded cursor-pointer",
-                      viewIndex === 0 && "bg-primary text-primary-foreground font-bold"
+                      viewIndex === 0 &&
+                        "bg-primary text-primary-foreground font-bold"
                     )}
                   >
-                    1.
+                    Inicio
                   </button>
                 </div>
                 {groupedMoves.map((group, groupIndex) => (
-                  <div key={groupIndex} className="flex flex-wrap gap-x-2 gap-y-1 mb-1">
-                    <span className="font-bold mr-1">{group.moveNumber}.</span>
+                  <div
+                    key={groupIndex}
+                    className="flex flex-wrap gap-x-2 gap-y-1 mb-1"
+                  >
+                    <span className="font-bold mr-1">
+                      {group.moveNumber}.
+                    </span>
                     {group.whiteMove && (
                       <button
-                        onClick={() => handleGoToMove(group.whiteMove!.index + 1)}
+                        onClick={() =>
+                          handleGoToMove(group.whiteMove!.index + 1)
+                        }
                         className={cn(
                           "p-1 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800",
-                          viewIndex === group.whiteMove!.index + 1 && "bg-primary text-primary-foreground font-bold"
+                          viewIndex === group.whiteMove!.index + 1 &&
+                            "bg-primary text-primary-foreground font-bold"
                         )}
                       >
                         {group.whiteMove.san}
@@ -200,10 +345,13 @@ export function GMGameAnalysisView({ gmGame, onComplete }: GMGameAnalysisViewPro
                     )}
                     {group.blackMove && (
                       <button
-                        onClick={() => handleGoToMove(group.blackMove!.index + 1)}
+                        onClick={() =>
+                          handleGoToMove(group.blackMove!.index + 1)
+                        }
                         className={cn(
                           "p-1 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800",
-                          viewIndex === group.blackMove!.index + 1 && "bg-primary text-primary-foreground font-bold"
+                          viewIndex === group.blackMove!.index + 1 &&
+                            "bg-primary text-primary-foreground font-bold"
                         )}
                       >
                         {group.blackMove.san}
@@ -218,159 +366,289 @@ export function GMGameAnalysisView({ gmGame, onComplete }: GMGameAnalysisViewPro
 
         {/* RIGHT COLUMN: Form (45%) */}
         <div className="w-full lg:w-[45%] space-y-4">
-          {/* Form Tabs */}
+          {/* Form title */}
+          <h2 className="text-lg font-semibold">Formulario de Autodiagnóstico</h2>
+
+          {/* Bloque 1: Fases */}
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Formulario de Autodiagnóstico</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <Tabs defaultValue="fases" className="w-full">
-                <TabsList className="grid w-full grid-cols-4 p-2">
-                  <TabsTrigger value="fases">Fases</TabsTrigger>
-                  <TabsTrigger value="criticas">Críticas</TabsTrigger>
-                  <TabsTrigger value="posicionales">Posicionales</TabsTrigger>
-                  <TabsTrigger value="conclusiones">Conclusiones</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="fases" className="p-4 space-y-4">
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="apertura" className="block text-sm font-medium mb-1">Apertura</Label>
-                      <Textarea
-                        id="apertura"
-                        value={fases.apertura}
-                        onChange={(e) => setFases(prev => ({ ...prev, apertura: e.target.value }))}
-                        placeholder="Analiza la apertura: ideas principales, variantes, evaluación..."
-                        rows={3}
-                        className="min-h-[80px]"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="medio_juego" className="block text-sm font-medium mb-1">Medio Juego</Label>
-                      <Textarea
-                        id="medio_juego"
-                        value={fases.medio_juego}
-                        onChange={(e) => setFases(prev => ({ ...prev, medio_juego: e.target.value }))}
-                        placeholder="Planes, rupturas, maniobras, debilidades explotadas..."
-                        rows={3}
-                        className="min-h-[80px]"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="final" className="block text-sm font-medium mb-1">Final</Label>
-                      <Textarea
-                        id="final"
-                        value={fases.final}
-                        onChange={(e) => setFases(prev => ({ ...prev, final: e.target.value }))}
-                        placeholder="Técnica de final, conversión de ventajas, conceptos clave..."
-                        rows={3}
-                        className="min-h-[80px]"
-                      />
-                    </div>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="criticas" className="p-4 space-y-4">
-                  <div>
-                    <Label htmlFor="pieza_a_mejorar" className="block text-sm font-medium mb-1">Pieza a Mejorar</Label>
-                    <Textarea
-                      id="pieza_a_mejorar"
-                      value={momentos.pieza_a_mejorar}
-                      onChange={(e) => setMomentos(prev => ({ ...prev, pieza_a_mejorar: e.target.value }))}
-                      placeholder="¿Qué pieza está peor situada? ¿Por qué? ¿Cómo mejorarla?"
-                      rows={3}
-                      className="min-h-[80px]"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="amenaza_rival" className="block text-sm font-medium mb-1">Amenaza del Rival</Label>
-                    <Textarea
-                      id="amenaza_rival"
-                      value={momentos.amenaza_rival}
-                      onChange={(e) => setMomentos(prev => ({ ...prev, amenaza_rival: e.target.value }))}
-                      placeholder="¿Cuál es la amenaza real del oponente en el momento crítico?"
-                      rows={3}
-                      className="min-h-[80px]"
-                    />
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="posicionales" className="p-4 space-y-4">
-                  <div>
-                    <Label htmlFor="material" className="block text-sm font-medium mb-1">Material</Label>
-                    <Textarea
-                      id="material"
-                      value={factores.material}
-                      onChange={(e) => setFactores(prev => ({ ...prev, material: e.target.value }))}
-                      placeholder="Balance material, calidad de piezas, peones débiles/fuertes..."
-                      rows={3}
-                      className="min-h-[80px]"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="seguridad_rey" className="block text-sm font-medium mb-1">Seguridad del Rey</Label>
-                    <Textarea
-                      id="seguridad_rey"
-                      value={factores.seguridad_rey}
-                      onChange={(e) => setFactores(prev => ({ ...prev, seguridad_rey: e.target.value }))}
-                      placeholder="Enroque, debilidades en la cobertura, ataques directos..."
-                      rows={3}
-                      className="min-h-[80px]"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="espacio" className="block text-sm font-medium mb-1">Espacio</Label>
-                    <Textarea
-                      id="espacio"
-                      value={factores.espacio}
-                      onChange={(e) => setFactores(prev => ({ ...prev, espacio: e.target.value }))}
-                      placeholder="Control del centro, expansión, casillas débiles, peones pasados..."
-                      rows={3}
-                      className="min-h-[80px]"
-                    />
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="conclusiones" className="p-4 space-y-4">
-                  <div>
-                    <Label htmlFor="plan_estrategico" className="block text-sm font-medium mb-1">Plan Estratégico</Label>
-                    <Textarea
-                      id="plan_estrategico"
-                      value={conclusiones.plan_estrategico}
-                      onChange={(e) => setConclusiones(prev => ({ ...prev, plan_estrategico: e.target.value }))}
-                      placeholder="Tu plan basado en el diagnóstico: ¿qué hacer y por qué?"
-                      rows={3}
-                      className="min-h-[80px]"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="error_conceptual_grave" className="block text-sm font-medium mb-1">Error Conceptual Grave</Label>
-                    <Textarea
-                      id="error_conceptual_grave"
-                      value={conclusiones.error_conceptual_grave}
-                      onChange={(e) => setConclusiones(prev => ({ ...prev, error_conceptual_grave: e.target.value }))}
-                      placeholder="El error de evaluación o comprensión más importante que cometiste"
-                      rows={3}
-                      className="min-h-[80px]"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="idea_a_repasar" className="block text-sm font-medium mb-1">Idea a Repasar</Label>
-                    <Textarea
-                      id="idea_a_repasar"
-                      value={conclusiones.idea_a_repasar}
-                      onChange={(e) => setConclusiones(prev => ({ ...prev, idea_a_repasar: e.target.value }))}
-                      placeholder="Concepto, final, estructura o técnica concreta a estudiar (ej: Finales de Torres Vancura, Estructura Carlsbad...)"
-                      rows={3}
-                      className="min-h-[80px]"
-                    />
-                  </div>
-                </TabsContent>
-              </Tabs>
-            </CardContent>
+            <button
+              type="button"
+              onClick={() => toggleBlock("fases")}
+              className="flex w-full items-center justify-between p-4 text-left cursor-pointer hover:bg-muted/50 transition-colors rounded-t-lg"
+            >
+              <div className="flex items-center gap-2">
+                <BookOpen className="h-4 w-4 text-primary" />
+                <span className="font-semibold text-sm">Bloque 1 — Fases</span>
+                {!openBlocks["fases"] && (
+                  <span className="text-xs text-muted-foreground ml-1">
+                    (Apertura · Medio Juego · Final)
+                  </span>
+                )}
+              </div>
+              {openBlocks["fases"] ? (
+                <ChevronUp className="h-4 w-4 shrink-0 text-muted-foreground" />
+              ) : (
+                <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+              )}
+            </button>
+            {openBlocks["fases"] && (
+              <CardContent className="pt-0 pb-4 px-4 space-y-4 border-t">
+                <div>
+                  <Label htmlFor="apertura" className="block text-sm font-medium mb-1">
+                    Apertura
+                  </Label>
+                  <Textarea
+                    id="apertura"
+                    value={fases.apertura}
+                    onChange={(e) => setFases((prev) => ({ ...prev, apertura: e.target.value }))}
+                    placeholder="Analiza la apertura: ideas principales, variantes, evaluación..."
+                    rows={3}
+                    className="min-h-[80px]"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="medio_juego" className="block text-sm font-medium mb-1">
+                    Medio Juego
+                  </Label>
+                  <Textarea
+                    id="medio_juego"
+                    value={fases.medio_juego}
+                    onChange={(e) => setFases((prev) => ({ ...prev, medio_juego: e.target.value }))}
+                    placeholder="Planes, rupturas, maniobras, debilidades explotadas..."
+                    rows={3}
+                    className="min-h-[80px]"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="final" className="block text-sm font-medium mb-1">
+                    Final
+                  </Label>
+                  <Textarea
+                    id="final"
+                    value={fases.final}
+                    onChange={(e) => setFases((prev) => ({ ...prev, final: e.target.value }))}
+                    placeholder="Técnica de final, conversión de ventajas, conceptos clave..."
+                    rows={3}
+                    className="min-h-[80px]"
+                  />
+                </div>
+              </CardContent>
+            )}
           </Card>
 
-          {/* Submit Button */}
+          {/* Bloque 2: Preguntas Críticas */}
+          <Card>
+            <button
+              type="button"
+              onClick={() => toggleBlock("criticas")}
+              className="flex w-full items-center justify-between p-4 text-left cursor-pointer hover:bg-muted/50 transition-colors rounded-t-lg"
+            >
+              <div className="flex items-center gap-2">
+                <HelpCircle className="h-4 w-4 text-primary" />
+                <span className="font-semibold text-sm">Bloque 2 — Preguntas Críticas</span>
+                {!openBlocks["criticas"] && (
+                  <span className="text-xs text-muted-foreground ml-1">
+                    (Pieza · Amenaza)
+                  </span>
+                )}
+              </div>
+              {openBlocks["criticas"] ? (
+                <ChevronUp className="h-4 w-4 shrink-0 text-muted-foreground" />
+              ) : (
+                <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+              )}
+            </button>
+            {openBlocks["criticas"] && (
+              <CardContent className="pt-0 pb-4 px-4 space-y-4 border-t">
+                <div>
+                  <Label htmlFor="pieza_a_mejorar" className="block text-sm font-medium mb-1">
+                    ¿Qué pieza pude haber mejorado?
+                  </Label>
+                  <Textarea
+                    id="pieza_a_mejorar"
+                    value={momentos.pieza_a_mejorar}
+                    onChange={(e) => setMomentos((prev) => ({ ...prev, pieza_a_mejorar: e.target.value }))}
+                    placeholder="¿Qué pieza está peor situada? ¿Por qué? ¿Cómo mejorarla?"
+                    rows={3}
+                    className="min-h-[80px]"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="amenaza_rival" className="block text-sm font-medium mb-1">
+                    ¿Cuál era la amenaza real del rival?
+                  </Label>
+                  <Textarea
+                    id="amenaza_rival"
+                    value={momentos.amenaza_rival}
+                    onChange={(e) => setMomentos((prev) => ({ ...prev, amenaza_rival: e.target.value }))}
+                    placeholder="¿Cuál es la amenaza real del oponente en el momento crítico?"
+                    rows={3}
+                    className="min-h-[80px]"
+                  />
+                </div>
+              </CardContent>
+            )}
+          </Card>
+
+          {/* Bloque 3: Factores Posicionales */}
+          <Card>
+            <button
+              type="button"
+              onClick={() => toggleBlock("posicionales")}
+              className="flex w-full items-center justify-between p-4 text-left cursor-pointer hover:bg-muted/50 transition-colors rounded-t-lg"
+            >
+              <div className="flex items-center gap-2">
+                <Layers className="h-4 w-4 text-primary" />
+                <span className="font-semibold text-sm">Bloque 3 — Factores Posicionales</span>
+                {!openBlocks["posicionales"] && (
+                  <span className="text-xs text-muted-foreground ml-1">
+                    (Material · Rey · Espacio)
+                  </span>
+                )}
+              </div>
+              {openBlocks["posicionales"] ? (
+                <ChevronUp className="h-4 w-4 shrink-0 text-muted-foreground" />
+              ) : (
+                <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+              )}
+            </button>
+            {openBlocks["posicionales"] && (
+              <CardContent className="pt-0 pb-4 px-4 space-y-4 border-t">
+                <div>
+                  <Label htmlFor="material" className="block text-sm font-medium mb-1">
+                    Material
+                  </Label>
+                  <Textarea
+                    id="material"
+                    value={factores.material}
+                    onChange={(e) => setFactores((prev) => ({ ...prev, material: e.target.value }))}
+                    placeholder="Balance material, calidad de piezas, peones débiles/fuertes..."
+                    rows={3}
+                    className="min-h-[80px]"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="seguridad_rey" className="block text-sm font-medium mb-1">
+                    Seguridad del Rey
+                  </Label>
+                  <Textarea
+                    id="seguridad_rey"
+                    value={factores.seguridad_rey}
+                    onChange={(e) => setFactores((prev) => ({ ...prev, seguridad_rey: e.target.value }))}
+                    placeholder="Enroque, debilidades en la cobertura, ataques directos..."
+                    rows={3}
+                    className="min-h-[80px]"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="espacio" className="block text-sm font-medium mb-1">
+                    Espacio
+                  </Label>
+                  <Textarea
+                    id="espacio"
+                    value={factores.espacio}
+                    onChange={(e) => setFactores((prev) => ({ ...prev, espacio: e.target.value }))}
+                    placeholder="Control del centro, expansión, casillas débiles, peones pasados..."
+                    rows={3}
+                    className="min-h-[80px]"
+                  />
+                </div>
+              </CardContent>
+            )}
+          </Card>
+
+          {/* Bloque 4: Conclusiones */}
+          <Card>
+            <button
+              type="button"
+              onClick={() => toggleBlock("conclusiones")}
+              className="flex w-full items-center justify-between p-4 text-left cursor-pointer hover:bg-muted/50 transition-colors rounded-t-lg"
+            >
+              <div className="flex items-center gap-2">
+                <ClipboardCheck className="h-4 w-4 text-primary" />
+                <span className="font-semibold text-sm">Bloque 4 — Conclusiones</span>
+                {!openBlocks["conclusiones"] && (
+                  <span className="text-xs text-muted-foreground ml-1">
+                    (Plan · Error · Idea)
+                  </span>
+                )}
+              </div>
+              {openBlocks["conclusiones"] ? (
+                <ChevronUp className="h-4 w-4 shrink-0 text-muted-foreground" />
+              ) : (
+                <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+              )}
+            </button>
+            {openBlocks["conclusiones"] && (
+              <CardContent className="pt-0 pb-4 px-4 space-y-4 border-t">
+                <div>
+                  <Label htmlFor="plan_estrategico" className="block text-sm font-medium mb-1">
+                    Plan estratégico
+                  </Label>
+                  <Textarea
+                    id="plan_estrategico"
+                    value={conclusiones.plan_estrategico}
+                    onChange={(e) => setConclusiones((prev) => ({ ...prev, plan_estrategico: e.target.value }))}
+                    placeholder="Tu plan basado en el diagnóstico: ¿qué hacer y por qué?"
+                    rows={3}
+                    className="min-h-[80px]"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="error_conceptual_grave" className="block text-sm font-medium mb-1">
+                    Error conceptual grave
+                  </Label>
+                  <Textarea
+                    id="error_conceptual_grave"
+                    value={conclusiones.error_conceptual_grave}
+                    onChange={(e) => setConclusiones((prev) => ({ ...prev, error_conceptual_grave: e.target.value }))}
+                    placeholder="El error de evaluación o comprensión más importante que cometiste"
+                    rows={3}
+                    className="min-h-[80px]"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="idea_a_repasar" className="block text-sm font-medium mb-1">
+                    Idea a repasar
+                  </Label>
+                  <Textarea
+                    id="idea_a_repasar"
+                    value={conclusiones.idea_a_repasar}
+                    onChange={(e) => setConclusiones((prev) => ({ ...prev, idea_a_repasar: e.target.value }))}
+                    placeholder="Concepto, final, estructura o técnica concreta a estudiar (ej: Finales de Torres Vancura, Estructura Carlsbad...)"
+                    rows={3}
+                    className="min-h-[80px]"
+                  />
+                </div>
+              </CardContent>
+            )}
+          </Card>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button
+              onClick={handleSaveDraft}
+              variant="outline"
+              className="flex-1 py-3"
+              size="lg"
+              disabled={status === "loading"}
+            >
+              <Save className="mr-2 h-4 w-4" />
+              Guardar Borrador
+            </Button>
+            {draftSavedAt && (
+              <Button
+                onClick={handleClearDraft}
+                variant="ghost"
+                size="icon"
+                className="shrink-0 text-muted-foreground hover:text-destructive"
+                disabled={status === "loading"}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+
           <Button
             onClick={handleSubmit}
             disabled={status === "loading"}
@@ -398,9 +676,13 @@ export function GMGameAnalysisView({ gmGame, onComplete }: GMGameAnalysisViewPro
           {analysisResult && analysisResult.gemini_feedback && (
             <div className="space-y-4">
               <Separator />
-              <h2 className="text-xl font-semibold text-primary">Auditoría del Gran Maestro</h2>
-              <GeminiFeedbackDisplay 
-                feedback={JSON.parse(analysisResult.gemini_feedback) as GeminiFeedback}
+              <h2 className="text-xl font-semibold text-primary">
+                Auditoría del Gran Maestro
+              </h2>
+              <GeminiFeedbackDisplay
+                feedback={
+                  JSON.parse(analysisResult.gemini_feedback) as GeminiFeedback
+                }
               />
             </div>
           )}
@@ -412,17 +694,24 @@ export function GMGameAnalysisView({ gmGame, onComplete }: GMGameAnalysisViewPro
 
 // Separate component for the feedback display
 function GeminiFeedbackDisplay({ feedback }: { feedback: GeminiFeedback }) {
-  const { feedback_fases, respuestas_preguntas_criticas, matriz_posicional, auditoria_conclusiones } = feedback;
+  const {
+    feedback_fases,
+    respuestas_preguntas_criticas,
+    matriz_posicional,
+    auditoria_conclusiones,
+  } = feedback;
 
   return (
     <div className="space-y-4">
       {/* Plan Badge */}
-      <div className={cn(
-        "p-4 rounded-lg border text-center font-medium",
-        auditoria_conclusiones.plan_correcto
-          ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-700 dark:text-green-300"
-          : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300"
-      )}>
+      <div
+        className={cn(
+          "p-4 rounded-lg border text-center font-medium",
+          auditoria_conclusiones.plan_correcto
+            ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-700 dark:text-green-300"
+            : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300"
+        )}
+      >
         <div className="flex items-center justify-center gap-2">
           {auditoria_conclusiones.plan_correcto ? (
             <CheckCircle className="h-5 w-5" />
@@ -430,9 +719,9 @@ function GeminiFeedbackDisplay({ feedback }: { feedback: GeminiFeedback }) {
             <XCircle className="h-5 w-5" />
           )}
           <span className="text-lg">
-            {auditoria_conclusiones.plan_correcto 
-              ? "✓ Plan Estratégico CORRECTO" 
-              : "✗ Plan Estratégico INCORRECTO"}
+            {auditoria_conclusiones.plan_correcto
+              ? "Plan Estratégico CORRECTO"
+              : "Plan Estratégico INCORRECTO"}
           </span>
         </div>
       </div>
@@ -472,11 +761,15 @@ function GeminiFeedbackDisplay({ feedback }: { feedback: GeminiFeedback }) {
         <CardContent className="space-y-3">
           <div className="p-3 bg-muted/50 rounded">
             <p className="font-medium text-sm">Pieza a Mejorar</p>
-            <p className="text-sm mt-1">{respuestas_preguntas_criticas.mejora_piezas}</p>
+            <p className="text-sm mt-1">
+              {respuestas_preguntas_criticas.mejora_piezas}
+            </p>
           </div>
           <div className="p-3 bg-muted/50 rounded">
             <p className="font-medium text-sm">Amenaza Real del Rival</p>
-            <p className="text-sm mt-1">{respuestas_preguntas_criticas.amenaza_real}</p>
+            <p className="text-sm mt-1">
+              {respuestas_preguntas_criticas.amenaza_real}
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -516,11 +809,15 @@ function GeminiFeedbackDisplay({ feedback }: { feedback: GeminiFeedback }) {
         <CardContent className="space-y-3">
           <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded border border-amber-200 dark:border-amber-800">
             <p className="font-medium text-sm">Evaluación del Error</p>
-            <p className="text-sm mt-1">{auditoria_conclusiones.evaluacion_error}</p>
+            <p className="text-sm mt-1">
+              {auditoria_conclusiones.evaluacion_error}
+            </p>
           </div>
           <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded border border-amber-200 dark:border-amber-800">
             <p className="font-medium text-sm">Concepto a Reforzar</p>
-            <p className="text-sm mt-1">{auditoria_conclusiones.concepto_reforzar}</p>
+            <p className="text-sm mt-1">
+              {auditoria_conclusiones.concepto_reforzar}
+            </p>
           </div>
         </CardContent>
       </Card>

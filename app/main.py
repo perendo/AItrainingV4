@@ -13,10 +13,22 @@ from app.models.exercise import TrainingTask, WeeklyPlan  # <-- Aseguramos las t
 from app.models.puzzle import Puzzle                       # <-- Aseguramos la tabla de puzles de Lichess
 from app.models.task import ProcessingTask                 # <-- Tabla de tareas de procesamiento
 from app.models.gm_game import GMGame                      # <-- Tabla de partidas de GMs
+from app.models.user_analyzed_gm_game import UserAnalyzedGMGame  # <-- Registro de partidas GM ya analizadas
 from app.models.user_game_analysis import UserGameAnalysis  # <-- Tabla de autodiagnóstico de partidas GM
 
 # Inicialización física de todas las tablas de la base de datos en SQLite
 Base.metadata.create_all(bind=engine)
+
+# Migración ligera: añadir columna a tablas existentes en SQLite si falta
+try:
+    from app.core.database import engine as _eng
+    with _eng.connect() as _conn:
+        _conn.execute(__import__("sqlalchemy").text(
+            "ALTER TABLE users ADD COLUMN current_assigned_gm_game_id VARCHAR(36)"
+        ))
+        _conn.commit()
+except Exception:
+    pass  # Columna ya existe o DB no es SQLite
 
 app = FastAPI(
     title=settings.PROJECT_NAME,

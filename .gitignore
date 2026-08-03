@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# Environment variables (SECRETS)
+.env
+
+# Database
+*.db
+*.db-wal
+*.db-shm
+entrenador_ia.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Pytest
+.pytest_cache/
+
+# Node
+node_modules/
+frontend/node_modules/
+.next/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Stockfish (binary, not source)
+stockfish/stockfish.exe
+.aider*
+
+# Datos pesados (no se suben a GitHub: >100 MB)
+ejercicios/lichess_db_puzzle.csv
+ejercicios/gm_games.json
+ejercicios/*.db

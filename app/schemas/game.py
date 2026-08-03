@@ -56,7 +56,7 @@ class GameSummaryResponse(BaseModel):
     }
 # Nuevo esquema para los detalles del puzle que irá al Front
 class PuzzleResponse(BaseModel):
-    puzzle_id: str
+    id: str # This was puzzle_id, but the model has id
     fen: str
     moves: str
     rating: int

@@ -1,0 +1,25 @@
+Para crear prompts efectivos, aplica la estructura T.A.C.O. (Tarea, Acción, Contexto, Objetivo): 
+asigna un rol a la IA, define exactamente qué debe hacer, añade detalles sobre la situación y especifica el formato de salida. 
+Sé directo, evita instrucciones negativas (qué no hacer) y trabaja de forma iterativa.
+1. La Estructura Ideal (Método T.A.C.O.)Un buen prompt detallado debe incluir estos cuatro elementos 
+clave:Tono / Rol: Define quién es la IA (ej. "Actúa como un experto en marketing digital").
+Acción: La tarea específica que debe realizar (ej. "escribe un hilo de Twitter").
+Contexto: El público objetivo, el producto o la situación (ej. "el producto es un software de contabilidad para autónomos").
+Objetivo / Formato: Cómo quieres que te entregue el resultado (ej. "en una tabla con 5 columnas").
+
+2. Consejos para mejorar tus resultadosSé específico: Evita instrucciones vagas. Es mejor pedir "resume este texto en 3 viñetas" que "hazme un resumen".
+Usa ejemplos (Few-shot): Si buscas un estilo particular, añade uno o dos ejemplos en el prompt para que la IA imite el formato.
+Corrige sobre la marcha: Si la primera respuesta no es perfecta, no empieces de cero. Pídele ajustes (ej. "hazlo más corto" o "agrega más información sobre el punto 2").
+Di lo que quieres, no lo que no quieres: En lugar de "no escribas un texto aburrido", indica "escribe un texto persuasivo y dinámico".
+3. Ejemplo prácticoPrompt básico: "Escribe un correo sobre un aumento de precio."
+   Prompt optimizado: "Actúa como el director de atención al cliente de una empresa de software. 
+   Escribe un correo formal notificando a nuestros clientes un aumento del 10% en nuestra suscripción mensual a partir del próximo mes. El tono debe ser empático, 
+   transparente y agradecer su lealtad.
+4. Fuentes Oficiales y de Aprendizaje Para dominar la ingeniería de prompts y acceder a trucos avanzados, puedes consultar las siguientes guías y comunidades:
+OpenAI: Explora las mejores prácticas de la guía oficial en OpenAI Help Center.
+Guía de Google: Revisa la documentación sobre técnicas y parámetros en Prompt Engineering Guide.
+Para ver ejemplos paso a paso de cómo aplicar técnicas de prompting en tu día a día y evitar resultados genéricos:
+
+
+
+"Actúa como un [ROL]. Necesito que [OBJETIVO]. El tema principal es [CONTEXTO]. Entrega el resultado en [FORMATO] con un tono [TONO] y un límite de [TAMAÑO]".

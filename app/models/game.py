@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, JSON
 from sqlalchemy.orm import relationship
+
 from app.models.base import TimeStampedModel
 
 class Game(TimeStampedModel):
@@ -13,7 +14,6 @@ class Game(TimeStampedModel):
     result = Column(String(10), nullable=False)  # "1-0", "0-1", "1/2-1/2"
     player_color = Column(String(5), nullable=False)  # "white" o "black"
     pgn_content = Column(Text, nullable=False)  # El PGN original completo
-
     # ⚠️ NUEVOS CAMPOS DE CONTROL (Añade estas dos líneas)
     total_moves = Column(Integer, default=0, nullable=False)
     game_date = Column(String(20), default="????.??.??", nullable=False)

@@ -6,8 +6,7 @@ from app.models.exercise import ExerciseCategory
 
 # Simplified schema for a puzzle returned by the API
 class PuzzleResponse(BaseModel):
-    id: int
-    puzzle_id: str
+    id: str # This was puzzle_id, but the model has id
     fen: str
     moves: str
     rating: int
@@ -44,14 +43,16 @@ class TrainingTaskResponse(BaseModel):
 class UpdateTaskProgress(BaseModel):
     increment: int = 1
 
+from app.schemas.gm_game import GMGameResponse
 # Simplified schema for tasks within a weekly plan
-class TaskInWeeklyPlan(BaseModel):
+class TrainingTask(BaseModel):
     id: int
     category: ExerciseCategory
     description: str
     current_count: int
     target_count: int
     is_completed: bool
+    gm_game: Optional[GMGameResponse] = None
 
     class Config:
         from_attributes = True
@@ -63,7 +64,7 @@ class WeeklyPlanResponse(BaseModel):
     end_date: date
     is_active: bool
     compliance_rate: float
-    tasks: List[TaskInWeeklyPlan]
+    tasks: List[TrainingTask]
 
     class Config:
         from_attributes = True
