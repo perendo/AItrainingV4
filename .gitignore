@@ -46,3 +46,6 @@ stockfish/stockfish.exe
 ejercicios/lichess_db_puzzle.csv
 ejercicios/gm_games.json
 ejercicios/*.db
+"Historico partidas/Big2006.pgn"
+"Historico partidas/Big2006.pgi"
+"Historico partidas/gm_games.csv"
