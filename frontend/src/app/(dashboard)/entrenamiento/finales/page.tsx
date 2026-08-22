@@ -194,6 +194,9 @@ export default function EndgameCatalogPage() {
             Domina los finales clásicos con podcast explicativo y tablero
             sincronizado. Escucha, observa y resuelve los retos en el tablero.
           </p>
+          <p className="mt-1 text-xs text-muted-foreground/80">
+            Temario basado en el libro 100 Modelos de Finales de Jesús de la Villa.
+          </p>
         </div>
         <Button variant="outline" onClick={() => router.push("/entrenamiento")}>
           Volver a Entrenamiento
