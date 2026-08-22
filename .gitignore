@@ -43,6 +43,7 @@ stockfish/stockfish.exe
 .aider*
 
 # Datos pesados (no se suben a GitHub: >100 MB)
+ejercicios/
 ejercicios/lichess_db_puzzle.csv
 ejercicios/gm_games.json
 ejercicios/*.db
@@ -52,3 +53,6 @@ ejercicios/*.db
 
 # Archivos comprimidos de distribución (artefactos de build, >100 MB)
 *.zip
+
+# Utilidades locales one-shot (no forman parte del repo)
+scripts/fix_mojibake_encoding.py
