@@ -27,6 +27,17 @@ El jugador sube sus partidas en formato PGN, el sistema detecta errores jugada a
 
 ---
 
+## 📌 Novedades recientes
+
+- **Auditoría de código (frontend/backend):** tipado estricto en `tabs.tsx` (eliminados los casts `as any`), sustitución de `print()` por el módulo `logging` en los endpoints, y verificación de índices en `endgame_lessons` (`slug`, `lesson_number`, `category`).
+- **Modelo duplicado eliminado:** se borró `app/models/training.py` (redefinía `training_tasks`/`weekly_plans` y colisionaba con `app/models/exercise.py`, que es el modelo canónico).
+- **Práctica de finales (`EndgamePracticeBoard`):** el diálogo de promoción se muestra centrado (`promotionDialogVariant="modal"`) y la pieza elegida (Dama/Torre/Caballo/Alfil) se aplica correctamente en lugar de forzar siempre la dama.
+- **Sidebar:** la entrada "Academia de Finales" ya no resalta "Entrenamiento" como activo.
+- **Empaquetado (`build_dist.py`):** utiliza `entrenador.spec` → `entrenador.exe` (no `EntrenadorIA.exe`); docstring corregido para reflejarlo.
+- **`.gitignore`:** excluye `*.zip` para no subir artefactos de distribución al repositorio.
+
+---
+
 ## 🧱 Stack tecnológico
 
 ### Backend
