@@ -1,0 +1,40 @@
+# fly.toml — Configuración de despliegue en Fly.io
+# Cambia "entrenador-ia-backend" por el nombre que elijas y la región.
+app = "entrenador-ia-backend"
+primary_region = "mad"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  DATABASE_URL = "sqlite:////data/entrenador_ia.db"
+  STATIC_DIR = "/data/static"
+  STOCKFISH_PATH = "/usr/games/stockfish"
+  ALLOWED_ORIGINS = "https://<tu-frontend>.vercel.app,http://localhost:3000"
+  PORT = "8080"
+
+# SECRET_KEY y GEMINI_API_KEY se definen como secrets (no aquí):
+#   fly secrets set SECRET_KEY=... GEMINI_API_KEY=...
+
+[mounts]
+  source = "entrenador_data"
+  destination = "/data"
+
+[[services]]
+  internal_port = 8080
+  protocol = "tcp"
+
+  [[services.ports]]
+    port = 443
+    handlers = ["http"]
+    force_https = true
+
+  [[services.ports]]
+    port = 80
+    handlers = ["http"]
+
+[deploy]
+  # No usar release_command para seed: las tablas se crean al arrancar la app
+  # (apply_database_migrations en main.py). Ejecuta el seed manualmente tras
+  # el primer deploy:
+  #   fly ssh console -C "python -m app.cli seed-endgames"

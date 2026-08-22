@@ -13,6 +13,7 @@ import chess
 import chess.pgn
 
 import app.db.base  # noqa: F401  (registra todos los modelos)
+from app.core.config import settings
 from app.db.session import SessionLocal
 from app.models.endgame import EndgameLesson, LessonCategory
 from app.services.endgame_generator_service import generate_lesson_content
@@ -20,8 +21,9 @@ from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
 
-# Directorio donde se guardan los audios (ruta relativa a la carpeta ``app/``)
-AUDIO_DIR = Path(__file__).resolve().parent.parent / "static" / "audio" / "endgames"
+# Directorio donde se guardan los audios. En producción deriva del volumen
+# persistente (settings.static_dir, p.ej. /data/static).
+AUDIO_DIR = Path(settings.static_dir) / "audio" / "endgames"
 # Prefijo relativo que se guarda en la columna ``audio_path`` (se sirve vía /static)
 AUDIO_PATH_PREFIX = "audio/endgames"
 

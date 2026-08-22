@@ -148,7 +148,8 @@ app = FastAPI(
 )
 
 # 1. CORS — debe ir antes que otros middlewares.
-# Orígenes configurables vía CORS_ORIGINS en .env (separados por coma; "*" en dev local).
+# Orígenes configurables vía ALLOWED_ORIGINS (o CORS_ORIGINS) en .env (separados por coma).
+# Incluye http://localhost:3000 por defecto.
 cors_origins = settings.cors_origins_list
 app.add_middleware(
     CORSMiddleware,
@@ -165,7 +166,10 @@ app.add_middleware(GlobalExceptionMiddleware)
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
 # 4. Archivos estáticos (audios de finales teóricos, etc.)
-STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
+# En producción (Fly.io) STATIC_DIR apunta al volumen persistente (/data/static).
+STATIC_DIR = settings.static_dir
+os.makedirs(STATIC_DIR, exist_ok=True)
+os.makedirs(os.path.join(STATIC_DIR, "audio", "endgames"), exist_ok=True)
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 

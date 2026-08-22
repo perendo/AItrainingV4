@@ -18,7 +18,9 @@ env/
 *.db
 *.db-wal
 *.db-shm
-entrenador_ia.db
+
+# Archivos de datos pesados (no versionados; la BD de produccion vive en /data)
+Historico partidas/
 
 # IDE
 .vscode/
@@ -44,12 +46,7 @@ stockfish/stockfish.exe
 
 # Datos pesados (no se suben a GitHub: >100 MB)
 ejercicios/
-ejercicios/lichess_db_puzzle.csv
-ejercicios/gm_games.json
-ejercicios/*.db
-"Historico partidas/Big2006.pgn"
-"Historico partidas/Big2006.pgi"
-"Historico partidas/gm_games.csv"
+Historico partidas/
 
 # Archivos comprimidos de distribución (artefactos de build, >100 MB)
 *.zip

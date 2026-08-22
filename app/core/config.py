@@ -1,4 +1,6 @@
 import os
+from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
 
@@ -27,13 +29,28 @@ class Settings(BaseSettings):
     )
 
     # Orígenes permitidos por CORS, separados por coma.
-    # Por defecto: los dos orígenes locales del frontend de desarrollo.
-    # Usar "*" desactiva la restricción de origen (solo para dev; deshabilita credenciales).
+    ALLOWED_ORIGINS: str = "http://localhost:3000"
     CORS_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000"
+
+    # Directorio de archivos estáticos (audios de finales, etc.).
+    # En producción (Fly.io) debe apuntar al volumen persistente, p.ej. /data/static.
+    STATIC_DIR: str = ""
 
     @property
     def cors_origins_list(self) -> list:
-        return [o.strip() for o in self.CORS_ORIGINS.split(",") if o.strip()]
+        raw = self.ALLOWED_ORIGINS or self.CORS_ORIGINS or "http://localhost:3000"
+        origins = [o.strip() for o in raw.split(",") if o.strip()]
+        if "http://localhost:3000" not in origins and "*" not in origins:
+            origins.append("http://localhost:3000")
+        return origins
+
+    @property
+    def static_dir(self) -> str:
+        if self.STATIC_DIR:
+            return self.STATIC_DIR
+        # Por defecto: <raíz_del_proyecto>/static
+        root = Path(__file__).resolve().parent.parent.parent
+        return str(root / "static")
 
 # Instancia global para importar en cualquier parte del proyecto
 settings = Settings()

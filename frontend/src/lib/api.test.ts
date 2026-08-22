@@ -38,7 +38,7 @@ describe("apiFetch", () => {
       await apiFetch("/api/v1/users/register", { method: "POST", body: payload });
 
       const [url, init] = fetchMock.mock.calls[0];
-      expect(url).toBe("http://127.0.0.1:8000/api/v1/users/register");
+      expect(url).toBe("http://localhost:8000/api/v1/users/register");
       expect(init.method).toBe("POST");
       expect(init.headers["Content-Type"]).toBe("application/json");
       expect(init.body).toBe(JSON.stringify(payload));
