@@ -1,20 +1,13 @@
-import importlib.util
 import io
-import os
 from pathlib import Path
 
 import chess
 import chess.pgn
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+# El módulo de importación ahora vive en el paquete del backend.
+from app.services import endgame_admin_service as import_lichess_pgns
 
-# Cargar el script de importación (tiene guion en el nombre) vía importlib.
-_SPEC = importlib.util.spec_from_file_location(
-    "import_lichess_pgns",
-    PROJECT_ROOT / "scripts" / "import_lichess_pgns.py",
-)
-import_lichess_pgns = importlib.util.module_from_spec(_SPEC)
-_SPEC.loader.exec_module(import_lichess_pgns)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 
 SAMPLE_PGN = (

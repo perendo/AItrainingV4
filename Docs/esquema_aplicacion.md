@@ -124,10 +124,8 @@ Versiona la evolución del esquema de la base de datos. `alembic/env.py` conecta
 | Módulo o carpeta | Función principal |
 |---|---|
 | `ejercicios/import_puzzles.py` | Importa puzles filtrados desde el CSV de Lichess. |
-| `scripts/seed_endgames.py` | Inserta las lecciones base de finales. |
-| `scripts/generate_endgame_content.py` | Genera el contenido teórico de las lecciones mediante Gemini. |
-| `scripts/generate_endgame_audio.py` | Convierte los guiones de finales en audio y guarda sus rutas. |
-| `scripts/import_lichess_pgns.py` | Importa partidas PGN de Lichess. |
+| `app/cli.py` (CLI `python -m app.cli`) | Tareas de administración del Módulo de Finales: `seed-endgames`, `import-pgns`, `gen-content`, `gen-audio`. |
+| `app/services/endgame_admin_service.py` | Lógica de población/enriquecimiento de `endgame_lessons` (semilla, importación PGN, contenido y audio). |
 | `tests/` | Pruebas de servicios, esquemas, seguridad, endpoints e importadores. |
 
 ---
