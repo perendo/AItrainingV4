@@ -1,4 +1,7 @@
 # app/api/v1/endpoints_user.py
+import logging
+import time
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
@@ -11,6 +14,7 @@ from app.core.security import hash_password, verify_password, create_access_toke
 from app.api.v1.dependencies import get_current_user_id
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
@@ -52,26 +56,56 @@ def login_user(
     Endpoint de inicio de sesión estándar de FastAPI.
     Verifica las credenciales del usuario y devuelve un Token JWT de acceso si son válidas.
     """
-    # 1. Buscar al usuario por su username
+    t0 = time.perf_counter()
+
+    # 1. Buscar al usuario por su username (índice único en User.username)
     user = db.query(User).filter(User.username == form_data.username).first()
+    t_query = time.perf_counter()
+    logger.info(
+        "[LOGIN] Consulta de usuario '%s': %.3f ms",
+        form_data.username,
+        (t_query - t0) * 1000,
+    )
+
     if not user:
+        logger.info(
+            "[LOGIN] Usuario no encontrado. Total: %.3f ms",
+            (time.perf_counter() - t0) * 1000,
+        )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Nombre de usuario o contraseña incorrectos.",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # 2. Verificar si la contraseña introducida coincide con el hash guardado
+    # 2. Verificar la contraseña (bcrypt: coste intencionado ~100-300 ms por seguridad)
     if not verify_password(form_data.password, user.hashed_password):
+        t_verify = time.perf_counter()
+        logger.info(
+            "[LOGIN] Verificación de contraseña FALLIDA: verify=%.3f ms, total=%.3f ms",
+            (t_verify - t_query) * 1000,
+            (t_verify - t0) * 1000,
+        )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Nombre de usuario o contraseña incorrectos.",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+    t_verify_ok = time.perf_counter()
 
     # 3. Generamos el token JWT vinculando el ID único del usuario
     access_token = create_access_token(data={"sub": str(user.id)})
-    
+    t_token = time.perf_counter()
+
+    logger.info(
+        "[LOGIN] OK usuario '%s': verify=%.3f ms, token=%.3f ms, total=%.3f ms",
+        user.username,
+        (t_verify_ok - t_query) * 1000,
+        (t_token - t_verify_ok) * 1000,
+        (t_token - t0) * 1000,
+    )
+
     return {
         "access_token": access_token,
         "token_type": "bearer"
