@@ -1,0 +1,2331 @@
+[Event "Diag. 9.19 Speelman, 1981"]
+[Date "2013.05.24"]
+[White "Final 50"]
+[Black "Peón de caballo más atrás"]
+[Result "1-0"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 50 - Peón de caballo más atrás"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/zzvI7Ijf"]
+[FEN "8/8/8/2Bk4/1P3Pb1/4K3/8/8 w - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Hemos visto que el rey tropezaba con su propio peón de caballo para pasar,
+por lo tanto, si está más atrás las opciones de ganar aumentan.  El rey blanco
+está preparado para entrar por d4. El rey negro debe evitarlo, pero entonces
+tiene más problemas para evitar el rodeo por la banda. Combinando las dos
+amenazas, las blancas romperán la resistencia negra.  En primer lugar las
+blancas mejoran la posición de su alfil. }
+1. Be7 Bd7 { Otras jugadas tampoco
+impiden el paso del rey blanco, pero su análisis es instructivo: } (1... Ke6 2. Bd8 Kd5 3. b5 Bc8 (3... Bd7 4. b6 Bc8 5. f5 { y con los dos peones en sexta se
+gana fácilmente }) 4. Bc7 Ke6 (4... Bd7 5. b6 Bc8 6. f5 $18) 5. Kd4 { y el rey
+blanco pasa por el centro y puede llegar a apoyar su peón b, incluso desde la
+casilla a 7, en esta variante se aprecia la ventaja de mantener retrasado el
+peón b, pues eso facilita el paso del rey blanco. }) (1... Bf5 2. b5! Bc8 3. Bd8 { Se amenaza Kf3-g3-h4 lo que garantizaría el rodeo por la banda. } 3... Ke6 { Evita el paso por la banda... } 4. Kd4 { pero permite l a incursión por el
+centro. } 4... Kd6 { (Impide el paso hasta a7) } 5. Ke4 $18 { Ahora amenaza f5 (además
+de Kf3-g3-h4). }) 2. Bd8 { Una extraña jugada cuyo objetivo es llevar el rey
+hasta h5 , evitando que las negras ganen un tiempo con Ke6. } 2... Kc4 3. Ba5! Kd5 4. Kf3 { Se prepara el rodeo por la banda, el rey negro no llega a tiempo de
+"ponerse en medio" de forma normal, pero espera ganar un tiempo con el acoso
+al peón f. } 4... Bc8 (4... Ke6 5. Kg4 $18 { garantiza el rodeo. }) 5. Kg3 Ke4 { Aquí está la idea negra, el rey blanco no puede pasar por g4, ni perder el
+peón. } 6. Bc7 Kf5 { Necesario pa impedir el rodeo. } (6... Bd7 7. Kh4 Kf5 8. Kh5 $18 { lográndolo. }) 7. Kf3! { Ahora el rey blanco cambia de dirección y
+llega a d4, que como hemos visto en variantes anteriores garantiza el paso por
+el centro y la victoria. } (7. Kh4 { sigue } 7... Kg6!) 7... Bb7+ 8. Ke3 Bc6 9. Kd4 { 1-0 White wins. } 1-0
+
+
+[Event "Diag. 9.20 Cheron"]
+[Date "2013.05.26"]
+[White "Final 51"]
+[Black "Peones central y de torre"]
+[Result "1-0"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 51 - Peones central y de torre"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/pzkgxhLy"]
+[FEN "8/b7/P7/3Bk3/2K1P3/8/8/8 w - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Después de estudiar los ejemplos anteriores, no resultará extraño observar
+que con el peón de torre todo es más fácil para el bando fuerte, debido a que
+su rey tiene mucho más espacio para pasar por el lado derecho.  Este ejemplo
+es una ilustración suprema del ya típico, pero siempre espectacular, plan de
+rodear todo el tablero por la banda. Las blancas pueden especular con pasar
+por el medio de los peones, pero las negras tienen recursos para impedirlo. 
+El único plan es el rodeo por la banda, pero la abundancia de espacio a la
+derecha garantiza el éxito. }
+1. Kd3 Kf4 (1... Bb6 { la táctica de espera
+tampoco conduce a nada } 2. Ke2 Ba7 3. Kf3 Bb6 4. Kg4 { etc. }) 2. Ke2 Bb6 3. Kf1 Ba7 4. Kg2 Bb6 (4... Kg4 5. e5 $18) 5. Kh3 Bf2 { Primer punto donde trata de
+impedirse el paso, pero es muy fácil romper esta primera barrera mediante el
+primer zugzwang. } 6. Bb7 Kg5 { Aprovechando que no es posible 7 .e5 6...Bb6 7.
+Kh4 facilita el proceso. } 7. Bc6 Kf4 8. Bd5 { La triangulación completa
+propiamente este primer zugzwang. } 8... Be3 (8... Kg5 { por } 9. e5) 9. Kh4 Ke5 10. Kh5 Kf6 { Segunda barrera. } 11. Bb7 { Segundo zugzwang. } 11... Ba7 12. Kh6 Bb6 13. Kh7 Bd4 14. Kg8 Bc5 { Tercera barrera. } 15. Bd5 { ... y tercer
+zugzwang. } 15... Ke5 16. Kf7 Kd6 (16... Ba7 17. Ke7 { y ya no hay más barreras, el
+rey llega a b7. }) 17. Kf6 { y ahora lo que se rompe es el bloqueo del peón e. } (17. Ke8 { podría completar el rodeo por la banda y ganaría también. }) 17... Bd4+ 18. Kf5 Bb6 19. Ba8 Bd4 20. Bb7 { Cuarto zugzwang. } 20... Bb6 21. e5+ Ke7 22. e6 Bd4 23. Bc8 Kd8 24. Bd7 Ke7 25. Ke4 Bb6 26. Kd5 { El rey llega a b7.  Conclusión:
+Con la pareja de peones de torre y central , a 3 columnas de distancia, se
+gana siempre.  Resumen final  Las últimas secciones han sido muy densas, pero
+habrán servido para ilustrar una serie de procedimientos técnicos muy
+frecuentes. Además de ello, y aunque las variables son muchas, vamos a
+intentar resumir algunas de las conclusiones más útiles.  Reglas generales de
+la batalla:  A) En el bando defensor, el rey debe encargarse de detener el
+peón central y el alfil el lateral. De ese modo el rey puede dificultar el
+paso del rey atacante. B) El rey del bando fuerte, para ganar, necesita entrar
+en la posición enemiga. Puede hacerlo por la derecha de los dos peones, por el
+centro de ambos o por la izquierda y a veces tiene que combinar varios
+intentos para lograr uno de ellos. C) El plan más frecuente es el rodeo por el
+lado más amplio, lo cual suele necesitar de : l ) Varias posiciones de
+zugzwang. 2) Un paseo por toda la banda del tablero.  D) La penetración del
+rey atacante no garantiza la victoria, sobre todo en el caso del peón de
+caballo que puede plantear problemas para ser coronado, pero sí es ganadora en
+la mayoría de los casos. E) Cuanto más avanzado está el peón lateral, peor
+para el bando fuerte, porque pierde posibilidades de pasar por el interior de
+los peones. F) Cuanto más avanzado está el peón central, mejor para el bando
+fuerte, porque el rey contrario pierde centralidad y es más fácil pasar por el
+medio.  Conclusiones:   Con DOS columnas de distancia entre los peones: A) Los
+dos peones de alfil normalmente ganan. B) Con peón de caballo y central suele
+ser tablas, pero hay opciones de ganar si se dan doscircunstancias: 1 ) El
+peón de caballo está retrasado. 2) El alfil atacante controla la casilla de
+coronación. C) Con peón de torre y central es tablas. Con TRES columnas de
+distancia entre los peones:  A) Con peón de caballo hay posibilidades de
+tablas si el peón de caballo está muy avanzado. B) Con peón de torre
+normalmente se gana. Con CUATRO columnas de distancia entre los peones: A) Se
+gana. El rey pasa siempre por el centro de los peones. } 1-0
+
+
+[Event "Los 100 Finales que hay que saber P3: Finales de torre"]
+[Date "2013.05.26"]
+[White "10. Torre y peón contra torre"]
+[Result "*"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "Standard"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Los 100 Finales que hay que saber P3: Finales de torre"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/eSrl6fps"]
+[ChapterMode "gamebook"]
+
+{ Los finales de torres, son sin ninguna duda, y con gran diferencia, los más
+importantes. Los motivos son varios: en primer lugar, como vimos en la sección
+de estadísticas, se producen mucho más a menudo que todos los demás.  Para
+continuar son mucho más complejos y su teoría es también más abstracta y por
+tanto más aburrida. Además el número de posiciones teóricas importantes es muy
+superior al de otros finales.  Aspectos prácticos: Con toda seguridad, por
+poca experienciaque tenga el lector, ya habrá observado con que frecuencia sus
+partidas acaban en finales de torres, el 8 % según las estadísticas, y ya
+habrá tenido bastantes ocasiones de lamentar el medio punto perdido, por falta
+de técnica o de conocimientos elementales. Jugar bien los finales de torres,
+es un aspecto muy importante de la fuerza de un jugador. No diré, como
+Korchnoi, en su interesante libro "Practical Rook endings", que después de
+leer este capítulo su Elo subirá 100 puntos. Las cosas no son tan fáciles, y
+además el Elo no es la única medida de la persona, ni siquiera de su nivel de
+juego, ni los finales de torres la única medida del Elo, pero sí le aseguro
+que si trabaja los finales de torres, sus resultados mejorarán notablemente. 
+Naturalmente, la mayoría de los finales de torre que se producen en la partida,
+comienzan con muchos peones, pero no es raro que a veces desemboquen en el
+final simple de Torre y Peón contra Torre (ver sección de estadística) y muy a
+menudo en las posiciones básicas estudiadas aquí, sobre todo la posició..
+Philidor y la posición Lucena. Pero además, estudiar los finales de torre y
+peón contra torre, es el primer paso imprescindible para comprender los
+finales con más peones. Por todo ello, no me queda más remedio que aconsejarle
+que lea este capítulo (y el siguiente) con la mayor atención.  Dada su
+especial complejidad, he dividido el capítulo en varias secciones. Considero
+recomendable tomárselo con calma y estudiar cada sección por separado, y estar
+seguro de dominar bien cada una de ellas antes de pasar a otra, aunque la
+última, la del peón de torre, es más independiente y puede estudiarse desde el
+principio.  Aspectos técnicos: Como en otros finales, el peón de torre es muy
+especial, pero en este caso acumula tantas diferencias, que le vamos a dedicar
+una sección especial (la sexta). Comenzamos el estudio con los finales en que
+el peón no es de torre. Desde el principio advierto que las reglas que
+extraemos para estos casos, no tienen porque cumplirse con el peón de torre,
+aunque por supuesto, una extrapolación inteligente siempre es posible.  Como
+en todos los finales con un peón, la lucha del bando fuerte es para coronar su
+peón (hay algunas posiciones excepcionales en que se puede especular con
+amenazas de mate), pero el bando defensor tiene diferentes recursos, muchos
+más variados que en los finales vistos hasta ahora.  Creo que una de las
+formas acertadas de estructurar el conocimiento de los finales de torres es
+fijarse bien en los recursos del bando defensor y ver en que posición pueden
+aplicarse con éxito, y en que posición no funcionan. Por eso en cada ejemplo
+además del título, a veces hacemos referencia al principal método defensivo,
+que aparece con las siglas "RD". Comprendiendo bien dicho método, será más
+fácil extrapolar y adivinar las excepciones. }
+ *
+
+
+[Event "Los 100 Finales que hay que saber P3: Las dos más importantes"]
+[Date "2013.05.26"]
+[White "Sección 1. Finales básicos"]
+[Result "*"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "Standard"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Los 100 Finales que hay que saber P3: Las dos más importantes"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/XNd4kNfM"]
+[ChapterMode "gamebook"]
+
+{ Las dos posiciones estudiadas en esta sección son las más importantes de toda
+la teoría de finales. No conocerlas a la perfección, simplemente no tiene
+excusa, y además hace perder puntos. }
+ *
+
+
+[Event "Diag. 10.1"]
+[Date "2013.05.26"]
+[White "Final 52"]
+[Black "Posición de Philidor"]
+[Result "1/2-1/2"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 52 - Posición de Philidor"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/1QilzEyh"]
+[FEN "4k3/R7/8/3KP3/8/6r1/8/8 b - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ RD: Jaques lejanos (por detrás), corte del rey  El primer aspecto para
+clasificar estos finales es la posición del rey defensor. Si está frente al
+peón pasado, la mitad del camino a las tablas ya está hecho. Una vez en esa
+posición los sistemas defensivos son muchos, pero el más fácil, y que sirve
+contra todos los peones, es la llamada posición Philidor, que ilustra este
+ejemplo. }
+1... Rg6! { Esta es la posición básica de la defensa cuando su rey
+se encuentra frente al peón pasado. La torre se sitúa en su tercera horizontal
+y simplemente espera. El objeto de esta maniobra es evitar el avance del rey
+rival. Como veremos, el avance del peón es mucho menos peligroso.  Comprobemos
+lo que sucede si las negras abandonan la estrategia correcta, o juegan sin
+estrategia. } (1... Rg1!? 2. Kd6 Rd1+? 3. Ke6 { y las blancas
+ya están amenazando mate, } 3... Rd8? { (Mejor es mover el rey pero también pierde
+porque lleva a la posición Lucena que estudiamos más adelante) } 4. Rh7 { y ganan de inmediato. }) 2. e6 { Después de esta jugada la defensa negra es muy
+sencilla, sin embargo las blancas no tienen ningún otro modo de progresar.
+Ante cualquier jugada la respuesta es fácil, atendiendo a una única condición:
+"Mantener la torre en tercera hasta que el peón avance".  Algunos jugadores
+temen un posible cambio de torres, pero es fácil comprobar que todos ellos
+llevan a un final de rey y peón contra rey que es tablas: si la torre se
+cambia en c6 el rey negro juega a e7 y tablas, y la torre no puede cambiarse
+de ningún modo en d6, ni e6 (estando el re,' negro en d8), porque ¿cómo
+llegaría a esas casillas? Con la jugada de la variante principal, las blancas
+amenazan Kd6 ganando, pero ... } 2... Rg1! { Esta es la jugada clave. En cuanto el
+blanco avanza su peón a la sexta fila, su rey pierde el refugio contra los
+jaques traseros y la torre negra se prepara a darlos. En otro caso seguiría 3.
+K6. } 3. Kd6 Rd1+! 4. Ke5 Re1+ 5. Kf6 Rf1+ { El rey blanco no tiene refugio
+contra los jaques y por lo tanto es tablas.  Este sencillo final, conocido
+desde el siglo XVIII es tal vez el más importante de toda la teoría de finales.
+Una gran cantidad de finales de torres acaban en él y normalmente es
+suficiente para hacer tablas en la mayoría de ocasiones. Vamos a recapitular
+un poco:  La posición Philidor consiste en situar el rey en la columna del
+peón (en primera o segunda fila, según donde esté la torre rival) y la torre
+en la tercera fila, esperando a que avance el peón, momento en el cual se
+prepara para dar jaques por detrás, ante los cuales el rey atacante no tiene
+cobijo.  Puede surgir la pregunta, ¿y la posición Philidor no funciona en la
+cuarta o quinta horizontal? La respuesta es sí, también funciona, pero siempre
+se muestra en la tercera horizontal porque es la situación límite. Pero no se
+complique la vida, la posición Philidor es segura y sencilla de jugar, por lo
+tanto si usted cae en un final con torre, contra torre y peón, debe intentar
+conseguirla.  Sin embargo no siempre se puede conseguir, y por lo tanto es
+importante conocer los otros recursos defensivos. } 1/2-1/2
+
+
+[Event "Diag. 10.2"]
+[Date "2013.05.26"]
+[White "Final 53"]
+[Black "Posición de Lucena, El Puente"]
+[Result "1-0"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 53 - Posición de Lucena, El Puente"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/UKVRMMUm"]
+[FEN "3K4/3P1k2/8/8/8/8/7r/4R3 b - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ RO: Jaques lejanos (por detrás)  Así como en el primer ejemplo hemos visto el
+método más frecuente de hacer tablas, en este segundo veremos el método más
+frecuente de ganar.  Si el rey defensor no logra colocarse delante del peón
+pasado, casi siempre se llega a la posición Lucena, que es la que vamos a
+estudiar ahora.  Cuando les digo a mis alumnos que en el final de torre y peón
+contra torre, correctamente jugado, en la mayoría de los casos se acaba en la
+posición Philidor o en la posición Lucena, al principio se extrañan un poco,
+pero después de analizar muchas posiciones(como veremos en este capítulo) se
+acaba llegando a esa conclusión. Por eso estas dos posiciones son las más
+importantes de este tipo de final, y por extensión de toda la teoría de
+finales y se deben conocer al dedillo.  Otras posiciones presentadas en este
+libro, pueden producirse o no en sus partidas a lo largo de su carrera, pero
+estas dos le garantizo que se las encontrará muchas veces.  En la posición del
+diagrama 10.2 el peón ya está en séptima, vamos a estudiar la parte final de
+este procedimiento, pero su gran importancia proviene del hecho de que el
+bando fuerte será capaz siempre de alcanzar está posición si el jugador sin el
+peón no logra aplicar antes uno de los mecanismos defensivos, de los cuales el
+de Philidor es el principal.  Con el rey del bando fuerte en octava y el peón
+en séptima sólo es eficaz la defensa del lado largo (que estudiamos en el
+siguiente ejemplo). Si la torre del bando débil no está situada en el lado
+largo, y es capaz de dar jaques, la partida se pierde.  La posición recibe el
+nombre de Lucena, y no es el momento de cambiarlo, porque los nombres resultan
+útiles para transmitir y guardar la información, pero este final no aparece en
+el famoso libro de Lucena de 1497, que es el primer libro del ajedrez moderno,
+del que se conservan ejemplares. }
+1... Rc2 { Sirve para evitar que el rey
+blanco salga, pero es insuficiente al fin y al cabo.  A partir de aquí las
+blancas tienen tres caminos para ganar, pero es preferible observar bien el de
+la línea principal, porque puede aplicarse con todos los peones (excepto claro
+el de torre) y es el más instructivo. } 2. Rf1+ { Primer paso: Se aleja al rey
+negro otra columna. } 2... Kg7 (2... Ke6 3. Ke8) 3. Rf4! { [#] Diag. 10.3 Este es
+el método principal.  La torre se dispone a cubrir a su rey de los jaques de
+la torre rival. Se dice que prepara "El Puente".  La imagen del puente es muy
+gráfica, pero su interés es mayor, porque es un procedimiento muy frecuente,
+también en finales con más peones. } (3. Ra1 { Segundo Método: Las blancas
+trasladan la torre hasta c8.  Observar que este sistema no puede aplicarse con
+el peón de caballo. } 3... Kf7 4. Ra8 Rc1 5. Rc8 Rd1 6. Kc7 Rc1+ 7. Kb6 Rb1+ 8. Ka5 $18) (3. Rf5 { Tercer Método: Es una especie de puente más rudimentario. } 3... Kg6 4. Ke7?! (4. Rf8 Kg7) (4. Rf4! { volvería al puente correcto }) 4... Kxf5! { Observar que con este método para ganar el bando débil puede optar por el
+molesto final de torre contra dama. } (4... Re2+ 5. Kf8 Rd2 6. Rf7 $18) 5. d8=Q $18 { la posición está ganada pero hay trabajo. }) 3... Rc1 4. Ke7 { El peón ya
+amenaza coronar y las negras sólo pueden retrasarlo dando jaques. } 4... Re1+ 5. Kd6 Rd1+ 6. Ke6 Re1+ 7. Kd5 Rd1+ 8. Rd4 $18 { Aquí termina la maniobra, no puede
+impedirse la coronación del peón. } 1-0
+
+
+[Event "Los 100 Finales que hay que saber P3: El lado largo y K&H"]
+[Date "2013.05.26"]
+[White "Sección 2. Peón por delante, de la quinta fila"]
+[Result "*"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "Standard"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Los 100 Finales que hay que saber P3: El lado largo y K&H"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/LLdbeSN2"]
+[ChapterMode "gamebook"]
+
+{ El capítulo de finales de torres es muy denso y merece la pena dividirlo en
+partes. Los finales con los peones en la quinta fila o más adelante tienen
+entre sí una relación muy clara que podría definirse en estos 4 elementos:
+Philidor, Kling&Horwitz (K&H), Lado Largo y Lucena. Su lógica se puede resumir
+con la siguiente frase:  Si no se consigue Philidor ni K&H, el peón aunque
+esté en quinta llegará a séptima, a la posición Lucena (y por tanto ganará),
+excepto que en algún momento se haga funcionar el lado largo.  Esto puede
+parecer un juego de palabras, pero si después de leer esta sección no lo ve
+claro, le recomiendo que deje pasar un poco de tiempo y la vuelva a leer. }
+ *
+
+
+[Event "Diag. 10.4"]
+[Date "2013.05.26"]
+[White "Final 54"]
+[Black "El lado largo"]
+[Result "1/2-1/2"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 54 - El lado largo"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/fT1kT8ri"]
+[FEN "4K3/4P1k1/8/8/8/8/r7/5R2 b - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ RO: Jaques lejanos (laterales)  Vamos a estudiar ahora algunas posiciones con
+métodos de defensa y ataque alternativos y/o complementarios al de Philidor y
+Lucena. Podemos decir que estamos en la zona vecina aestos dos importantes
+métodos. La importancia de estas posiciones es relativamente mucho menor que
+las anteriores, pero sigue siendo fundamental para jugar los finales a un
+nivel competitivo.  Esta posición está claramente relacionada con la posición
+Lucena (observar el diagrama 10.2) y es prácticamente la única de tablas
+cuando el bando fuerte ha llevado su peón a la séptima fila y tiene su rey al
+lado. Si jugaran las blancas darían jaque en g1 Y coronarían con facilidad.
+Por lo tanto las negras tienen que tener la mano y comenzar a dar jaques
+laterales. Pero para que estos jaques tengan éxito es precisa una separación
+de tres columnas entre la torre y el peón. Vamos a verlo: }
+1... Ra8+! 2. Kd7 Ra7+ 3. Kd8 Ra8+ 4. Kc7 Ra7+ { En este punto es fácil observar que si hubiera
+una columna menos de separación la torre no podría dar este jaque. Aquí es el
+momento para "caer en la cuenta" de que para que la torre tenga tres columnas,
+es preciso que esté en el lado más largo del tablero (observar que el peón
+siempre divide el tablero en dos lados desiguales), y para eso el rey debe
+estar en el otro lado, o sea en el lado corto.  Este es el famoso lado largo
+de los finales de torres. También se dice que la torre, alejada tres columnas
+del peón tiene "efectividad lejana", y este concepto es importante por si
+mismo, porque esa efectividad lejana también se manifiesta, y de forma similar
+en los jaques por detrás y en los jaques frontales, como veremos en el Final
+59.  La regla del lado largo tiene gran importancia práctica, porque es muy
+frecuente que unas jugadas atrás, el bando defensor haya tenido que elegir a
+que lado se va con su rey.  Casi siempre es favorable ir al Iado corto con el
+rey, para ceder el lado largo a la torre. En este caso que estudiamos es
+necesario. Podemos establecer también otra regla de gran importancia: "El
+único recurso de cierta eficacia para evitar caer en la posición Lucena, es el
+lado largo". } 5. Kd6 Ra6+ 6. Kc5 Re6 { Cuando el rey se aleja demasiado del
+peón siempre lo pierde. Otro detalle esencial a observar es que el rey negro
+no debe estar en la primera fila, porque en ese caso perdería con 7...Rf8
+jaque. } 1/2-1/2
+
+
+[Event "Diag. 10.5"]
+[Date "2013.05.26"]
+[White "Final 55"]
+[Black "Peón de caballo. Defensa, de la Primera Fila"]
+[Result "1/2-1/2"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 55 - Peón de caballo. Defensa, de la Primera Fila"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/1SrXmbVa"]
+[FEN "1k6/7R/8/KP6/8/8/8/2r5 w - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Ahora vamos a estudiar algunos métodos defensivos complementarios al de
+Philidor.  Nos ocupamos en primer lugar del caso del peón de caballo. Con este
+peón (y también con el de torre), existe un método defensivo alternativo al
+Philidor, que incluso es más sencillo de aplicar. }
+1. Ka6 { Como vemos, ahora
+es imposible aplicar el método Philidor. } 1... Rc8! { Este es el método
+alternativo, y en esta posición único. Basta con situarse con el rey enfrente
+del peón, la torre en la primera fila y esperar.  Es importante observar que
+con peones de alfil o centrales este método no sirve porque el bando fuerte
+tiene más espacio por el lado izquierdo del peón. Con esta pista, el lector
+debe estar en condiciones de ver como se gana en caso de peón alfil y puede
+comprobarlo como Ejercicio. } 2. b6 Rf8 3. Rb7+ Ka8! (3... Kc8? { pierde por } 4. Ka7) 4. Ra7+ Kb8 5. Rh7 Rg8 { Es fácil ver que las blancas no pueden crear ni el más mínimo problema. } 1/2-1/2
+
+
+[Event "Diag. 10.6"]
+[Date "2013.05.26"]
+[White "Final 56"]
+[Black "Peones centrales, Defensa K&H"]
+[Result "1/2-1/2"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 56 - Peones centrales, Defensa K&H"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/fdebCFi9"]
+[FEN "4k3/7R/8/3KPr2/8/8/8/8 b - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ RD: Torre detrás del peón. Jaques laterales  Y ¿que pasa si el peón no es de
+caballo Está en ese caso el bando débil limitado a la defensa de Philidor y si
+no la consigue pierde la partida? No es así, aunque la defensa alternativa, es
+algo más difícil que con el peón de caballo. Si el peón es de alfil o central,
+el bando débil tiene un importante recurso, colocando la torre detrás del peón.
+Este recurso es perfectamente eficaz contra los peones centrales, incluso
+aunque el rey sea expulsado por el lado largo. En el caso del peón de alfil,
+es necesario tener ( o colocar) el rey en el lado corto. Por último, en caso
+de peón de caballo y esto es muy importante (pero lo repetiremos en el resumen)
+, este sistema defensivo no funciona.  He visto a muchos jugadores, incluso
+titulados, confundir los sistemas defensivos. Si se fija bien, no lo hará
+usted.  Como puede verse en el diagrama, las negras no podrán alcanzar la
+posición Philidor. Hemos elegido una posición especialmente mala de la torre
+defensora para ilustrar todos los problemas que debe superar. Pero no es la
+peor posición posible (con la torre en d5 y el rey blanco en f5 las negras
+perderían. Si desea comprobarlo hágalo después de estudiado el ejemplo). }
+1... Rf1 { Cuando no puede alcanzarse la posición Philidor, la torre debe estar
+preparada para colocarse detrás del peón. El motivo lo veremos pronto. Esta
+jugada no es única, pero si lo es el método. Las otras jugadas que hacen
+tablas (por ejemplo: Rf2), son las que permiten a la torre situarse detrás del
+peón en la siguiente jugada. El análisis es difícil, pero la jugada es obvia
+para el que conozca los métodos defensivos en los finales de torre: no se
+puede conseguir la posición Philidor, entonces buscamos la de K&H; ¿Que no se
+puede tampoco? ¡A veces la vida es dura! } 2. Kd6 { La jugada más exigente,
+porque da más opciones defensivas. Las blancas amenazan dar jaque y a
+continuación avanzar su peón de forma imparable. } (2. Ke6!? { es una
+alternativa bastante molesta, pero en la práctica menos eficaz porque obliga a
+una defensa claramente única. } 2... Kf8! (2... Kd8? 3. Rh8+ Kc7 4. Ke7 { y la torre no tiene tiempo a situarse detrás del peón, como en la variante
+principal }) 3. Ra7 Re1! { Y en esencia estamos en la variante principal. }) 2... Re1! { Jugada única, difícil de encontrar si no se conoce la posición y
+"marca de fábrica" del método defensivo ideado por K&H. La torre se sitúa
+detrás del peón y dificulta su avance. } (2... Rd1+? { es un error "muy
+lógico" y su análisis es muy interesante. } 3. Ke6 Kf8 { [#] Diag. 10.7  No es
+fácil ver la diferencia entre esta posición y la resultante de la variante. 2.
+Ke6 Kf8! En ese caso la posición de la torre en f1 impedía la maniobra que
+ahora sigue y daba tiempo a la propia torre a situarse detrás del peón. } 4. Rf7+! Ke8 (4... Kg8 5. Rd7 Re1 6. Kf6 { y el peón avanza, aunque este final
+sigue siendo complicado. Tal vez sea más fácil comprenderlo después de ver los
+siguientes finales, pero recordemos que si seguimos el método defensivo
+correcto no estaríamos aquí }) 5. Ra7 { con esta ganancia de tiempo las blancas
+se aseguran sacar a su peón del atasco de la quinta fila. } 5... Kf8 6. Ra8+ Kg7 7. Ke7 { seguido del avance del peón. Como la torre defensora no puede lograr la
+efectividad lejana (la torre blanca ocupa la columna a), las negras pierden. 
+Esto lo veremos en el Final 58, pero de momento lo importante es saber que si
+podemos, debemos colocarnos detrás del peón. }) 3. Ke6 Kd8 { Elegimos esta
+jugada para ilustrar el método defensivo, con la torre desde el lado corto, y
+así comparar con lo que pasaría con un peón de alfil. Pero si se puede elegir
+siempre es más conveniente dirigirse al lado corto con el rey, por lo tanto
+casi deberíamos llamar a esta jugada inexacta } (3... Kf8! { es la más exacta. }) 4. Rh8+ { Ante otras jugadas de espera las negras deben también esperar con
+su torre detrás del peón y ante jugadas del rey, pueden jaquear o esperar,
+pero lo más fácil es regresar a la posición anterior. } (4. Ra7 Re2!) (4. Kf6 Ke8) 4... Kc7 { Ahora vemos la importancia de tener la torre detrás del peón
+porque el rey blanco no puede jugar Ke7, para preparar su avance. Vamos a
+analizar los distintos intentos blancos de progresar. } 5. Kf6 { La jugada de la
+partida es lógica, porque amenaza avanzar el peón, pero las negras fácilmente
+obligan a las blancas a regresar a posiciones anteriores. } (5. Rh7+ Kd8 { repite }) (5. Ra8 Re2 { espera. }) (5. Re8 { lleva a la posición de la variante
+principal después de la jugada 9. }) 5... Kd7! { Sencillamente impidiendo el
+avance del peón. } 6. Rh7+ Ke8 7. Ke6 { Hemos regresado a la posición después de
+la jugada 3. } 7... Kd8 (7... Kf8!) 8. Rh8+ Kc7 9. Re8!? { El único intento
+realmente serio de progresar. Las blancas amenazan Kf7 seguido del avance del
+peón. } 9... Rh1 { Esta jugada, preparándose a dar jaques ¡desde el lado corto! , es
+única, y funciona debido a que la torre blanca está torpemente situada.
+Naturalmente por el lado largo esta defensa sería más desahogada. Si el peón
+fuera de alfil esta defensa no bastaría para hacer tablas. Por lo tanto el
+bando débil, si el peón es de alfil debe apartar su rey por el lado corto, si
+no puede hacerlo, pierde. } (9... Re2? { [#] Diag. 10.8 } 10. Kf7! { La posición de la torre permite esta jugada que amenaza el avance del
+peón. } 10... Rh2 { ahora ya es tarde para esta maniobra } (10... Rf2+ 11. Ke7 Rh2 12. Rf8 $18 { Evitando los jaques laterales. Se amenaza e6 y se acaba alcanzando la
+posición Lucena }) 11. Rg8! (11. e6? Rh7+ 12. Kg6 Rh1 13. e7 Kd7) 11... Rh7+ 12. Rg7 Rh8 13. Ke7 (13. e6? Kd6 14. e7 Kd7) 13... Kc6 14. e6 Kc7 15. Kf6+ { Ahora ya se gana con varias jugadas. } 15... Kd8 (15... Kc6 16. Rd7 $18 { desemboca también en la posición Lucena, como puede comprobarse con un breve
+análisis. }) (15... Kd6 16. Rd7+ Kc6 17. Rd1 Rh6+ 18. Kf7 Rh7+ 19. Kg6 Rh2 20. e7 Re2 21. Kf7 Rf2+ 22. Ke8 { alcanzando la posición Lucena }) 16. Kf7 Kc7 17. Rg1 Rh7+ 18. Kg6 Rh8 19. Rd1 { Lleva de nuevo a la posición Lucena. }) 10. Rf8 { Intentando cubrirse de los jaques, pero... } 10... Re1! { Repitiendo el sistema
+defensivo. No hay más forma de progresar, por tanto es tablas. } 1/2-1/2
+
+
+[Event "Diag. 10.9"]
+[Date "2013.05.26"]
+[White "Final 57"]
+[Black "Peón central en sexta, Torre efect. lejana"]
+[Result "1/2-1/2"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 57 - Peón central en sexta, Torre efect. lejana"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/sXx66HS4"]
+[FEN "r7/3RK1k1/4P3/8/8/8/8/8 w - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ RD: Jaques laterales Este final y el siguiente son de los más difíciles del
+capítulo y no recomiendo su estudio hasta no haber comprendido bien todos los
+anteriores, es decir, en una primera lectura recomiendo saltarlos o verlos
+superficialmente.  Como regla general resumida puede servir la siguiente: Una
+vez que el peón ha llegado a la 5a, 6a o 7a fila y el rey del bando débil no
+puede situarse delante (posición Philidor o defensa de la primera fila), el
+único recurso defensivo es tomar el Lado Largo con la torre.  Cuanto más atrás
+está el peón (entre las filas 5 , 6 y 7) más posibilidades d e tablas, pero
+otros factores como la posición de las torres también influyen.  Con el peón
+en sexta, las posibilidades de tablas aumentan con respecto al peón en séptima,
+pero el único método válido sigue siendo el mismo, esto es: La torre defensora
+tiene que tener el lado largo. Si la torre del bando fuerte está preparada
+para cubrir los jaques, las negras necesitan una posición ideal de su torre y
+su rey para lograr las tablas. }
+1. Rd8 { La mejor posición de la torre
+defensora es la que tiene en el diagrama que reúne dos circunstancias
+esenciales: a) En la columna más alejada (que le permite mantener la
+efectividad lejana). b) En la octava fila (que impide al rey blanco colocarse
+en ella).  Por eso la torre blanca intenta desplazarla. } (1. Kd6+?! { facilita
+mucho las cosas } 1... Kf8! { y el rey se sitúa delante del peón. Otros intentos
+los veremos en la tercera jugada. }) 1... Ra7+ { Impidiendo el progreso por
+medios tácticos. } (1... Ra1? { permite alcanzar una variante de la posición
+Lucena. } 2. Ke8 Kf6 3. e7 $18) (1... Ra6! { es la única otra jugada que hace
+tablas, y su lógica es que impide al rey blanco ir a la octava fila. }) 2. Rd7 (2. Ke8?! { pierde el peón por } 2... Kf6) (2. Kd6 { siguen los
+jaques } 2... Ra6+ 3. Ke5 Ra5+ 4. Rd5 Ra8 5. Kd6 Kf8 { Philidor. }) 2... Ra8 { Otras
+jugadas por la columna de torre también hacen tablas, pero lo mejor cuando te
+estás defendiendo es no cambiar el método.  Citamos sólo una de las
+alternativas por motivos de interés teórico, pero en la práctica le
+recomendamos no liarse e ir a lo simple. } (2... Ra1 3. Ke8+ Kf6! 4. e7 Ke6! { Una interesante y poco conocida posición de tablas con el peón en séptima. }) 3. Rd6! { [#] Diag. 10.10  Un intento bastante venenoso. Las negras están
+casi en zugzwang, porque con la torre blanca en esta casilla no pueden
+permitir que el rey blanco llegue a octava y por otro lado no pueden abandonar
+la columna a, porque su torre perdería su efectividad lejana. } (3. Rb7 { no plantea un problema especial, por ejemplo: } 3... Kg6 4. Kd7 Kf6 5. e7 Kf7 { y no hay progreso. }) 3... Kg6! { Única jugada. El rey negro espera, lo más
+cerca posible del peón. } (3... Ra1? 4. Ke8! { Ya hemos dicho que si el rey
+llega a octava, gana } 4... Ra8+ 5. Rd8 Ra6 6. e7 Kf6 7. Kf8 $18) (3... Ra7+? 4. Ke8!) (3... Kg8?? 4. Rd8+ $18) (3... Rb8? 4. Rd7 { y llegamos al Final 58,
+donde la torre negra ha perdido su efectividad lejana y su bando pierde. }) 4. Rd7 { Ante la defensa precisa de las negras, las blancas no tienen progreso y
+regresan a la posición de partida. } (4. Kd7 Kf6 5. e7+ Kf7) 4... Kg7 5. Rc7 { Un tercer intento, aunque este deja a las negras amplia libertad. } (5. Rb7) 5... Kg6 { Es lo más fácil aunque no
+único. Consideramos algunas alternativas por interés teórico: } (5... Ra1 6. Rd7 Ra2 (6... Ra8! { es lo más facil }) 7. Ke8+ Kf6 8. e7 Ke6!) (5... Rb8? { Dejar la columna a es un grave error. } 6. Ra7 { alcanzando la posición de la
+torre sin efectividad lejana (siguiente ejemplo). }) 1/2-1/2
+
+
+[Event "Diag. 10.11"]
+[Date "2013.05.26"]
+[White "Final 58"]
+[Black "Peón central en sexta. R sin, efectividad lejana"]
+[Result "1-0"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 58 - Peón central en sexta. R sin, efectividad lejana"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/W6TpK4Lk"]
+[FEN "1r6/R3K1k1/4P3/8/8/8/8/8 w - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Con el peón central en sexta y la torre sin efectividad lejana, el bando
+fuerte gana.La maniobra es tan precisa, que sería muy difícil descubrirla
+sobre el tablero. Por otra parte esa dificultad nos muestra que estamos en una
+posición límite entre la victoria y las tablas. }
+1. Kd6+ { En primer lugar las
+blancas deben ceder el turno de juego a su rival, porque las piezas negras
+están situadas en sus posiciones ideales (una vez perdida la efectividad
+lejana). El intento directo de alejar al rey negro (con Rg 1 ) Y alcanzar la
+posición Lucena, falla por poco: } (1. Ra1? Rb7+! 2. Kd8 Rb8+! 3. Kc7 Rb2 { (intentando Kf8 o Kf6) } 4. Rf1 { cortando al rey } 4... Ra2! { Aprovechando el
+tiempo que el peón necesita para llegar a séptima, las negras recuperan la
+efectividad lejana y logran las tablas según se ve en el Final 54. } 5. e7 Ra7+ 6. Kd6 Ra6+ 7. Kc5 Re6) (1. Kd7? Kf6 2. e7 Kf7) 1... Kf6 (1... Kf8 2. Kd7 Kg7 3. Ke7 { lleva a lo mismo. }) 2. Kd7 Kg7 { Las negras no
+tienen jugada útil. } (2... Rb1 3. e7 Rd1+ 4. Ke8 { Lucena. }) (2... Kg6 { Aquí el rey esta peor en una determinada variante: } 3. Ra1! Rb7+ 4. Kc6 Rb2 5. Re1! { como en la variante principal. }) 3. Ke7 { Hemos llegado a la
+posición inicial pero jugando el negro, que no tiene jugada útil. } 3... Kg6 (3... Rb1 { pierde la octava fila y la partida } 4. Ra8! Rb7+ (4... Rb2 5. Ke8 Rh2 6. Ra7+ Kf6 7. e7 Rh8+ 8. Kd7 $18) 5. Kd6 Rb6+ (5... Kf6 6. Rf8+ Kg7 7. e7 $18) 6. Kd7 Rb7+ 7. Kc6 Re7 8. Kd6 Rb7 9. e7 $18) 4. Ra1! Rb7+ 5. Kd8 (5. Kd6 Rb6+ 6. Kd7 Rb7+ 7. Kc6 Rb8 8. Kc7 { llegando a la
+posición de la variante principal, que aunque más largo es más fácil, pero
+esta ilustra otra variante posible que merece la pena mostrar. }) 5... Rb8+ (5... Kf6 { [#] Diag. 10.12  Ahora las blancas
+ganan de forma única, con una maniobra llena de detalles tácticos que conviene
+conocer. } 6. e7! Rb8+ (6... Rxe7?! 7. Rf1+) 7. Kc7 Re8 8. Kd6! Rb8 9. Rf1+ Kg7 10. Kc7 Ra8 11. Ra1! Re8 12. Kd7 $18) 6. Kc7 Rb2 7. Re1! { y el peón
+corona, lo que no sucedería con el rey negro en g7. } 7... Rc2+ 8. Kd7 Rd2+ 9. Ke8 Ra2 (9... Kg7 10. e7 { Lucena. }) 10. e7 $18 { Ganando como en la posición de
+Lucena. } 1-0
+
+
+[Event "Los 100 Finales que hay que saber P3: Otros métodos defensivos"]
+[Date "2013.05.26"]
+[White "Resumen de la sección 2"]
+[Result "*"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "Standard"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Los 100 Finales que hay que saber P3: Otros métodos defensivos"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/kXRrb0yg"]
+[ChapterMode "gamebook"]
+
+{ Resumen de la sección 2  Esta sección agrupa aquellas posiciones en que el
+peón ha traspasado la mitad del tablero y el bando defensivo no puede alcanzar
+la posición Philidor.  A) Si el rey del bando defensor está delante del peón,
+aunque no se pueda conseguir la posición Philidor queda un método defensivo,
+pero es importante recordar que es diferente con el peón de caballo que con
+los peones de las 4 columnas centrales. Con el peón de caballo hay que optar
+por la defensa de la primera fila. Si el peón es central hay que aplicar el
+sistema de K&H. B) Si el rey del bando defensor no está delante del peón, el
+único recurso realmente eficaz (descontando unas pocas posiciones
+excepcionales) es tomar el lado largo con la torre y alcanzar la efectividad
+lejana.  La única diferencia que produce el avance del peón es el tiempo que
+da al bando defensor a alcanzar la disposición defensiva ideal de sus piezas:
+1) Si el peón está en séptima la torre defensora necesita comenzar dando
+jaques y que la torre rival no pueda cubrirlos. 2) Si el peón está en sexta, a
+la torre defensora le basta con la efectividad lejana (y en algunos casos no
+debe salir de la octava). 3) Si el peón está en quinta el bando defensor tiene
+más posibilidades de lograr la efectividad lejana, pero si la columna clave la
+controla la torre rival, lo tiene difícil. Ahora puede volver a leer la frase
+del principio de la sección, que es un resumen hipercondensado del estudio de
+todas estas posiciones. Con esa sola idea es posible orientarse en estos
+finales y la buena orientación es el principio del acierto. }
+ *
+
+
+[Event "Los 100 Finales que hay que saber P3: Corte vertical y horizontal"]
+[Date "2013.05.26"]
+[White "Sección 3. El corte vertical"]
+[Result "*"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "Standard"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Los 100 Finales que hay que saber P3: Corte vertical y horizontal"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/ijOGasdN"]
+[ChapterMode "gamebook"]
+
+{ En esta sección comenzamos a estudiar posiciones con el peón por detrás de la
+quinta fila y, aunque el peón está más lejos de la coronación, es más fácil de
+comprender. El lado largo ya no es la única esperanza. De hecho el bando
+fuerte para ganar, necesita nuevos triunfos, y cortar al rey, vertical o
+horizontalmente, es imprescindible. En esta sección analizamos el corte
+vertical, en la siguiente el horizontal. }
+ *
+
+
+[Event "Diag. 10.13"]
+[Date "2013.05.26"]
+[White "Final 59"]
+[Black "El corte vertical en una, columna"]
+[Result "1/2-1/2"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 59 - El corte vertical en una, columna"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/wGl7VI8d"]
+[FEN "7r/8/4k3/8/2P5/2K5/8/3R4 b - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ RD: Jaques frontales, cambio de torres  En esta nueva sección vamos a
+enfrentarnos al caso del peón por detrás de la quinta fila. Con el peón tan
+atrás, el rey del bando débil tiene mucho tiempo para situarse delante del
+peón y alcanzar la posición Philidor. Por ese motivo, para que haya alguna
+esperanza de ganar, es imprescindible tener cortado al rey del bando débil con
+la torre e impedirle llegar a la zona de coronación del peón. Hay dos formas
+de cortar el rey, vertical y horizontalmente. Comenzamos el estudio con el
+corte vertical.  Vamos a ver que pasa con el rey cortado en una sola columna.
+En la posición del diagrama, la torre y el rey negro ocupan posiciones buenas
+para evitar el progreso de las piezas blancas. Ni mucho menos están en
+zugzwang, porque ambas piezas pueden mantener su eficacia, pero los errores
+son muy frecuentes y han sido cometidos por jugadores de todos los niveles.
+Como el análisis nos mostrará hay que mantener la torre en la octava fila y el
+rey en tercera o cuarta fila. }
+1... Rc8 { Desde esta casilla la torre evita el
+avance del peón blanco y es el procedimiento más claro para hacer tablas
+aunque no el único. Es importante conocer porque fallan otras jugadas, que
+parecen lógicas y porque funcionan algunas más: } (1... Rg8 { Todas las jugadas
+de torre por la octava fila (excepto las que permiten su cambio o captura)
+hacen tablas. } 2. c5 { En otro caso sigue como en la partida. } 2... Ke7! { para
+hacer Rd8 . Es curioso que esta jugada que pierde en la posición inicial, sea
+una de las dos únicas que hacen tablas aquí, porque el rey blanco no alcanza
+ahora las casillas críticas en el final de peones. } (2... Rg4! { También hace
+tablas porque el rey blanco queda imposibilitado para ayudar a su peón, y si
+este avanza es capturado, aunque obliga a cierta precisión. } 3. c6 Ke7! 4. c7 Rg8) 3. Kc4 Rd8) (1... Ke7? { Esta jugada que prepara (y de hecho
+amenaza) el cambio de torres, es mala, aunque el recurso del cambio de torres
+hay que tenerlo en cuenta y es exitoso en algunas posiciones. Precisamente, la
+amenaza de cambiar torres, con tablas, provoca este error muy a menudo en la
+práctica. Aquí el rey de las negras se coloca en una casilla perdedora. } 2. Kb4! { El rey blanco inicia una maniobra típica. Se prepara para situarse en la
+casilla a6, dos filas y dos columnas más allá del peón } (2. c5? Rd8!) (2. Rd2? Rd8! 3. Rxd8 Kxd8 4. Kb4 Kc8!) 2... Rb8+ { Está
+claro que ahora ya no es un buen negocio cambiar las torres, porque el rey
+blanco alcanza las casillas críticas. } 3. Kc5 Rc8+ 4. Kb5 Rb8+ 5. Ka6 Rc8 6. Rd4! { [#] Diag. 10.14 Aquí está el detalle. El rey negro se ha alejado de la
+casilla e5 y tarda un tiempo más en molestar a la torre blanca. } 6... Ke6 7. Kb7 Rc5 8. Kb6 Rc8 9. c5 { y con el peón en quinta, y no pudiendo jaquear por el lado
+largo, las negras pierden. }) (1... Rb8?! { Esta jugada no es lógica porque
+permite el avance del peón, pero también basta para hacer tablas. } 2. c5!? Ke7! { y las negras logran ofrecer el cambio de torres a tiempo } 3. Kc4 Rd8!) (1... Ke5? { Con el rey aquí, el corte horizontal del rey blanco no es
+suficiente, sin embargo esta jugada sí es correcta cuando la torre negra esta
+en c8. } 2. c5 Rh4 3. Rd8 Rg4 4. Kb3 { para apartarse del jaque en la columna c.
+Después de estas dos jugadas preparatorias el peón avanza de forma inevitable. } 4... Rh4 5. c6 Rh6 (5... Rh7 6. Kc4) 6. c7 $18) 2. Kb4 Rb8+! { Aquí aparece un
+nuevo recurso, los jaques frontales, que mantienen a raya al peón. Observar
+que la distancia que necesita la torre para que sean efectivos sus jaques
+frontales es la misma que en los jaques laterales por el lado largo. Por lo
+tanto gracias a que hay 3 filas de distancia la torre tiene la famosa
+efectividad lejana. } 3. Kc5 Rc8+ 4. Kb5 Rb8+! 5. Ka6 (5. Ka5!? { Esta puede
+ser una buena celada. Las negras no deben excederse con los jaques. Como regla
+general en los jaques frontales, es mejor atacar el peón indefenso que seguir
+dando jaques. } 5... Ra8+? (5... Rc8! { Impidiendo el avance del peón y el
+progreso del rey es única }) 6. Kb6! { y la torre ha perdido la efectividad
+lejana. } 6... Rb8+ (6... Rc8 7. c5 $18) 7. Kc7 { y el peón avanza. }) 5... Rc8! (5... Ra8+? { No hay que pasarse de jaques. Esta jugada pierde. } 6. Kb7 Ra2 7. c5 $18) 6. Rd4 Ke5! { La clave que da las tablas. La torre no puede mantener
+a la vez la defensa del peón y el corte. } 7. Rd5+ (7. Rh4 Rb8) 7... Ke6 8. Kb5 Rb8+! 9. Ka4 Rc8 10. Kb4 Rb8+ 11. Rb5 Rh8 { Preparándose a meter el rey
+en la zona de tablas y alcanzar la posición Philidor. } 12. Rb7!? { Intentando
+cortar al rey horizontalmente. } (12. Rd5 Rb8+) 12... Kd6 13. Kb5 Rh5+ 14. Kb6 Rc5! 15. Rd7+ Kxd7 16. Kxc5 Kc7 { 1/2-1/2 The game is a draw. } 1/2-1/2
+
+
+[Event "Diag. 10.15"]
+[Date "2013.05.26"]
+[White "Final 60"]
+[Black "Corte en dos columnas., Mét. comb. de Grigo"]
+[Result "1-0"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 60 - Corte en dos columnas., Mét. comb. de Grigo"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/xNvjF0P2"]
+[FEN "2r5/8/5k2/8/2P5/2K5/8/4R3 w - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ RD: Jaques frontales  En el ejemplo anterior hemos visto que con el corte en
+una columna, el bando débil consigue tablas si coloca sus piezas en las
+posiciones correctas. La pregunta inmediata es ¿Qué pasa si el rey está
+cortado en dos columnas?  Con el rey del bando débil cortado en dos columnas,
+el bando fuerte gana con peones de alfil ó central gracias a una maniobra
+ideada por Grigoriev y que lleva su nombre. La descripción de la maniobra hará
+obvio porque no se gana con el peón de caballo, pero de todos modos
+comprobarlo es un Ejercicio útil.  Merece la pena estudiar bien la maniobra y
+comprenderla, porque entonces no se olvidará, y en cualquier posición de este
+tipo bastará ver si es aplicable o no. Eso es mucho mejor que tratar de
+recordar de memoria con que peones y con cuantas columnas de corte se gana,
+porque realmente es un lío, y casi garantizo que con el tiempo se olvida. }
+1. Kb4 Rb8+ 2. Ka5 Rc8!? { Ya sabemos, por e l final anterior, que es mejor
+atacar el peón que empacharse a jaques } (2... Ra8+?! 3. Kb6 Rb8+ 4. Kc7 $18 { pierde fácilmente. }) 3. Kb5 Rb8+ 4. Ka6! { El rey blanco alcanza la casilla
+ideal. Desde aquí, está preparado para defender el peón en cualquier casilla
+desde cuarta hasta octava, y también para molestar a la torre negra desde b7.
+Esta es la primera parte del método combinado de Grigoriev. Observar bien que
+si el peón fuera de caballo, el rey no tendría una casilla equivalente a esta. } 4... Rc8 (4... Ra8+?! 5. Kb7 { y el peón avanza. }) 5. Rc1! { Una vez colocado el
+rey en la sexta fila se apoya el peón por detrás. Esta es la segunda parte del
+método combinado.  Al rey negro le falta un tiempo para llegar a apoyar a su
+torre. } (5. Re4 { también gana, pero la maniobra es algo más extraña y no la
+recomiendo para este caso, aunque es útil saber que es un recurso posible. } 5... Kf5 6. Rh4 Ke6 7. Kb7 Rc5 8. Kb6 Rc8 9. c5 $18) 5... Ke7 6. Kb7 Rc5 7. Kb6 Rh5 (7... Rc8 8. c5 $18 { Y una vez más con el peón en la quinta fila y el rey negro
+que no puede situarse delante, por culpa de la mala posición de su torre, se
+pierde, pasando por la posición Lucena. }) 8. c5 Kd8 { Es un intento lógico de
+alcanzar la posición Philidor, pero infructuoso. } 9. Rd1+ Kc8 10. Rg1! { La torre negra no puede alcanzar la posición de K&H ni la de Philidor, por lo
+tanto se pierde. } 10... Rh8 (10... Rh6+ 11. c6 $18) 11. c6 Rf8 { En este ejemplo
+veremos porque la defensa de la espera en la primera fila, no vale contra el
+peón de alfil. } 12. Ra1! { Esta simple jugada no puede hacerse si toda la
+posición se traslada a la izquierda. } 12... Kb8 13. c7+ Kc8 14. Ra8+ { 1-0 White wins. } 1-0
+
+
+[Event "Diag. 10.16"]
+[Date "2013.05.26"]
+[White "Final 61"]
+[Black "Corte vertica en 2 columnas, vs lado largo"]
+[Result "1-0"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 61 - Corte vertica en 2 columnas, vs lado largo"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/s9vWZtbF"]
+[FEN "3r4/8/k7/8/3P4/3K4/8/1R6 w - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Temas de mate  Es lógico hacerse la pregunta, y con el corte vertical ¿no
+importa el lado largo? Pues sí que importa, en cuanto al procedimiento, pero
+en realidad, no influye en los resultados, porque con una columna de corte
+vertical no se gana, y con dos, sólo hay un posible caso de lado largo, en el
+cual se pierde por temas de mate y es el que vamos a ver. El rey está cortado
+en 2 columnas, pero la torre negra podrá tomar el lado largo en algún momento.
+Aquí el método combinado no funciona, pero las blancas ganan siempre
+especulando con el mate. Comprobar porque no funciona el método combinado (1.
+Ke4, etc.) es un Ejercicio recomendado muy útil, que además reforzará la
+comprensión del recurso defensivo del lado largo. }
+1. Kc4! { No para aplicar
+el método combinado, si no para llegar en algún momento a c6. Vamos a ver que
+las negras pierden con cualquier posición de su rey.  Imaginemos que juegan
+las negras y pueden elegir donde colocar el rey: 1...Ka5 Esta es la mejor
+posición del rey. Hay que hacerle perder un tiempo. 2.Rb2 Ra4 (2...Ka6 ver
+línea principal) 3.Tb7 Ra5 4.Tb1 (ya está perdido el tiempo) y si ahora de
+nuevo Ra4 5.d5!  1...Ra7 2.Rc4 Tc8 3.Rd5 Td8 4.Rc6 Tc8 5.Rd7 Tc2 6.d5 } 1... Rc8+ 2. Kd5 Rd8+ 3. Kc6! { Con este truquito se logra el avance del peón. } (3. Ke5?! { Intentando aplicar el método de Grigoriev, no basta para ganar, porque una
+vez que el rey negro se acerca una columna, basta el recurso al lado largo. } 3... Re8+ 4. Kf6 Rd8 5. Rd1?? (5. Ke5) 5... Kb6 6. Ke7 Rh8! 7. d5 Rh7+!) 3... Rc8+ 4. Kd7 Rc2 5. d5 { Y el peón avanzará hasta el final.  Algunas ideas sobre el corte vertical. Se
+han intentado establecer algunas reglas, para recordar cuantas columnas de
+corte se necesitan para ganar en cada caso, pero están llenas de parches y
+excepciones. En mi opinión es mejor quedarse con las ideas: con los métodos
+defensivos y los métodos de ataque. Comprendiendo bien el método combinado, se
+puede deducir la mayoría de las veces cual es el resultado correcto. No hemos
+analizado las posiciones con los peones más atrás de la cuarta fila, pero
+estas son poco frecuentes y los métodos de juego son los mismos, aunque en el
+caso del peón en segunda la complejidad de las variantes concretas llega a ser
+enorme. } 1-0
+
+
+[Event "Los 100 Finales que hay que saber P3: Los cortes que funcionan"]
+[Date "2013.05.26"]
+[White "Resumen del corte vertical"]
+[Result "*"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "Standard"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Los 100 Finales que hay que saber P3: Los cortes que funcionan"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/lNHQrmhQ"]
+[ChapterMode "gamebook"]
+
+{ 1) El bando fuerte logra corte de una columna: Resulta útil, pero contra las
+piezas defensoras en las posiciones correctas, no se gana. 2) El bando fuerte
+logra corte de dos columnas: A) Si el peón está en cuarta: Con peón de una de
+las 4 columnas centrales se aplica el método combinado y se gana. (En el único
+caso en que la torre puede tomar el lado largo, se gana gracias a las amenazas
+de mate). Con peón de caballo, no se puede aplicar el método combinado y es
+tablas. B) Si el peón está en tercera: El método combinado no basta, porque el
+rey defensor tiene tiempo de colocarse delante del peón. Por lo tanto con las
+piezas defensivas en las posiciones correctas es tablas. 3) El bando fuerte
+logra corte de tres columnas: Se aplica el método combinado y se gana con
+cualquier peón en cuarta o tercera, pero no en segunda. 4) El bando fuerte
+logra el corte en cuatro columnas: Normalmente se gana, incluso con el peón en
+segunda, pero entran en juego otros temas además del método combinado. }
+ *
+
+
+[Event "Los 100 Finales que hay que saber P3: Corte Horizontal perfecto"]
+[Date "2013.05.27"]
+[White "Resumen del corte horizontal"]
+[Result "*"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "Standard"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Los 100 Finales que hay que saber P3: Corte Horizontal perfecto"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/mAF6Rsyd"]
+[ChapterMode "gamebook"]
+
+{ El corte horizontal implica tener al rey defensor en el lado largo. Si la
+torre defensora tiene el lado largo, el corte horizontal es inofensivo.  El
+corte horizontal se denomina perfecto si el rey defensor está en la misma fila
+del peón e imperfecto si está una fila por delante.   Con el corte horizontal
+perfecto, con peón de caballo o alfil, se gana siempre (incluso con el peón en
+la segunda fila). Con peón central solo se gana a partir de la cuarta fila. 
+Con el corte horizontal imperfecto el bando defensor hace tablas si toma con
+su torre la columna adyacente al peón (además con el peón central tiene otras
+defensas). }
+ *
+
+
+[Event "Los 100 Finales que hay que saber P3: Con peón desde 4ta"]
+[Date "2013.05.26"]
+[White "Sección 4. El corte horizonta"]
+[Result "*"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "Standard"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Los 100 Finales que hay que saber P3: Con peón desde 4ta"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/JAe4wqOx"]
+[ChapterMode "gamebook"]
+
+{ De las dos maneras de cortar al rey, vertical y horizontal, la segunda es más
+eficaz, y más sencilla de manejar. Se puede aplicar por delante de la cuarta
+fila y funciona igual, pero estudiaremos posiciones con el peón en la cuarta o
+más atrás, porque su análisis ya incluye las otras. }
+ *
+
+
+[Event "Diag. 10.17"]
+[Date "2013.05.26"]
+[White "Final 62"]
+[Black "Corte Horizontal Perfecto, Peón de N"]
+[Result "1-0"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 62 - Corte Horizontal Perfecto, Peón de N"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/Nz3IW2Oi"]
+[FEN "1r6/8/8/2R5/1P1k4/1K6/8/8 b - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ La posición del diagrama ilustra el corte horizontal. Consiste en que la
+torre impide al rey cruzar filas para llegar a la zona de coronación del peón.
+Es importante observar desde el principio que el corte horizontal se realiza
+siempre con el rey del bando débil en el lado largo. Si el rey estuviera en el
+lado corto, entonces la torre podría tomar el largo, comenzaría a dar jaques,
+y literalmente se reiría del corte horizontal.  El corte horizontal puede ser
+con el rey defensor en la misma fila del peón o en la siguiente. Al corte
+horizontal con el rey en la misma fila (como en este caso) lo llamaremos Corte
+horizontal perfecto. El estudio de estos ejemplos nos mostrará porque. }
+1... Ra8 { Evitando Ka4. } 2. Rc6 { Amenazando b5 y Kb4. } (2. Rh5 { seguido de b5 y Kb4 también gana } 2... Rb8 3. b5 Rb7 4. Kb4 Rb8 5. Rh6 Kd5 6. b6) 2... Rb8 3. Ra6 { Ahora no es posible
+evitar Ka4 y b5. } 3... Kd5 4. Ka4! Kc4 5. Rc6+! Kd5 6. b5 Ra8+ 7. Kb4 { y como
+puede verse se ha reproducido la posición inicial una fila más arriba. Ahora
+el procedimiento se repite. } 7... Rb8 8. Rc7 Kd6 9. Ra7 Kd5 10. Ka5 Kc5 11. Rc7+ Kd6 12. b6 Ra8+ 13. Kb5 Ra1 { Ante la amenaza de Rh7, b7 y Kb6 las negras optan por
+los jaques traseros, pero entonces esta posición desemboca de forma inevitable
+en la omnipresente posición Lucena.  Como Ejercicio el lector puede comprobar
+que el corte horizontal perfecto funciona también con el peón de caballo en la
+tercera fila o incluso en la segunda. El procedimiento es el mismo. } 1-0
+
+
+[Event "Diag. 10.18"]
+[Date "2013.05.26"]
+[White "Final 62"]
+[Black "Corte Horizontal Perfecto, Peón de B"]
+[Result "1-0"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 62 - Corte Horizontal Perfecto, Peón de B"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/8l7oGCqV"]
+[FEN "2r5/8/8/3R4/2P1k3/2K5/8/8 b - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Peón de alfil  Aunque jueguen las negras pierden igual que con el peón de
+caballo. }
+1... Rb8 2. Rh5 Kf4 3. c5 Rc8 4. Kc4 Ke4 5. Rh6 Ke5 6. c6 { Por lo
+tanto podemos decir que el Corte Horizontal Perfecto también sirve con el peón
+de alfil en cuarta y sin necesidad de nuevos diagramas decimos que lo mismo
+sucede con el peón central.  De nuevo, como Ejercicio el lector puede
+comprobar que el corte horizontal perfecto funciona también con el peón de
+alfil en la tercera fila o en la segunda, y el procedimiento es el mismo. 
+Cuando ya no funciona de la misma forma es con el peón central en tercera o
+segunda como veremos en el siguiente ejemplo. } 1-0
+
+
+[Event "Diag. 10.19"]
+[Date "2013.05.26"]
+[White "Final 62"]
+[Black "Corte Horizontal Perfecto P, central 3a. fila"]
+[Result "1/2-1/2"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 62 - Corte Horizontal Perfecto P, central 3a. fila"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/z0IQOkZC"]
+[FEN "3r4/8/8/8/7R/3P1k2/3K4/8 b - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Corte horizontal perfecto con peón central en la tercera fila  Tenemos un
+corte horizontal perfecto con peón central en tercera. En estas circunstancias
+aparece un nuevo sistema defensivo. }
+1... Ra8! 2. d4 (2. Kc3 Ra3+ { no permite el progreso }) 2... Kg3 3. Rh5 { Intentando Kd3 o Kc3 con corte
+horizontal perfecto y peón en cuarta, pero las negras no se dejan. } (3. Rh7 Kf4 4. Re7 Kf5 5. Kd3 Kf6 { llegando al Final
+59. }) (3. Rh6 Ra3 { cortando al rey } (3... Kf4 { también hace tablas: } 4. Kd3 Kf5 5. Kc4 Ra4+ 6. Kc5 Ra5+ 7. Kb4) 4. Re6 Kf4 { y tablas de forma similar a la
+variante principal. }) 3... Kg4 4. Re5 Ra3! { Necesario y bueno. El rey queda
+impedido de ayudar a su peón. Curiosamente el corte horizontal ahora lo hace
+la torre defensora. } 5. d5 Kf4! 6. Re8 { Con el peón una fila más adelante
+este sistema no sirve, porque ahora el peón avanzaría a séptima. } 6... Ra5 { 1/2-1/2 The game is a draw. } 1/2-1/2
+
+
+[Event "Diag. 10.20"]
+[Date "2013.05.27"]
+[White "Final 63"]
+[Black "Corte Horizontal Imperfecto"]
+[Result "1-0"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 63 - Corte Horizontal Imperfecto"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/dfEsxqcE"]
+[FEN "2r5/8/7R/4k3/2P5/2K5/8/8 b - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Llamamos corte horizontal imperfecto, cuando el rey defensor está cortado
+horizontalmente, pero se mantiene una fila por delante del peón (como sucede
+en el diagrama 10.19). Aquí la ventaja no es tan grande para las blancas,
+aunque los procedimientos de ataque y defensa siguen siendo muy sencillos. Si
+comienzan las negras hacen tablas. }
+1... Rb8! { Evitando la ganadora ..b6.
+Ahora es fácil ver que no hay progreso, pero para comprender que cualquier
+otra jugada pierde, en vez de ver variantes, supongamos que en la posición del
+diagrama juegan las blancas: 1.Rb6! Tomando esta columna las blancas logran el
+avance del peón a la quinta fila l...Rc7 2.Kb4! En este momento la única
+jugada que gana. 2...Rc8 (2...Rd4 3.Rd6+ Ke5 4.c5 Corte perfecto) 5.c5 Kd5 6.
+Rd6+ Ke5 y ya estamos de hecho en el corte horizontal perfecto. 7.Kb5 Rb8+ 8.
+Rb6+- } 2. Rg6 Rb7! { Hay que esperar en la columna b. } 3. c5 Kd5! { El
+contraste con la posición anterior es claro. Por eso llamamos a esta situación
+Corte Horizontal Imperfecto.  El corte imperfecto tiene los mismos efectos con
+el peón de caballo, (es necesario para el bando débil tomar de inmediato la
+columna adyacente al peón), y permite una más amplia defensa con el peón
+central, pero lo más útil es saber que la misma defensa es suficiente. } 1-0
+
+
+[Event "Diag. 10.21"]
+[Date "2013.05.27"]
+[White "Final 64"]
+[Black "Corte Horizontal Aparente"]
+[Result "1/2-1/2"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 64 - Corte Horizontal Aparente"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/mOFAIKw4"]
+[FEN "4r3/8/8/5R2/4P1k1/4K3/8/8 b - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Añadimos esta posición aquÍ, aunque en realidad es un ejemplo de lado largo,
+porque muchos jugadores tienden a confundir las situaciones. Ahora vamos a ver
+gráficamente lo que ya hemos citado teóricamente, que el corte horizontal no
+sirve contra el lado largo.  Puede parecer lo mismo que los ejemplos
+anteriores, pero no lo es. La torre negra puede dar jaques por el lado largo y
+el corte horizontal es inofensivo. }
+1... Ra8 2. Rc5 (2. Kd4 Ra4+ 3. Ke5 Ra5+ 4. Kf6 Ra6+ 5. Kf7 Ra4) (2. Rf7 Ra3+ 3. Kd4 Ra4+ 4. Kd5 Ra5+ 5. Kd6 Ra6+ 6. Kc5 Ra5+) 2... Rd8 3. Rd5 Ra8 4. Kd4 Kf4 { Lo mas fácil, acercándose al
+peón. } 5. Rf5+ Kg4 { Y ahora o bien la torre blanca permite Kf5 o permite
+los jaques de la torre negra. } 1/2-1/2
+
+
+[Event "Los 100 Finales que hay que saber P3: Posición de Vancura"]
+[Date "2013.05.27"]
+[White "Resumen del corte horizontal"]
+[Result "*"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "Standard"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Los 100 Finales que hay que saber P3: Posición de Vancura"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/VkmYBxMG"]
+[ChapterMode "gamebook"]
+
+{ El corte horizontal implica tener al rey defensor en el lado largo. Si la
+torre defensora tiene el lado largo, el corte horizontal es inofensivo.  El
+corte horizontal se denomina perfecto si el rey defensor está en la misma fila
+del peón e imperfecto si está una fila por delante.   Con el corte horizontal
+perfecto, con peón de caballo o alfil, se gana siempre (incluso con el peón en
+la segunda fila). Con peón central solo se gana a partir de la cuarta fila. 
+Con el corte horizontal imperfecto el bando defensor hace tablas si toma con
+su torre la columna adyacente al peón (además con el peón central tiene otras
+defensas). }
+ *
+
+
+[Event "Los 100 Finales que hay que saber P3: El peón de torre"]
+[Date "2013.05.27"]
+[White "Sección 5. Peón de torre"]
+[Result "*"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "Standard"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Los 100 Finales que hay que saber P3: El peón de torre"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/eUEJdlAy"]
+[ChapterMode "gamebook"]
+
+{ En este caso, el peón de torre es tan diferente, que tiene su propia teoría.
+Además el final es muy frecuente, porque los peones de torre suelen aguantar
+mucho en el tablero.  Las opciones de tablas son mucho más altas con este peón,
+y para ganar el bando fuerte necesita posiciones muy favorables.  Vamos a
+clasificar este final según la pieza que se pone delante del peón, porque con
+un juego lógico es casi inevitable que haya una:  A) Si la pieza que se sitúa
+delante del peón es el rey defensor, las tablas son seguras. B) Si la pieza
+que se sitúa delante del peón es la torre defensora, todo depende de que rey
+llegue primero, aunque hay algunas sutilezas de carácter táctico, cuando los
+dos reyes llegan casi a la vez.  Quedan para estudiar por tanto, los casos en
+que se sitúa delante del peón la torre o el rey del bando fuerte. Cada uno de
+ellos necesita un par de posiciones para aclararse. }
+ *
+
+
+[Event "Diag. 10.22"]
+[Date "2013.05.29"]
+[White "Final 65"]
+[Black "Peón en séptima. R  fuerte, delante"]
+[Result "1/2-1/2"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 65 - Peón en séptima. R  fuerte, delante"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/qKUXMiHf"]
+[FEN "R7/P4k2/8/8/8/8/6K1/r7 b - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ RO: Jaques traseros. Torre detrás del peón 
+La posición del diagrama es una de las más conocidas de los finales de torre.
+Con la torre fuerte delante de su peón, el bando fuerte siempre puede avanzar
+el peón a séptima y esa maniobra o bien gana, o en caso contrario facilita la
+defensa. El bando defensor tiene dos estrategias opuestas: Si tiene tiempo,
+irá con el rey a capturar el peón. Si no tiene tiempo debe mover el rey en la
+dirección contraria y llevarlo a las casillas g7-h7. } { [%csl Gb6,Gb7,Gc6,Gc7,Gg7,Gh7] }
+1... Kg7! { Es necesario situar el rey en una de las dos casillas g7 ó h7.
+Una vez hecho esto las blancas no pueden progresar. } { [%csl Yb6,Yb7,Yc6,Yc7,Yh7] } (1... Ra3?? 2. Rh8! $18) (1... Ke6?? 2. Re8+ $18) (1... Ke7?? 2. Rh8 $18) 2. Kf3 Kh7 3. Ke4 Kg7 4. Kd5 Kh7 5. Kc6 Kg7 6. Kb6 Rb1+! { Cuando el
+rey de las blancas llega a defender su peón, las negras comienzan a dar jaques
+por detrás y el rey de las blancas no tiene donde refugiarse. } 7. Ka6 Ra1+ 8. Kb5 Kh7 { No hay ningún progreso, es tablas fácilmente. Es interesante
+comprobar que con el peón ya situado en la séptima fila, ni siquiera un peón
+de más, si está en las columnas de h o de g, es suficiente para ganar. Lo
+veremos en el siguiente capítulo. } 1/2-1/2
+
+
+[Event "Diag. 10.23"]
+[Date "2013.05.29"]
+[White "Final 66"]
+[Black "Peón en sexta. La defensa de, Vancura"]
+[Result "1/2-1/2"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 66 - Peón en sexta. La defensa de, Vancura"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/1kuS1MNR"]
+[FEN "R7/5k2/P7/8/8/8/6K1/r7 b - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ RO: Jaques lejanos (laterales) 
+Ahora ya sabemos que el peón sólo se debe llevar a séptima si el rey negro no
+puede colocarse en g7-h7. ¿Pero entonces que hacer con él? Si se queda muy
+atrás, el rey defensor vendrá a comérselo, así que lo mejor es llevarlo hasta
+la sexta, donde alcanza cierta seguridad.  El rey esta cerca de la zona de
+seguridad g7-h7 y puede alcanzarla si el peón avanza a séptima. La primera
+pregunta es si puede ir a por el peón. } { [%csl Ye1,Ye2,Ye3,Ye4,Ye5,Ye6,Ye7,Ye8] }
+1... Kg7 { La respuesta es ¡No! } (1... Ke7 2. a7 { y el rey negro ha sido atrapado a medio camino; no puede
+volver porque no llega a tiempo al rincón se seguridad y tampoco tiene tiempo
+de acercarse al peón, por ejemplo } 2... Kf7 3. Rh8 { Así pues podemos decir que con
+el peón en la sexta, la columna de rey esta minada para el rey negro y si no
+la ha atravesado antes, ya no puede hacerlo.  Puesto que las negras no pueden
+acercarse al peón se sitúan ya en la zona de seguridad. ¿y ahora? Sabemos que
+las blancas no deben avanzar el peón pero ¿Pueden hacer algo más?
+Efectivamente pueden. Tanto es así que durante mucho tiempo esta posición se
+consideró ganada por las blancas, incluso por los mejores jugadores del mundo,
+hasta que en 1924 un jugador llamado Vancura encontró un sorprendente método
+defensivo.  Pero hablemos primero del plan ganador de las blancas. Ahora el
+peón puede usarse de escudo para los jaques y por lo tanto las blancas tienen
+un plan ganador: Llevar su rey hasta a7, sacar la torre y luego coronar el
+peón. Y la defensa de las negras es bastante difícil para quien no conozca la
+posición, como demuestra que durante muchos años incluso los mejores jugadores
+del mundo no la encontraron. }) 2. Kf3 { Intentando ejecutar el plan de la forma
+más directa. Si las negras se quedan esperando perderán la partida. Otras
+jugadas también son posibles y el análisis de todas las posiciones posibles
+del rey blanco es complicado, pero de momento, vamos a coger la idea. } 2... Rf1+ { El comienzo de la defensa de Vancura. Es un momento muy importante y debemos
+considerar otras posibilidades, que son muy posibles en la práctica, lo que
+haremos esencialmente en el próximo ejemplo. } (2... Kh7? { veamos la opción
+de simplemente esperar, como se hace con el peón en séptima, esta jugada en
+cuanto a plan, resume todas las opciones que no son iniciar la defensa de
+Vancura. } 3. Ke4 Kg7 4. Kd5 Kh7 5. Kc6 Kg7 6. Kb6 { Ahora el rey ha defendido
+el peón y la torre blanca amenaza salir } 6... Rb1+ 7. Ka7 { esta es la diferencia,
+el rey blanco tiene refugio a los jaques. Ahora saca la torre y corona el peón. } 7... Kh7 8. Rb8 Ra1 9. Rb6 { seguido de Kb7-a7 y a8. }) 3. Ke4 Rf6!! { La clave de
+la Defensa de Vancura: la torre ataca el peón lateralmente mientras esté en la
+sexta fila, de ese modo si el rey se acerca puede dar jaques sin que el peón
+sirva de escudo al rey. Además si el peón avanza (amenazando Rg8) la torre
+negra inmediatamente se colocará detrás del peón volviendo a la posición
+anterior ya conocida como tablas. Una vez conocido el mecanismo, la aplicación
+es tan sencilla que basta un poco de atención para evitar errores groseros.
+Consideremos algunas opciones. } 4. Kd5 (4. Ke5 { (amenaza Rg8) } 4... Rb6 5. Kd5 Rf6) (4. a7 Ra6!) 4... Rb6 5. Kc5 Rf6 6. Kb5 { Amenazando sacar la torre. } 6... Rf5+ { Ahora comienza la serie de jaques. } 7. Kb6 Rf6+ 8. Ka7 Rf7+ 9. Kb6 Rf6+ 10. Kc5 Rf5+ 11. Kd4 Rf6 { Las tablas son evidentes. } 1/2-1/2
+
+
+[Event "Diag. 10.24"]
+[Date "2013.10.12"]
+[White "Final 66"]
+[Black "Peón en sexta. La defensa de, Vancura 2"]
+[Result "1/2-1/2"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 66 - Peón en sexta. La defensa de, Vancura 2"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/ovsfbP6P"]
+[FEN "R7/6k1/P7/8/8/5K2/8/r7 b - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Una vez
+conocido el método de Vancura es fácil de aplicar, pero una breve
+investigación en las bases de datos les puede llevar a descubrir a varios
+jugadores titulados perdiendo la posición de tablas. Es un caso claro de: "Si
+no se conoce, no se descubre sobre el tablero".  Pero volvamos a la
+interesante posicion después de la jugada dos de las blancas. ¿Qué pasaría si
+les tocase jugar de nuevo? ¿O si el rey blanco estuviera en otra casilla? (por
+ejemplo habiendo jugado 2...f2 que impide el traslado a la tercera fila con
+jaque) ¿O si las negras se descuidan un poco y no llevan su torre de inmediato
+a la tercera? ¿O sencillamente si el final empieza en otra posición? En
+resumen ¿como saber fácilmente si la posición se gana o es tablas?  Supuestas
+las piezas negras en a 1 y g7, Romanovsky, en 1 950, hizo un análisis
+exhaustivo de todas las posiciones del rey blanco y como de costumbre
+estableció una zona de tablas que es la que se ve en el diagrama. Pero como ya
+he comentado, no soy partidario de la memorización de zonas irregulares,
+porque no suele ser duradera. Por eso recomiendo la observación de los métodos,
+que permitirá responder correctamente en cada caso particular. } { [%csl Yd2,Ye2,Ye3,Ye6,Yf2,Yf4,Yf5,Yg2,Yg3,Yg4,Yg5,Yh2,Yh3,Yh4,Yh5] }
+1... Ra5!? { Esta jugada, que aún hace tablas, es la más interesante para analizar, aunque
+no la más fácil: } (1... Rf1+! 2. Ke4 Rf6 { es la variante analizada en el
+anterior ejemplo y la forma más segura de hacer tablas. }) (1... Ra4!? { Impidiendo alcanzar la zona ganadora, también hace tablas y puesto que impide
+"subir" al rey blanco, más fácil que en la variante principal } 2. Ke3 Rb4 3. Ra7+ Kg6 4. Rb7 Ra4 5. a7 Kf5 { y el rey negro gana la carrera hacia al peón. }) (1... Ra2? 2. Ke4! { El rey entra en la zona ganadora.
+Veamos que pasa si ahora las negras "despiertan" e intentan llevar su torre a
+la tercera fila. } 2... Ra5 (2... Re2+?! { por aquí ya no llega } 3. Kd5 $18) 3. Kd4 { El rey blanco se acerca a b4. Ahora es urgente mover la torre por la cuarta
+fila para luego ir a tercera. } 3... Rb5 4. Ra7+ Kf6!? (4... Kf8?! { el rey en
+octava facilita las cosas } 5. Rb7 Ra5 6. a7 $18) (4... Kg6 5. Rb7 Ra5 6. a7 { Como ya dij imos en la introducción de esta sección, ahora todo se reduce a
+una carrera entre los reyes que gana el blanco. } 6... Kf6 7. Kc4 Ke6 8. Kb4 Ra1 9. Kc5 $18 { y el rey llega a b8 }) 5. Rh7! (5. Rb7? { aquí el rey negro llega a
+tiempo en la carrera de reyes porque gana un tiempo al atacar la torre blanca } 5... Ra5 6. a7 Ke6 7. Kc4 Kd6 8. Kb4 Kc6) 5... Ra5 6. a7 Ke6 7. Kc4 Kd6 8. Kb4 Ra1 9. Kb5! $18) 2. Ke4 (2. Ra7+ { este jaque ahora permite varias opciones
+pero la más sana es casi siempre Rg6. } 2... Kg6 3. Ke4 Rb5) 2... Rb5 { La torre
+negra está a punto de llegar a la fila salvadora. } 3. Ra7+ Kg6! { En este
+caso la única, porque Rf6 permite a la torre blanca situarse favorablemente en
+h6 y la octava fila esta minada por la maniobra Tb7 y a7. } (3... Kf6 4. Kd4 Rb6 5. Rh7 $18) 4. Rb7 { En cualquier otra casilla de la séptima fila el rey negro
+también ganará un tiempo al ir al flanco de dama. } (4. Kd4 Rb6! 5. Kc5 Rf6 { permite a las negras obtener la posición defensiva correcta. }) 4... Ra5 5. a7 Kf6! 6. Rh7!? { [#] Diag. 10.25 } (6. Kd4 Ke6 7. Kc4 Kd6 8. Kb4 Kc6) 6... Kg6!! { Realmente paradój ico (como siempre a primera vista). El
+motivo es que la torre negra no debe salir de la cuarta fila (por Rd5-c6, etc.)
+y el rey sufre un percance táctico si va demasiado pronto al flanco de dama. } (6... Ke6? 7. Rh6+! Kd7 8. Rh8! $18 { un tema conocido pero brillantemente
+ejecutado. }) 7. Rc7 Kf6 8. Kd4 Ke6 9. Kc4 Kd6 { Estas variantes no son
+exhaustivas, pero creo que ilustran bastante bien lo que pasa y nos ayudan a
+sacar algunas ideas que nos deben orientar en la práctica.  Conociendo bien
+estos temas y calculando con precisión se puede jugar correctamente este final.
+Resumamos las principales ideas, desde el punto de vista del defensor:  1 ) La
+torre debe trasladarse a la tercera fila. Si no, se pierde, porque el rey
+fuerte se oculta en a7. 2) Si la torre puede ir a la tercera fila mediante un
+jaque, apenas hay que calcular nada. 3) Si debe trasladarse sin jaque, no
+basta con que tenga tiem po para llegar. Entonces las blancas tendrán un
+tiempo libre en medio del traslado, que usarán para activar su torre, y las
+negras tendrán que calcular dos cosas: a) Algunos trucos tácticos y b) U na
+carrera de los reyes hacia el flanco de dama. 4) Si se traslada sin jaque
+conviene hacerlo restri ngiendo el avance del rey blanco al máximo. } 1/2-1/2
+
+
+[Event "Diag. 10.26"]
+[Date "2013.10.12"]
+[White "Final 67"]
+[Black "Peón de torre en séptima con, rey delante"]
+[Result "1-0"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 67 - Peón de torre en séptima con, rey delante"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/ZBtoqLOs"]
+[FEN "K7/P4k2/8/8/8/8/4R3/1r6 w - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ RD: Encierro del rey, Jaques lejanos
+Ahora vamos a estudiar la posición con el rey atacante por delante. Comenzamos
+por estudiar el peón en séptima, porque si está más atrás puede seguir
+avanzando sin necesidad del apoyo de su torre, cuya tarea más útil es "cortar
+al rey rival". Por otro lado, si el rey blanco apoya a su peón pero trata de
+no ponerse delante, la torre negra le dará jaques y le obligará a ocultarse
+delante.  La posición más importante del final de torre y peón de torre contra
+torre. Para ganar el bando fuerte debe tener cortado al rey rival en la
+columna de alfil del otro flanco. Si consigue hacerlo con el peón más atrás,
+podrá luego avanzar el peón cómodamente. Si no puede cortar en esa columna,
+más vale que use su torre haciendo de cortina para su rey, antes de que se
+acerque el rival.  La maniobra para ganar es larga y compleja, pero si se sabe
+que en esta posición se gana es relativamente fácil de encontrar sobre el
+tablero (contando siempre con el beneplácito del reloj ) . } { [%csl Ge1,Ge2,Ge3,Ge4,Ge5,Ge6,Ge7,Ge8] }
+1. Rh2! { Una vez
+llevado el peón a séptima, la torre se dirige a la casilla b8, para lo cual
+necesita tres jugadas por cualquier camino que vaya. Por este motivo el rey
+del bando débil debe permanecer en la segunda fila. Si el rey negro está en la
+tercera fila la torre blanca llega a b8 en 2 jugadas y entonces puede ganar
+incluso con el rey negro una columna más cerca. } 1... Ke7 2. Rh8 Kd6!? { Una buena
+jugada que trata d e dificultar la salida del rey blanco por las columnas b y
+a. } (2... Kd7 { pierde más fácil } 3. Rb8 Ra1 4. Kb7! (4. Rb7+? Kc8 { y el rey blanco ya nunca saldrá del rincón. Para el que no conozca esta
+posición merece la pena probar un poco, porque se producirá muchas veces en
+sus partidas rápidas (y alguna vez en las otras) } 5. Rb2 Kc7 6. Rc2+ Kd7 7. Kb7 Rb1+ 8. Ka6 Ra1+ 9. Kb6 Rb1+ 10. Kc5 Ra1) 4... Rb1+ 5. Ka6 Ra1+ 6. Kb6 Rb1+ 7. Kc5 $18) 3. Rb8 { La torre blanca llega justo a tiempo de ofrecer cambio y
+permitir la salida de su rey, que no podría lograrse si el rey negro estuviera
+en las casillas c6 o c7. } 3... Ra1 4. Kb7 Rb1+ 5. Kc8! (5. Ka6 Ra1+ 6. Kb6 Rb1+ 7. Ka5 Ra1+ { y por este lado ahora las blancas no progresan. }) 5... Rc1+ 6. Kd8 Rh1! { Un recurso que dificulta la victoria al máximo. } (6... Rg1 { esta
+distancia no es suficiente } 7. Ke8! Rg8+ 8. Kf7) 7. Rb6+! { Una maniobra
+única. } (7. Ke8? Rh8+ 8. Kf7 Rh7+ { cae el peón }) (7. Kc8 Rc1+ { repite la
+posición. }) 7... Kc5 8. Rc6+!! { Este jaque que obliga al rey negro a elegir
+entre un lado y otro es necesario. } (8. Ra6? Rh8+ 9. Kc7 Rh7+ 10. Kd8 Rh8+ 11. Ke7 Rh7+ 12. Kf8 Rh8+ 13. Kf7 Ra8! 14. Ke7 Kb5 15. Ra1 Kb6) (8. Rb8? Rh8+ 9. Kc7 Rh7+) (8. Rb1!? { también gana, pero teniendo que jugar el
+final de dama contra torre. } 8... Rxb1 9. a8=Q $18) 8... Kb5 (8... Kd5 9. Ra6 (9. Rc8 Kd6) 9... Rh8+ 10. Kc7! (10. Ke7?! Rh7+! 11. Kf8 Rh8+ 12. Kg7? Ra8) 10... Rh7+ 11. Kb6 $18) 9. Rc8! Rh8+ 10. Kc7 Rh7+ 11. Kb8 { El peón
+corona.  Resumen de ideas de este final : 1 ) Con e l rey por delante del peón
+lo más importante es cortar el rey rival lo más lejos posible. 2) Si se corta
+en la columna de alfil del otro flanco, entonces se lleva el peón a séptima y
+luego se gana, forzando su salida del rincón con ayuda de la torre. } 1-0
+
+
+[Event "Diag. 10.27"]
+[Date "2013.10.12"]
+[White "Final 68"]
+[Black "Torre y rey apoyando al peón"]
+[Result "1/2-1/2"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 68 - Torre y rey apoyando al peón"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/fgdsa66J"]
+[FEN "8/1K1k4/2R5/P7/8/8/8/7r b - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Si se corta al rey más cerca ya se ha visto que es insuficiente para llevar
+el peón a séptima y luego sacar el rey del rincón.Pero en ese caso la
+oportunidad de ganar existe, si se produce una posición favorable de las
+piezas, que permita escudar al rey antes de que el peón llegue a séptima, como
+vemos en el siguiente ejemplo.  El diagrama siguiente muestra la posición
+crítica con el rey y la torre apoyando el peón. Si las blancas juegan, ganan,
+jugando 1.a6 y ya no es posible detener el peón. 1...Tb1+ 2.Tb6 Tc1 3.a7 Tc7+
+4.Ra6 Tc8 5.Tb8+-   Si las negras juegan, hacen tablas con juego preciso.
+Lógicamente si el rey negro esta mas lejos o él peón más adelantado las
+blancas ganan más fácil.  Teniendo en mente esta posición límite es posible
+resolver correctamente este tipo de finales, aunque las sutilezas son muchas. }
+1... Rb1+! 2. Rb6 Rc1! { Esta es la disposición ideal de la torre para dar
+jaques. } 3. a6 (3. Rb2 { Dejando más casillas libres al rey y amenazando Td2
+tiene mucho sentido. } 3... Rc7+ 4. Kb6 Kc8! { y el rey negro se pone delante del
+peón o impide salir al blanco. }) 3... Rc7+ 4. Ka8 Rc8+ 5. Ka7 (5. Rb8 Rc1 (5... Kc7? 6. a7 $18 { con doble zugzwang }) 6. a7 Kc7!) 5... Rc7+ 6. Rb7 Kc8! 7. Kb6 Rc1 8. Rh7 Rb1+ 9. Ka7 Ra1 { No hay progreso. } 1/2-1/2
+
+
+[Event "Los 100 Finales que hay que saber P3: Torre vs torre y dos peones"]
+[Date "2013.10.12"]
+[White "11. Torre y dos peones contra, torre"]
+[Result "*"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "Standard"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Los 100 Finales que hay que saber P3: Torre vs torre y dos peones"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/lAOwmrA8"]
+[ChapterMode "gamebook"]
+
+{ En los finales de torres, hay bastantes posiciones en que dos peones de
+ventaja no son suficientes para ganar. Esta tendencia tablífera sólo es
+superada por los alfiles de diferente color.  Las posiciones en que torre y
+dos peones no ganan contra la torre solitaria, tienen un gran interés
+teórico-práctico por varios motivos:  a) Se producen bastante a menudo. b)
+Algunos de ellos no son fáciles de jugar si no se sabe la idea básica. c) Son
+una introducción muy útil para comprender los temas de los finales de torres
+con más peones, sobre todo el importante concepto de la torre del bando fuerte
+pasiva, y la del débil activa.  Para el estudio de estos finales vamos a
+identificar cinco casos interesantes, en los cuales hay muchas posibilidades
+de tablas.  Estos cinco casos son:  1) Peones doblados. 2) Peones de torre y
+alfil del mismo flanco. 3) Peones ligados pero bloqueados por el rey. 4) Torre
+atascada delante de su peón en séptima. 5) Peones detenidos por el método de
+Vancura.  Esta clasificación no considera todas las posiciones posibles de
+tablas, pero si las más importantes y frecuentes. De todos modos es
+conveniente no fiarse nunca de que sean ganadoras aquellas posiciones en que
+las piezas del bando fuerte ocupen posiciones pasivas. }
+ *
+
+
+[Event "Diag. 11.1"]
+[Date "2013.10.12"]
+[White "Final 69"]
+[Black "Peones centrales"]
+[Result "1/2-1/2"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 69 - Peones centrales"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/w82Pztvu"]
+[FEN "3k4/6R1/7r/2KP4/3P4/8/8/8 w - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Primer caso  Con peones doblados casi siempre es tablas, pero lo primero que
+conviene saber es que no todos los métodos que hacen tablas con un solo peón
+funcionan ahora.  El mayor peligro de no conocer este final, o no fiarse de
+lograr las tablas, es tomar una decisión equivocada en un final previo, en el
+cual se puede simplificar. Por eso es importante estar seguro de que es tablas,
+de que en una posición normal las tablas son fáciles, y de cómo hacerlas.  El
+mejor método defensivo consiste en comenzar con la posición de Philidor y
+cambiar a Kling& Hcrwitz en el momento y la forma oportunos. }
+1. Rb7 Rg6 2. Rb6 { Esta es la diferencia con respecto a un peón. Las blancas pueden ofrecer
+cambio de torres y "romper" la Defensa de Philidor. Cuando no se conoce la
+teoría, uno tiende a asustarse, sobre todo si se ha analizado esta posición
+"desde lejos". Esta preocupación puede llevar a decisiones de simplificación
+erróneas. Por eso es importante fijarse bien en la continuación y espantar
+esos fantasmas para siempre. } 2... Rg4! { Ahora esta jugada es importante. El
+único método que se puede aplicar es el de Kling y Horwitz, pero al colocar la
+torre por detrás, debe hacerse capturando el segundo peón. Por supuesto se
+pierde el final de peones y otras jugadas, aunque pueden lograr tablas,
+enredan la situación. } (2... Rg1?! { Dvoretzky califica esta jugada de
+perdedora, en vista de la línea. } 3. Kc6! Rc1+ (3... Kc8 { mantiene la defensa. }) 4. Kd6 { que seguiría } 4... Rc8 5. Ra6 Rb8 6. Ke6 Rc8 7. d6 Rb8 8. Ra1 Rc8 9. Rh1) (2... Rg7?! { También perdedora para Dvoretzky } 3. Rb8+! Kc7 4. Ra8 { [#] } 4... Rg1! (4... Rg6? { este es el verdadero error } 5. d6+ Kd7 6. Ra7+ Kd8 7. Kc6 $18) 5. Ra7+ Kc8 6. Kc6 Rc1+ 7. Kd6 Rc4! { alcanza
+de nuevo la correcta posición defensiva de la torre, pero las dificultades no
+acaban. } 8. Ke5 Rb4! (8... Kd8 { pierde de nuevo } 9. Ra6! Rb4 10. Kd6 Kc8 11. Ra8+ Kb7 12. Kc5! { Una intermedia importante y difícil.
+Ahora las negras no pueden conseguir la posición defensiva correcta 12...Tb4
+13.Th8 Rc7 14.Th7 Rc8 15.Rc6 Tc1 16.Rd6 y la presencia del segundo peón hace
+ineficaz la defensa de Kling & Horwitz. Esta variante larga y compleja no es
+necesario recordarla, ni siquiera analizarla, pero es instructiva }) 9. Ra6 Kd7 { Por l o tanto, otras jugadas son posibles, pero en estos finales es
+importante no complicarse la vida. Si hay un método claro, lo mejor es
+adoptarlo y no apartarse de él. }) 3. d6 (3. Kc6 { es la jugada más lógica pero
+lleva a situaciones estudiadas en el capítulo anterior. } 3... Rxd4 4. Rb8+ (4. Kd6 Kc8 5. Rc6+ Kd8 6. Ra6 Kc8 7. Ra8+ Kb7 8. Rd8 Rh4! { Lado largo }) 4... Ke7 { K&H. }) (3. Rh6 { Intentando Rd6 } 3... Kd7 4. Rh7+ Kd8 { Y ahora el avance
+del rey a d6 permite el regreso a la posición Philidor, y si va a c6 permite
+la posición K&H. }) 3... Rg1! { Ahora sí, l a torre puede i r atrás para dar
+jaques y el peón de d4 sólo ofrece un pálido refugio antichubascos, pero no
+permite ningún intento ganador. } 4. Kc6 Rc1+ 5. Kd5 Rh1 6. Rb8+ Kd7 7. Rb7+ Kd8 8. d7 Rh5+ (8... Ke7) 9. Kc6 Rh6+ 10. Kc5 Rh5+ 11. d5 Rh6 12. d6 Rxd6! { 1/2-1/2 The game is a draw. } 1/2-1/2
+
+
+[Event "Diag. 11.3"]
+[Date "2013.10.13"]
+[White "Final 70"]
+[Black "Peones de caballo"]
+[Result "1-0"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 70 - Peones de caballo"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/GrA0rwKE"]
+[FEN "8/6p1/8/8/1R4pk/r7/6K1/8 w - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Defensa de la segunda fila  Después de ver el ejemplo anterior nos debe
+asaltar automáticamente una terrible duda. ¿Si el sistema defensivo de K&H es
+el único eficaz, y puesto que ese sistema no servía contra el peón de caballo?
+¿Que pasa si los peones doblados son de caballo? ¿Valdrá el método de la
+primera fila? Pero no hay de qué preocuparse: vamos a comparar métodos y
+diferencias y extraer conclusiones.  En primer lugar el método de la primera
+fila es inútil contra dos peones porque el bando fuerte puede cambiar las
+torres en condiciones favorables (en el diagrama sería con la maniobra
+g2-Tf3-Tf1).  En segundo lugar, y esto es ya más tranquilizador, con peón de
+caballo el bando fuerte no puede romper la posición Philidor, porque le falta
+espacio por la derecha.  En tercer lugar, si no se consigue la posición
+Philidor, (como ocurre en nuestro primer ejemplo), se comprueba que hay
+métodos alternativos al de K&H, que de hecho también sirven con otros peones. 
+En el caso de 2 peones de caballo hay que estar muy atento y usar un esquema
+defensivo diferente, que podríamos denominar: Defensa de la segunda fila.  La
+continuación de esta partida, nos alerta contra el juego despreocupado. }
+1. Rb8? { Después de esta jugada, el rey blanco es empujado a la última fila y el
+segundo peón permite la victoria. Es pues necesario evitar que el rey sea
+empujado a la última fila. } (1. Rb2! { Gracias a la falta de espacio por la derecha, este esquema es inexpugnable,
+pero cuidado, aunque serviría, es poco recomendable con peón de alfil o
+central. } 1... Ra4 2. Rc2 (2. Rb3 { que no puede ser roto y si } 2... Ra2+ 3. Kg1 g3 4. Rb8 { y jaques
+por detrás }) 2... g5 3. Rb2 g3 { Las negras intentan Tf4-f2 con final de peones
+ganador, con esta amenaza rompen el esquema defensivo blanco, pero ya sabemos
+que el peón debe avanzar a la sexta fila después del rey, ahora pasamos a un
+método bien conocido, los jaques por detrás. } 4. Rb8) (1. Rb7? { Aunque
+captura el peón, pierde de forma conocida. } 1... Ra2+ 2. Kg1 Kh3 3. Rxg7 Kg3 { Llegando a una posición estudiada en el capítulo anterior. } 4. Kf1 Ra1+ 5. Ke2 Rg1! $19) 1... Ra2+ 2. Kg1 Kh3 3. Rb3+ g3 4. Rb1 { Sólo queda esta opción,
+pero ahora veremos porque no sirve la defensa de la última fila contra dos
+peones doblados. } 4... Ra3 5. Rc1 g5 6. Rb1 g4 7. Rc1 g2 8. Rb1 Rf3 9. Ra1 Rf1+ 10. Rxf1 gxf1=Q+ 11. Kxf1 Kh2 { y el segundo peón corona.  Conclusión del primer
+caso. Peones doblados :  1) Con peones centrales, hay que empezar con la
+defensa de Philidor y cuando es rota por la oferta del cambio de torres,
+aplicar la defensa de K&H, pero colocando la torre en la fi la del peón
+retrasado, para capturarlo. 2) Con peones de caballo hay que evitar que el rey
+sea empujado a la octava fila. Eso se logra con la posición Philidor, que no
+puede ser rota, o con la defensa de la segunda fila, que consiste en mantener
+el rey y la torre en la segunda fila hasta que el peón avance a sexta. 3) Con
+peones de torre la defensa es fácil. } 1-0
+
+
+[Event "Diag. 11.4"]
+[Date "2013.10.13"]
+[White "Final 71"]
+[Black "El rey cortado en octava"]
+[Result "1-0"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 71 - El rey cortado en octava"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/5EbMDfQb"]
+[FEN "6k1/1R6/5P1P/6K1/8/8/8/r7 b - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Segundo caso  El segundo caso de tablas es muy famoso... pero poco conocido.
+Casi todos los jugadores saben que el final con peones de torre y alfil son
+tablas, pero la mayoría temen llegar a él, y con razón.  Ciertamente para
+sostener este final no basta con saber que es tablas, ni siquiera con conocer
+los mejores esquemas defensivos, ni con conocer bien los finales de torre y
+peón contra torre a los que se puede simplificar en cualquier momento. Todo
+esto es necesario, pero no suficiente; también es necesario tener paciencia,
+resistencia y estar siempre alerta.  En todo caso, es un final que se va a
+producir alguna vez en sus partidas y conocer la técnica defensiva es muy útil.
+Desde el lado atacante puede jugarse con más facilidad.  Comenzamos con una
+situación difícil para el bando débil, cuando su rey está cortado en la última
+fila. Luego veremos el método defensivo normal.  La experiencia de muchas
+partidas y los análisis recogidos en muchos libros, especialmente en el
+clásico "Finales de Torre" de Lowenfisch y Smyslov, concluyen que con el rey
+cortado en octava, casi siempre se pierde. Las variantes no son fáciles, pero
+la defensa es como de costumbre más difícil que el ataque.  Primero
+comprobamos que con los dos peones en sexta la posición está perdida.  Las
+blancas amenazan h7 seguido de Tb8 y f7. Por tanto las negras deben jaquear. }
+1... Rg1+ 2. Kf5 Rf1+ 3. Ke6! { La amenaza se mantiene y el rey se dirige a
+e8. Puede parecer que se gana sin ayuda del rey pero hay un recurso diabólico. } (3. Ke5 Re1+ 4. Kd4 Rd1+ 5. Kc3 Rf1 6. h7+ (6. Rg7+ Kh8 7. f7 Rc1+ 8. Kd4 Rc4+ { con torre loca }) 6... Kh8 7. f7 Rxf7! { con tablas. }) 3... Re1+ 4. Kd6 (4. Kd7? Kf7) 4... Rd1+ 5. Ke7 Re1+ 6. Kd8 Rd1+ { Si las negras dejan de dar
+jaques, para atacar el peón de alfil, se comprueba que es decisiva la
+intervención del peón de torre. } (6... Rf1 7. h7+! Kh8 8. Rb8! Kxh7 9. Ke7 Re1+ 10. Kf8 { Como vimos en el Final 58 con el rey ya en la octava no es
+posible detener el avance del peón. }) 7. Ke8 Re1+ 8. Re7 Rf1 9. f7+ Kh8 10. Re6! $18 { seguido de f8. } (10. f8=Q+ Rxf8+ 11. Kxf8 { con un
+nuevo ahogado.  Una vez que sabemos que los dos peones en sexta ganan
+fácilmente, veamos que pueden hacer las negras para evitarlo. Para ello
+acudimos a los análisis de la obra de Lowenfisch y Smyslov. }) 1-0
+
+
+[Event "Diag. 11.5"]
+[Date "2013.10.13"]
+[White "Final 72"]
+[Black "Peón de alfil en quinta"]
+[Result "1-0"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 72 - Peón de alfil en quinta"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/mv8mt9AC"]
+[FEN "6k1/1R6/7P/5PK1/8/8/8/2r5 b - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Las blancas amenazan f6 llegando a la posición anterior, por lo tanto... }
+1... Rg1+ 2. Kf6 { Ahora las negras tienen 3 planes diferentes, ponerse detrás del
+peón h, ponerse detrás del peón f, y esperar, y todos ellos son resistentes,
+pero todos pierden. } 2... Rh1 (2... Rf1 3. Rg7+ Kh8 (3... Kf8 4. Rg5 Rh1 5. Kg6 $18) 4. Re7 Kg8 5. Re8+! Kh7 6. Ke6 Kxh6 (6... Ra1 7. f6 Ra6+ 8. Kf5 Ra5+ 9. Re5 Ra8 10. f7 $18) 7. f6 { Y no se puede evitar f7 y f8 porque el jaque conduce a
+un final perdido. }) (2... Ra1 3. Re7 Ra2 4. Ke5 { El rey deja paso al peón } (4. Ke6 Ra6+) 4... Re2+ (4... Ra5+ 5. Kf4 Ra4+ 6. Kg5 Ra5 7. Kg6) 5. Kd6 Rf2 6. Ke6 Re2+ 7. Kd7 { y ahora: } 7... Rf2 (7... Rd2+ 8. Ke8 Rf2 9. Re5 Kh7 10. Kf7 Kxh6 11. Re6+ Kh7 12. f6 Ra2 { y a las negras les falta un tiempo para
+alcanzar la octava fila con la torre, lo cual les daría las tablas, como vimos
+en el Final 58. } 13. Kf8! $18 { Por el contrario con el rey fuerte en octava
+se gana. }) 8. Re8+ Kh7 (8... Kf7 9. h7 $18) 9. Ke6 Re2+ 10. Kf7 Ra2 11. f6 Ra7+ 12. Ke6 Ra6+ 13. Kf5 Ra5+ 14. Re5 $18 { y no es posible evitar f7 y f8. }) 3. Rg7+ Kf8 (3... Kh8 4. Re7 Rxh6+ 5. Kf7 Ra6 { Una vez más la torre no puede
+llegar a octava, ahora por culpa de la posición de su rey } 6. f6 Kh7 7. Kf8+ { de nuevo el rey fuerte en octava } 7... Kg6 8. f7 Kf6 9. Kg8! $18) 4. Kg6 Rg1+ 5. Kh7 Rf1 6. Ra7 Rg1 (6... Rxf5 7. Kg6! Rf1 8. Ra8+ Ke7 9. h7 $18) 7. f6 Rg2 8. Rg7 Rf2 9. Kg6 $18 { Cuando se acaben los jaques no se podrá parar h7 seguido
+de Tg8 .  Hemos visto que con los dos peones en sexta se gana fácilmente, y
+con el peón de alfil en quinta (y el de torre en sexta) se gana mediante una
+maniobra muy precisa y compleja. Uno de los objetivos del libro es conseguir
+el máximo de conocimientos con el mínimo de análisis (ver introducción), pero
+en algunas posiciones los análisis complicados son inevitables.  Con estos dos
+ejemplos hemos visto las maniobras más complicadas, pero si no vemos más,
+seguramente la impresión instintiva sobre otras posiciones será equivocada,
+porque a pesar de lo que parece, y lo que se dice en muchos libros, con el rey
+cortado en octava no siempre se pierde. } 1-0
+
+
+[Event "Los 100 Finales que hay que saber P3: Peones de torre y alfil  - Rey cortado en octava"]
+[Date "2013.10.13"]
+[White "Peones de torre y alfil"]
+[Black "Rey cortado en octava"]
+[Result "1-0"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Peones de torre y alfil - Rey cortado en octava"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/ZBXM32rO"]
+[FEN "6k1/1R6/5P1P/6K1/8/8/8/r7 b - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Vamos a completar el cuadro con tres series de diagramas cuyo análisis es
+sencillo, si conocemos los anteriores. En todos ellos juega el bando débil. 
+Serie de los peones de torre y alfil Rey cortado en octava peón de alfil en
+sexta  Blancas ganan  Analizado }
+ 1-0
+
+
+[Event "Los 100 Finales que hay que saber P3: Peones de torre y alfil - Rey cortado en octava"]
+[Date "2013.10.13"]
+[White "Peones de torre y alfil"]
+[Black "Rey cortado en octava"]
+[Result "1/2-1/2"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Peones de torre y alfil - Rey cortado en octava"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/YP1GXaTQ"]
+[FEN "6k1/1R6/5P2/6KP/8/8/8/r7 b - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Tablas  Jaques por detrás }
+ 1/2-1/2
+
+
+[Event "Los 100 Finales que hay que saber P3: Peones de torre y alfil - Rey cortado en octava"]
+[Date "2013.10.13"]
+[White "Peones de torre y alfil"]
+[Black "Rey cortado en octava"]
+[Result "1/2-1/2"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Peones de torre y alfil - Rey cortado en octava"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/5DZXv6Px"]
+[FEN "6k1/1R6/5P2/6K1/7P/8/8/r7 b - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Tablas  Jaques por detrás  Para convencerse de las tablas en el segundo y
+tercer diagrama de esta serie basta con repasar el método ganador en el
+primero y observar la variante de la séptima jugada. Con el peón de h más
+atrás es tablas igual.  Conclusión: No hay que avanzar el peón de alfil a la
+sexta antes de que el peón de torre haya llegado a esa misma fila. }
+ 1/2-1/2
+
+
+[Event "Los 100 Finales que hay que saber P3: Ejemplo 1"]
+[Date "2013.10.13"]
+[White "Peón de alfil en quinta"]
+[Result "1-0"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Los 100 Finales que hay que saber P3: Ejemplo 1"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/mEItmgrr"]
+[FEN "6k1/1R6/7P/5PK1/8/8/8/r7 b - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Blancas ganan  Analizado }
+ 1-0
+
+
+[Event "Los 100 Finales que hay que saber P3: Ejemplo 2"]
+[Date "2013.10.13"]
+[White "Peón de alfil en quinta"]
+[Result "1-0"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Los 100 Finales que hay que saber P3: Ejemplo 2"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/FOUexqF9"]
+[FEN "6k1/1R6/8/5PKP/8/8/8/r7 b - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Blancas ganan  Mismo método }
+ 1-0
+
+
+[Event "Los 100 Finales que hay que saber P3: Ejemplo 3"]
+[Date "2013.10.13"]
+[White "Peón de alfil en quinta"]
+[Result "1-0"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Los 100 Finales que hay que saber P3: Ejemplo 3"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/17IgPgUf"]
+[FEN "6k1/1R6/8/5PK1/8/8/7P/r7 b - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Blancas ganan  Mismo método  En esta serie es interesante observar que los
+métodos de defensa clásicos fallan:  1 ) La defensa de Philidor, porque es una
+defensa de espera y las blancas avanzan tranquilamente su peón h a la sexta y
+luego su peón f a la misma fila. 2) La defensa de K&H, por el mismo motivo. 3)
+Atacar al peón torre falla porque las negras no tienen tiempo de tomarlo y
+alcanzar a tiempo la efectividad lejana en el lado largo.  Esto nos permite
+sacar una conclusión interesante:  Conclusión: Con el rey cortado en octava,
+el peón de alfil en la quinta fila es la mejor garantía para ganar. }
+ 1-0
+
+
+[Event "Los 100 Finales que hay que saber P3: Ejemplo 4"]
+[Date "2013.10.13"]
+[White "Peón de alfiI en cuarta"]
+[Result "1/2-1/2"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Los 100 Finales que hay que saber P3: Ejemplo 4"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/KF9DC9B6"]
+[FEN "6k1/1R6/7P/6K1/5P2/8/8/r7 b - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Tablas }
+ 1/2-1/2
+
+
+[Event "Los 100 Finales que hay que saber P3: Ejemplo 5"]
+[Date "2013.10.13"]
+[White "Peón de alfiI en cuarta"]
+[Result "1-0"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Los 100 Finales que hay que saber P3: Ejemplo 5"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/b0VkgsTx"]
+[FEN "6k1/1R6/8/6KP/5P2/8/8/r7 b - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Blancas ganan }
+ 1-0
+
+
+[Event "Los 100 Finales que hay que saber P3: Ejemplo 6"]
+[Date "2013.10.13"]
+[White "Peón de alfiI en cuarta"]
+[Result "1/2-1/2"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Los 100 Finales que hay que saber P3: Ejemplo 6"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/cDIOH5wN"]
+[FEN "6k1/1R6/8/6K1/5P1P/8/8/r7 b - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Tablas  Con el peón de alfil en cuarta, la posición del peón torre es
+decisiva. La primera posición es muy interesante, porque puede producirse en
+el transcurso normal del final, como veremos en el siguiente ejemplo.En ellas
+las negras hacen tablas con el sencillo método de dar jaque y atacar el peón h
+(1.Tg1 Rf6 2.Th1). Este sistema no sirve en la segunda posición porque las
+blancas pueden contestar sencillamente 2...f5, ignorando la amenaza a su peón
+de torre, y vuelve a ser efectivo con el peón h en cuarta o más atrás. }
+ 1/2-1/2
+
+
+[Event "Diag. 11.6"]
+[Date "2013.10.13"]
+[White "Final 73"]
+[Black "El sistema defensivo"]
+[Result "1/2-1/2"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 73 - El sistema defensivo"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/CDv5Kcdm"]
+[FEN "8/6k1/R7/1r5P/5PK1/8/8/8 w - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Cuando los peones están más atrás y sobre todo, cuando el rey defensor no ha
+sido empujado a la última fila, las posibilidades del bando defensor son
+mejores.  El ejemplo de este diagrama es el de la partida Gligoric-Smyslov,
+que estudian varios libros, y realmente es un compendio perfecto de todas las
+ideas defensivas. Estudiar con atención este ejemplo debe ser suficiente para
+enfrentarse a esta situación en la práctica.  A medida que lo reproducimos
+vamos a ir llamando la atención sobre los detalles más importantes.  El primer
+detalle a observar. La torre negra está bien situada en la quinta fila
+evitando el avance cómodo del rey rival.  Si los dos peones llegan a la quinta
+fila, entonces la mejor posición para la torre es la esquina (b1 o a1). }
+1. Rg6+ (1. f5 Rb1!) 1... Kf7! { El segundo detalle importante. "A igualdad de
+otras cosas, el rey debe elegir la columna f a la h". } (1... Kh7!? { no es perdedora. }) 2. Rg5 { Desplazando a la torre negra de la quinta fila. El
+avance directo de los peones deja al rey blanco sin refugio cómodo. } (2. f5 Rb1! { Tercero: En cuanto los dos peones llegan a la quinta fila, la torre se
+prepara para dar jaques por detrás. } 3. Kg5 Rg1+ 4. Kh6 Rf1 5. Rg7+ Kf6 6. Rg8 Kf7 { Las blancas no pueden progresar. }) 2... Rb1! { [#] Cuarto: La torre
+se mantiene en el ángulo izquierdo, preparada para dar jaques por detrás y
+laterales.  Llegamos a una situación crítica: } 3. Rc5 { La torre blanca
+recupera una posición más desahogada y plantea la amenaza Rg5, seguida del
+desplazamiento del rey negro a la octava.  En las próximas jugadas la lucha
+por no verse desplazado a la octava fila es la clave.  Recordamos por el final
+anterior, que con los peones situados en estas filas, el rey en octava pierde.
+El avance del peón h es otro intento interesante de progreso. Los análisis son
+lo bastante complejos para recomendar que le dediquemos un estudio
+independiente lo que haremos en el siguiente diagrama. } 3... Kf6 { Lo más lógico,
+oponiéndose a las intenciones de su rival. } 4. Rc6+ { Ahora la torre no cubre
+los jaques en la quinta. } 4... Kg7! { La lógica de esta jugada es dificultar la
+oposición de los reyes que podría enviar al rey negro a la octava fila. } (4... Kf7? 5. Kg5! { (amenazando Tc7) } 5... Rg1+ 6. Kf5 { Y el rey va a
+la octava porque no es posible } 6... Kg7? 7. Rg6+ $18) 5. Kg5 Rg1+! { Necesario } 6. Kf5 Ra1 7. Rc7+ (7. Rg6+ Kf7) 7... Kh6 { Nunca ir a la primera fila } 8. Re7 (8. Kf6 Kxh5) 8... Rb1 { Las negras esperan en el ángulo inferior
+izquierdo. De momento no pueden comer el peón, pero las blancas tampoco pueden
+maniobrar con libertad. } 9. Re8 (9. Kf6 Kxh5) 9... Kg7 (9... Ra1 { seguía siendo posible }) 10. Re5 Ra1 11. Rd5 Rf1 { La
+única jugada caprichosa de Smyslov en este final. No es un error pero seguir
+manteniéndose en la esquina es el procedimiento natural. } (11... Rb1!) 12. Rd4 Ra1 { Regresando a la base principal. } 13. Rd6 Ra5+ 14. Kg4 Ra1 { Merece la
+pena observar que las negras podían regresar a la posición inicial con } (14... Rb5) 15. Re6 Rg1+ 16. Kf5 Ra1 17. h6+ { [#] Por fin las blancas se deciden a
+hacer algo. En pocas jugadas se llegará a un final teórico de tablas de torre
+y un peón. } 17... Kh7! { Otro detalle importante: Cuando un peón avanza a sexta el
+rey se coloca delante. } (17... Kf7?! { También es posible, porque con los
+peones en estas filas el rey en octava no pierde (como hemos visto en el final
+anterior) } 18. Rb6 { para dar jaque } 18... Ra5+ 19. Kg4 Ra1 20. Kg5 Rg1+ 21. Kf5 { y el rey negro cae en la octava, pero después de } 21... Ra1 { (para dar jaque lateral) } 22. Rb7+ Kg8 23. Kg6 Rg1+ 24. Kf6 Rh1! { Tablas. }) 18. Rd6 Ra2 { Esperar } 19. Kg5 Rg2+ { Impedir el desplazamiento del rey } 20. Kf6 { Pasando a un final
+teórico de tablas. } (20. Kh5 Rh2+) (20. Kf5 Ra2) 20... Kxh6! 21. Ke7+ Kh7 (21... Kg7 { también hace tablas, pero viendo un detalle táctico } 22. f5 Re2+ 23. Re6 Rf2! (23... Ra2?? 24. f6+ Kh7 25. f7 $18) 24. f6+ Kg6 25. Re1 Ra2! { lado largo. }) 22. f5 Re2+ 23. Re6 Ra2 { Lado largo } 24. f6 { Hemos estudiado una posición similar con el peón de rey (Ver Final 58). Las
+blancas amenazan Rf8 y ganarían. Es preciso tomar la octava fila. } 24... Ra8! 25. Kf7 Kh6! { Si comparamos con la posición similar del Final 58 del anterior
+capítulo esta es la jugada correcta. } (25... Rb8 { porque la
+torre no pierde la efectividad lejana. }) 26. Re1 Ra7+ 27. Re7 Ra8 28. Rd7 Kh7 29. Rd1 Ra7+ 30. Ke6 Ra6+ 31. Rd6 Ra8 32. Rd4 Kg8 33. Rg4+ Kf8 { y por fin
+tablas.  Un ejemplo impresionante de habilidad técnica por parte de Smyslov,
+del que sacaremos varias conclusiones, después de estudiar los diagramas
+siguientes. } 1/2-1/2
+
+
+[Event "Diag. 11.9"]
+[Date "2013.10.13"]
+[White "Final 73"]
+[Black "El avance del peón de torre"]
+[Result "1/2-1/2"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 73 - El avance del peón de torre"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/B8fdC6Th"]
+[FEN "8/5k2/7P/6R1/5PK1/8/8/1r6 b - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Una variante importante.  El avance del peón de torre  Nos situamos ahora en
+la posición después de la interesante alternativa 3.h6 del final anterior. El
+avance del peón de torre tiene lógica porque es del que se ha quedado cortado
+el rey defensor. }
+1... Ra1! { La torre mantiene la opción de dar jaque si el
+rey pasa a f5. Las negras deben tener paciencia y esperar hasta que el peón
+llegue a la séptima. } (1... Rg1+? 2. Kf5 Rh1 3. Rg7+! { esta es la clave } 3... Kf8 4. Kg6 { Como ya sabemos, casi todas las posiciones con
+el rey atrapado en octava se pierden. } 4... Rg1+ 5. Kh7! Rf1 6. Ra7! (6. Rg4 Kf7) 6... Rxf4 { la torre captura el peón, pero su mala posición momentánea
+permite a las negras coronar su peón h. } 7. Kg6 Rg4+ 8. Kf6! Rf4+ (8... Kg8 9. Rg7+! $18) 9. Kg5 Rf1 10. Ra8+ Kf7 11. h7 $18) 2. Rg7+ { Es el intento más
+interesante. } (2. Kf5 Ra5+ { no progresa }) (2. h7 Rg1+! { ahora sÍ, el
+peón h cae sin lograr un final ganador de torre y un peón. } 3. Kf5 Rh1) (2. Rh5 { Es la otra jugada exigente para las negras. La ventaja es que la
+respuesta es única: hay que bloquear el amenazador peón h con el rey. } 2... Kg8 3. f5 Kh7 { El rey negro está restringido al estar delante del peón, pero lo ataca
+y eso disminuye la actividad de las piezas blancas. } 4. Rh3 Rg1+ 5. Kh5 Rf1 6. Kg5 Rg1+ 7. Kf6 Ra1! 8. Re3 Ra2 9. Re6 Kxh6! { Llegando a una posición
+estudiada en un final anterior. }) 2... Kf6 3. Rc7 { Amenazando Tc6 y Rg5 que
+llevaría el rey negro a octava. } 3... Kg6 (3... Rg1+!? 4. Kf3 Rh1) (3... Rh1?! 4. Rc6+ Kf7 5. Kg5 { y aunque el rey
+negro se ve forzado a ir a octava es tablas como hemos visto en el análisis de
+la jugada 17 del ejemplo anterior. }) 4. h7 Rh1! (4... Rg1+? 5. Kf3 Rh1 { se pensaba que también era tablas, pero las tablas de Nalimov
+demuestran que las blancas ganan con una variante muy precisa, que no es
+necesario conocer, pero es realmente instructiva. } 6. Ke4 Rh5 7. Ra7 Rh1 8. Rd7 (8. Kd5 Rd1+ 9. Ke6 Re1+ 10. Kd6 Rd1+ 11. Ke7 Kxh7) 8... Rh5 9. Rc7 Rh1 10. Kd5 Rd1+ 11. Kc6 Rc1+ 12. Kd7 Rd1+ 13. Ke8 Ra1 14. Rd7 Re1+ 15. Re7 Ra1 16. Kf8 Rh1 17. Kg8 $18) 5. Kf3 { No se ve otro modo de progresar.  Aunque las negras
+no amenazan el peón de h7, la torre blanca está atada a su defensa. } (5. f5+ Kf6) (5. Rc5 Rg1+ { es muy fácil. }) (5. Rb7 { las negras deben empeorar la posición de su torre } 5... Rh2 { y ahora
+después de } 6. Rb5 { no pueden capturar el peón, pero aún tienen. } 6... Kg7! { y las blancas no pueden progresar; a cualquier movimiento significativo de las
+piezas blancas se comen el peón de h7. } 7. Rg5+ (7. Kg3 Rxh7) (7. f5 Rxh7) 7... Kh8! 8. Rb5 Rh1) 5... Kf5! { El rey negro toma contacto con
+el peón blanco y las tablas se hacen evidentes.  Las blancas sólo pueden
+romper el estatus qua entregando un peón y siempre se llega a un final de
+tablas. } 6. Rf7+ Kg6 7. Rb7 Kf5 8. Kg3 Kf6 9. Kg4 Kg6 { No hay progreso.  Como
+hemos visto, las variantes son complicadas y las ejemplos vistos no agotan, ni
+de lejos, la cuestión. Simplemente nos hemos armado, para enfrentarnos a estos
+finales en la práctica, con algunas ideas.  Vamos a recordarlas de forma
+resumida:  1) Conviene evitar el rey cortado en la octava, que pierde a menudo.
+2) La torre está bien en la quinta dificultando el paso del rey, pero
+normalmente debe esperar en .el ángulo del tablero, preparada para dar jaques
+por detrás y por el lado. 3) El rey debe esperar en g7 o f7, no dejarse echar
+a octava y si recibe jaque en la columna de caballo, a igualdad de otras
+circunstancias i r a la de alfil. 4) Cuando un peón llega a sexta, el rey
+defensor se coloca delante. } 1/2-1/2
+
+
+[Event "Diag. 11.10"]
+[Date "2013.10.13"]
+[White "Final 74"]
+[Black "Peones ligados bloqueados"]
+[Result "1/2-1/2"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 74 - Peones ligados bloqueados"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/axvy6lUf"]
+[FEN "8/8/r5kP/6P1/1R3K2/8/8/8 w - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Tercer caso  Este tercer caso de tablas sorprende la primera vez que se ve. i
+Vale que dos peones doblados no ganen y puede pasar que dos peones aislados y
+demasiado cercanos permitan una defensa exitosa, pero que dos peones ligados
+no ganen ! Eso parece absurdo.  Sin embargo así sucede en muchas posiciones,
+en las cuales el rey débil se incrusta entre los peones y los bloquea.  La
+posición con los peones de caballo y torre ya fue estudiada por Kling y
+Horwitz en 1851. En realidad, una vez alcanzada la posición de bloqueo,
+bastante poco se puede hacer. En esta posición los dos peones ligados dan
+mucho menos guerra que la pareja tablífera de torre y alfil. }
+1. Rd4 Rb6 2. Rd8! { La primera tarea es "sacar al rey" de su resistente posición y a ello se
+dirige la torre blanca. } 2... Rb4+ 3. Ke5 { Si el rey se va hacia atrás, las negras
+pueden jugar como en la partida o dar más jaques. } 3... Rb7! { También aquí s e
+puede dar algún jaque más, pero lo más claro es amenazar ya con la captura del
+peón g, a la vez que la torre cubre las importantes casillas g7 y h 7. } (3... Kxg5?? { Directa pierde, claro } 4. h7 $18) (3... Rg4? { Un poco mas difícil,
+pero también pierde } 4. Rg8+ Kh7 5. Kf5! $18) (3... Rb5+?! { Simplemente se
+complica la vida } 4. Rd5 Rb7 5. Ke6 { y a pesar del progreso del rey blanco se
+pueden seguir forzando las tablas } 5... Rb6+ 6. Ke7 Rb7+ 7. Rd7 Rb5 { (amenazando
+Tg5) } 8. h7 Rb8! { con tablas. }) 4. Rg8+ (4. Kf4 { repite la posición. }) 4... Kh7 5. Re8 Kg6 { y estamos en las mismas, aunque de hecho aquí las negras
+tienen un truquito que fuerza las tablas. } (5... Rb5+ 6. Kf6 Rxg5!) 6. Kf4 Rb4+ 7. Ke5 Rb7 { Pero si trasladamos el tinglado de los dos peones y
+el rey defensor hacia el centro, el bloqueo se puede romper. } 1/2-1/2
+
+
+[Event "Diag. 11.11"]
+[Date "2013.10.13"]
+[White "Final 74"]
+[Black "Peones ligados centrales"]
+[Result "1-0"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 74 - Peones ligados centrales"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/jNxf1sIO"]
+[FEN "8/8/r4kP1/5P2/1R3K2/8/8/8 w - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Peones ligados centrales  En este ejemplo, las blancas pueden forzar un final
+de peones ganado. }
+1. Re4 Rb6 2. Re6+! { Bastante simple, sólo hay que
+fijarse bien donde tienes el rey (por ejemplo con el rey en g4 sería tablas). } 2... Rxe6 3. fxe6 Kxe6 4. Kg5 $18 { Esto nos puede hacer pensar que el bloqueo de
+dos peones ligados sólo funciona en la banda pero no es asÍ. } 1-0
+
+
+[Event "Diag. 11.12"]
+[Date "2013.10.13"]
+[White "Final 74"]
+[Black "Otro ejemplo de peones, centrales"]
+[Result "1/2-1/2"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 74 - Otro ejemplo de peones, centrales"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/gfKrO11g"]
+[FEN "8/4r3/8/5K2/2Pk4/3P3R/8/8 w - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Otro ejemplo de peones centrales  Terminamos con un caso en que el bloqueo
+funciona contra peones centrales, pero es debido a que el rey blanco está
+cortado. }
+1. Kf6 Re1 2. Rg3 Re2 { es muy claro que no hay forma de
+progresar.  Este ejemplo es muy simple, pero nos puede dar ya una imagen
+bastante global:  Normalmente con dos peones ligados se gana. Las dificultades
+aparecen cuando el rey defensor se coloca entre los peones, sin embargo para
+que sea tablas se necesita alguna otra dificultad añadida, como la banda del
+tablero o la pasividad de alguna de las piezas blancas. } 1/2-1/2
+
+
+[Event "Diag. 11.13"]
+[Date "2013.10.13"]
+[White "Final 75"]
+[Black "Torre atascada delante de su, peón en séptima"]
+[Result "1/2-1/2"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 75 - Torre atascada delante de su, peón en séptima"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/Eax79hGq"]
+[FEN "R7/P5k1/8/8/8/6P1/6K1/r7 w - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Cuarto caso  El cuarto caso de tablas es tal vez el más conocido, y a casi
+todos nos ha ocurrido alguna vez, pero no deja de sorprender. Si se lleva un
+peón pasado a séptima con la torre por delante, dicha pieza pierde totalmente
+su actividad y eso impide aprovechar una ventaja tan grande como son dos
+peones.  Aunque l a situación e s más conocida con peón en séptima de torre,
+puede pasar también con otros peones.  El análisis es realmente sencillo: las
+piezas negras se limitan a esperar en sus posicionesideales (la torre en la
+columna a y el rey en g7 o h7) y únicamente la torre debe dar jaques si el rey
+blanco llega a defender el peón a.  La presencia del segundo peón, el peón g
+en este caso, no cambia el resultado, porque no puede usarse para sacar al rey
+negro de su zona segura. }
+1. Kf3 Ra2 2. Ke4 Ra1 3. Kd5 Ra2 4. Kc6 Ra1 5. Kb6 Rb1+ 6. Kc6 Ra1 7. g4 Ra2 8. g5 Ra1 9. g6 Ra2 { Naturalmente las negras no
+tienen ninguna intención de comer el peón. } 10. Kb7 Rb2+ { De una simple
+observación comparativa se puede establecer que si el segundo peón blanco
+estuviera en la columna de h tampoco serviría para ganar (incluso si fuera más
+de uno doblado en la misma columna). Tampoco serviría de nada que el peón
+atascado en séptima estuviera en otra columna.  Conclusión: Pensarlo muy bien
+antes de avanzar un peón a séptima con la torre propia delante. Incluso en
+finales con más peones puede echar a perder la ventaja.  Por último, sí sería
+ganador el final si el segundo peón blanco estuviera en cualquier otra columna,
+por ejemplo la f (se ganaría con su simple avance). } 1/2-1/2
+
+
+[Event "Diag. 11.14"]
+[Date "2013.10.13"]
+[White "Final 76"]
+[Black "Defensa de Vancura contra, 2 peones"]
+[Result "1/2-1/2"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 76 - Defensa de Vancura contra, 2 peones"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/Clw1IC2p"]
+[FEN "R7/6k1/8/8/P6P/6K1/8/4r3 b - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Quinto caso El quinto caso de tablas es seguramente el menos conocido, pero
+también es bastante frecuente.  Con peones en las columnas a y h existen
+algunas posiciones de tablas. La más importante es una extensión de la defensa
+de Vancura. (ver el Diagrama 11.14)  Con su primera jugada, muy importante y
+única para hacer tablas, las negras toman la posición defensiva de Vancura, e
+impiden que la torre blanca salga de su pasiva posición por delante del peón. }
+1... Re4! { A partir de aquí la defensa es fácil porque realmente las blancas
+no pueden hacer ningún progreso. Por el contrario si las negras toman una
+disposición defensiva errónea, las blancas ganan sin problemas. Una pequeña
+comprobación en las bases de datos demuestra que eso es lo que ocurre más a
+menudo. } (1... Ra1? 2. Kf4 Kh7 3. Ke5 Kg7 4. a5 Kh7 5. a6 { y como ya sabemos
+por el estudio del Final 66, aquí las blancas ganan sin necesidad del peón h. }) 2. a5 (2. h5 Kh7 3. Kf3 Rh4 4. Ke3 Rxh5 { las blancas comen el peón con tiempo
+suficiente para alcanzar una posición defensiva correcta. } 5. Kd4 Rg5 6. Kc4 Rg4+! { ahora única } 7. Kb5 Rg5+ 8. Kb4 Rg4+ 9. Kc5 Rf4 { Vancura. }) 2... Re5! { Manteniendo Vancura. } 3. Kf3 Rh5 4. Kg3 Rc5 5. a6 Rc6! 6. Kf4 { Si el
+peón blanco fuera a séptima ahora (con 6.a7) o en cualquier otro momento la
+torre negra se situaría detrás y estaríamos en el Final 76. } 6... Kh7 7. Ke5 Rb6 8. Kd5 Rg6 9. Kc5 Rf6 10. Kb5 Rf5+! 11. Kb6 Rf6+! { Y en cuanto el rey se
+aleje del peón a, podrán cesar los jaques. No hay progreso.  Se plantea
+automáticamente la pregunta: ¿Porqué esta idea sólo funciona con peones a y h?
+Si logramos responder correctamente a esta pregunta, podremos aplicarlo con
+precisión.  Pensemos primero en el caso en que el peón defendido por la torre
+y sometido al asedio de Vancura en el diagrama 11.14 fuera el peón b. En ese
+caso el rey blanco acabaría ocultándose en a5-a6, así que es un caso fácil y
+no precisa más análisis. } 1/2-1/2
+
+
+[Event "Diag. 11.15"]
+[Date "2013.10.13"]
+[White "Final 76"]
+[Black "Con peones g y a no vale, defensa de Vancura"]
+[Result "1-0"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 76 - Con peones g y a no vale, defensa de Vancura"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/djVD0kze"]
+[FEN "R7/6k1/P7/8/8/6P1/1r6/6K1 b - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Con peones g y a no vale defensa de Vancura  Más complicado e s e l caso en
+que el peón sometido al asedio de Vancura es el peón de torre y el otro es
+otro peón diferente como en este diagrama. Como vamos a ver, si las blancas
+sitúan su peón en g5 (con cuidado de no perderlo antes de tiempo) la torre no
+tiene espacio para mantenerse dando jaques. }
+1... Rb6 (1... Ra2 2. Kf1 { decide el traslado del rey hasta la casilla b1 y posteriormente hasta a7 . }) 2. Kf2 Rg6 3. Kf3 Rf6+ 4. Ke4 Rg6 5. Kd5 Kh7 6. g4 Kg7 7. Kc5 Re6 8. g5 { El peón impide los jaques desde la columna f, concretamente desde f6. } 8... Kh7 (8... Rg6 9. Kb5 Rxg5+ 10. Kb6 Rg6+ 11. Kb7 { Y los jaques no pueden seguir. }) 9. Kb5 Re5+ 10. Kc6 Re6+ 11. Kc5 Kg7 { Ahora el rey impide los jaques desde la
+columna g. } (11... Rg6 { el sistema más fácil para ganar es
+restringir al rey negro en la última fila y volver con el rey a apoyar el peón
+g } 12. Ra7+ Kh8 13. Kd4 Rb6 14. Ke4 Rc6 15. Kf4 Rb6 16. Kg4 Rc6 17. Kh5 Rb6 18. g6 $18) 12. Kb5 Re5+ 13. Kb6 Re6+ 14. Kc7 { y se comprueba que la columna e
+está demasiado próxima y la torre no puede mantener la efectividad lejana. 
+Por último es conveniente observar que el bando débil no puede establecer la
+defensa de Vancura si el bando fuerte defiende sus peones lateralmente. } 1-0
+
+
+[Event "Diag. 11.16"]
+[Date "2013.10.13"]
+[White "Final 76"]
+[Black "La defensa lateral gana"]
+[Result "1-0"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 76 - La defensa lateral gana"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/u37ctJsS"]
+[FEN "r7/8/7k/8/8/PR6/6KP/8 w - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+1. h3! { Prematuro es el avance a la cuarta fila. } (1. h4? Kh5 2. Kg3 Ra4 { y las blancas pierden el peón h sin poder forzar un final ganado con el peón a. }) 1... Ra4 2. Rf3! { No es la única forma de ganar pero si la más fácil. Las
+blancas reducen al rey negro a las columnas h y g. } 2... Kh5 3. Kf2 { Y a
+continuación trasladan su rey al flanco de dama } 3... Kh4 4. Ke2 Rd4 { No sirve de
+nada cortar al rey blanco } 5. Rd3 Ra4 6. Kd2 Kg5 7. Rf3 Kh4 8. Kc2 Kh5 9. Kb3 Ra8 10. a4 { y el peón, apoyado por su rey y por su torre sigue avanzando. } 1-0
+
+
+[Event "Los 100 Finales que hay que saber P3: Rey vs Rey y dos peones"]
+[Date "2013.10.14"]
+[White "12. Finales dos peones"]
+[Result "*"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "Standard"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Los 100 Finales que hay que saber P3: Rey vs Rey y dos peones"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/E1ghBds6"]
+[ChapterMode "gamebook"]
+
+{ Después de muchos capítulos, volvemos a los finales de peones, ahora para
+tratar las posiciones con más de un peón en el tablero.  A pesar de lo
+limitado del material, los finales de peones suelen ser muy complicados y
+exigen una gran cantidad de cálculo. Tanto es así, que algunos jugadores
+recomiendan realizar la ventaja, si es posible, sin trasponer a finales de
+peones, en los cuales es fácil pasar por alto una sutileza táctica. Este
+consejo de viejo zorro, se justifica si se miran las estadísticas, y se
+comprueba que los finales de peones, son los que terminan menos veces en
+tablas.  También es curioso que no haya demasiadas posiciones teóricas
+importantes. Pero por el contrario sí existen muchos temas que es necesario
+conocer. Por ese motivo este será el único capítulo en que analizaremos alguna
+posición con muchos peones, porque es la única forma de ilustrar bien algún
+tema que considero básico. }
+ *
+
+
+[Event "Los 100 Finales que hay que saber P3: Sección 1. Rey y dos peones - contra rey"]
+[Date "2013.10.14"]
+[White "Sección 1. Rey y dos peones"]
+[Black "contra rey"]
+[Result "*"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "Standard"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Sección 1. Rey y dos peones - contra rey"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/VODmk4vx"]
+[ChapterMode "gamebook"]
+
+{ Ya conocemos lo que pasa con un solo peón. Lógicamente con rey y dos peones
+contra rey se gana casi siempre (el 95% de las veces según nuestra sección
+estadística), y descontando los casos en que uno de los dos sea capturado por
+fuerza, el porcentaje sería aún más alto.  Podemos diferenciar 3 casos: 1 )
+Peones ligados. En este caso los peones se defienden entre sí y luego el rey
+los apoya. Si un peón no es capturado, se gana siempre. Pero conviene saber
+que si uno es el peón de torre y está en séptima, hay que entregarlo para
+coronar el de caballo. 2) Peones doblados (Final 77). 3) Peones aislados 
+(Final 78). }
+ *
+
+
+[Event "Diag. 12.1"]
+[Date "2013.10.14"]
+[White "Final 77"]
+[Black "Peones doblados"]
+[Result "1-0"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 77 - Peones doblados"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/2TFDKIX3"]
+[FEN "8/1k6/8/1P6/1P6/1K6/8/8 w - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Es e l caso más interesante de esta sección.  Si los peones son de torre, ya
+sabemos que el número no importa, si no únicamente la posición del rey
+defensor. Ahora veremos que pasa si no son de torre. }
+1. Kc3! { El
+procedimiento habitual, (y fácil) consiste en usar el peón más atrasado para
+gastar un tiempo, cuando se llega a la situación crítica, que es la oposición
+de los reyes en la sexta fila. En este caso las blancas lo hacen así, pero
+tienen que tener un poco de cuidado, por dos circunstancias que conviene
+observar: 1 ) Los peones son de caballo, que siempre dan temas de ahogado. 2)
+Los peones están juntos, lo cual dificulta la defensa del peón delantero. } (1. Kc4?? Kb6!) 1... Kc7 2. Kd4 Kb6 3. Kc4 Kc7 4. Kc5 Kb7 5. b6 Ka6! { Intentando poner los máximos problemas. } (5... Kb8 6. Kc6 Kc8 7. b7+ Kb8 8. Kc5! { hay que entregar el peón delantero para ganar las casillas críticas del otro. } (8. b5 { Parece la lógica y ganaría fácilmente con cualquier otro peón más
+central, pero no con el peón de caballo. } 8... Ka7?? { y de todos modos ahora es
+necesario entregar el peón delantero porque } 9. Kc7 { Ahogado }) 8... Kc7! 9. b8=Q+ Kxb8 10. Kb6 { y con las casillas críticas se gana del modo conocido. }) 6. b7! (6. Kc6?? { Ahogado. }) 6... Kxb7 7. Kb5 { Es fácil deducir que si el peón
+más atrasado no puede perder un tiempo, no es posible ganar. Esto sucede si
+dicho peón está en la quinta fila. Si tiene alguna duda le recomiendo
+comprobarlo como Ejercicio.  Conclusión : Dos peones doblados ganan siempre,
+exceptuando las dos siguientes situaciones : 1 ) Peones de torre. 2) El peón
+más atrasado está en quinta. } 1-0
+
+
+[Event "Diag. 12.2"]
+[Date "2013.10.14"]
+[White "Final 78"]
+[Black "Peones aislados defendiéndose, entre si"]
+[Result "1-0"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 78 - Peones aislados defendiéndose, entre si"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/7IOVo1O1"]
+[FEN "8/8/8/5k2/5P1P/8/8/K7 w - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Peones aislados  Defendiéndose entre sí  También con dos peones separados,
+las probabilidades de ganar son muy grandes. La única situación discutible es
+cuando están amenazados por el rey rival. Pero normalmente pueden utilizar uno
+de estos dos recursos: 1) Defenderse entre sí, evitando la captura de uno
+gracias a la amenaza de coronación del otro. 2) Retrasar la captura del
+primero, hasta que el rey fuerte llega, y alcanza las casillas críticas del
+otro.  Aquí veremos el primer recurso: Dos peones separados por una columna
+pueden defenderse entre sí, siempre que el rey no ataque al más avanzado. }
+1. h5! { Con este avance el peón de h defiende a su compañero de ser capturado y
+da tiempo para acercar el rey. } 1... Kf6 { Si el rey se come el peón de atrás se
+queda fuera del cuadrado. } 2. Kb2 Kg7 { El rey se dispone a capturar el peón
+avanzado, pero... } 3. f5 Kh6 4. f6! { Se reproduce la situación de la jugada
+uno. El peón de f6 impide la captura del otro. Basta con acercar el rey y
+coronar uno de ellos. Hemos visto un procedimiento muy útil, que es aplicable
+sobre todo en finales con más peones.  Si la pareja de peones están más
+separados la situación se hace más interesante, pero sobre todo si hay más
+peones en el tablero, porque si no, es casi imposible que rey del bando fuerte
+no llegue a apoyar la coronación de uno de ellos. } 1-0
+
+
+[Event "Diag. 12.3"]
+[Date "2013.10.14"]
+[White "Final 78"]
+[Black "retrasando la captura"]
+[Result "1-0"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 78 - retrasando la captura"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/71UYV0X5"]
+[FEN "8/8/2k5/8/P2P4/8/8/7K b - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Retrasando la captura  En la posición del diagrama juegan las negras. A pesar
+de ello, ¡no hay una sola casilla en el tablero! desde la cual el rey blanco
+no llegaría a apoyar a sus peones.  Veamos una variante: }
+1... Kd5 2. a5! { Evitando la captura del peón central. } 2... Kc6 3. Kg2 Kb5 4. Kf3 Kxa5 5. Ke4 Kb6 6. Kd5 Kc7 7. Ke6 $18 { El rey blanco ha llegado a las casillas críticas del peón
+d4.  Por eso la situación es más importante cuando hay más peones y volveremos
+sobre este tema en el final sobre el cuadrado errante (Final 88). } 1-0
+
+
+[Event "Los 100 Finales que hay que saber P3: Sección 2. Rey y peón contra - rey y peón"]
+[Date "2013.10.14"]
+[White "Sección 2. Rey y peón contra"]
+[Black "rey y peón"]
+[Result "*"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "Standard"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Sección 2. Rey y peón contra - rey y peón"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/gnVWsXHj"]
+[ChapterMode "gamebook"]
+
+{ Cuando los dos jugadores tienen un peón, la situación es más complicada, pero
+no tiende tanto a las tablas como se podría pensar. Si vemos la sección de
+estadísticas, descubrimos que el 45% de las partidas tienen definición. Vamos
+a dividir el estudio en 3 situaciones con características muy diferentes:
+Peones bloqueados, peones en columnas adyacentes y peones pasados. }
+ *
+
+
+[Event "Diag. 12.4"]
+[Date "2013.10.14"]
+[White "Final 79"]
+[Black "Peones bloqueados. Las,  casillas criticas"]
+[Result "1-0"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 79 - Peones bloqueados. Las,  casillas criticas"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/zw8KTxxs"]
+[FEN "k7/8/1p6/1P6/8/8/7K/8 w - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Teóricamente el caso más interesante
+es el de peones bloqueados porque hay reglas útiles y además dichas reglas se
+pueden aplicar (con cautela) en finales con más peones. Con los peones
+bloqueados también existen unas casillas críticas. El rey que logre colocarse
+en una de ellas se comerá el peón contrario (que no es lo mismo que ganará la
+partida). Las casillas críticas están en la fila del peón y son las 3
+adyacentes por la izquierda y por la derecha.  En el diagrama para el peón
+negro las casillas críticas son c6, d6 y e6 (no consideramos a6 porque no hay
+acceso a ella). Para el peón blanco son c5, d5 y e5. ¿Qué rey crees que
+llegará más pronto a las casillas críticas del peón rival? Basta con contar,
+ambos reyes se dirigen hacia adelante. } { [%csl Ga5,Ga6,Gc5,Gc6,Gd5,Gd6,Ge5,Ge6] }
+1. Kg3! Kb7 2. Kf4 Kc7 3. Ke5 Kd7 4. Kd5 { Una vez más la oposición garantiza el paso a la fila siguiente y por lo
+tanto la ocupación de las casillas críticas. } 4... Kc7 5. Ke6 { Ya está el rey
+blanco en las casillas criticas. Ahora veremos el procedimiento para comerse
+el peón que es muy fácil e inevitable. } 5... Kc8 6. Kd6 Kb7 7. Kd7 { El rey blanco
+se comerá el peón y al hacerlo quedará situado en una de las casillas críticas
+para coronar y por tanto coronará. } 7... Kb8 8. Kc6 Ka7 9. Kc7 Ka8 10. Kxb6 { Y se gana, como ya hemos visto en ejemplos anteriores.  Este concepto de las
+casillas cntlcas para la captura de un peón bloqueado es de gran importancia
+porque puede aplicarse en presencia de más peones. Siempre que la base de una
+cadena de peones esté bloqueada por un peón rival, el rey se asegura comerlo
+si alcanza una de sus casillas críticas. } 1-0
+
+
+[Event "Diag. 12.5"]
+[Date "2013.10.14"]
+[White "Final 79"]
+[Black "El ataque con reserva de, casilla"]
+[Result "1-0"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 79 - El ataque con reserva de, casilla"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/1L4xAcjn"]
+[FEN "8/2K5/4p3/4P3/6k1/8/8/8 w - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ El ataque con
+reserva de casilla  Cuando ambos reyes tienen acceso a las casillas críticas
+del peón rival se puede producir una situación de zugzwang mutuo que interesa
+conocer. El primer rey en atacar el peón rival debe reservarse (si puede) la
+importante casilla de ataque y defensa, en este caso d6 para las blancas y f5
+para las negras. } { [%csl Gb5,Gb6,Gc5,Gc6,Gd5,Gd6,Gd7,Gf4,Gf5,Gf6,Gg5,Gg6,Gh5,Gh6] }
+1. Kd7! (1. Kd6?? Kf5! $19 { Zugzwang y ganan las negras. }) 1... Kf5 2. Kd6! { Ahora el zugzwang favorece a las blancas. } 2... Kg6 3. Kxe6 { 1-0 White wins. } 1-0
+
+
+[Event "Diag. 12.6"]
+[Date "2013.10.14"]
+[White "Final 79"]
+[Black "Una aplicación con más, peones"]
+[Result "0-1"]
+[Annotator "https://lichess.org/@/Ajedrez_Salida"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "C - 100 Finales que hay que saber (50 al 79)"]
+[ChapterName "Final 79 - Una aplicación con más, peones"]
+[ChapterURL "https://lichess.org/study/ieViiGbj/UpMTINyR"]
+[FEN "8/8/8/7k/3p2p1/3P4/6KP/8 b - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Una aplicación con más peones  Hemos dicho muchas veces que una de las
+ventajas de conocer estos finales, es que algunos de sus principios se pueden
+usar en posiciones más complejas. En este caso concreto (las casillas críticas
+de los peones bloqueados), la aplicación a casos con más peones es seguramente
+más importante que el final teórico en si mismo. Por eso vamos a presentar una
+aplicación en un caso muy simple.  Jugando las blancas, las tablas serían
+inmediatas después de Rg3 y h3. Jugando las negras, su rey consigue una
+posición dominante, desde la cual fuerza el cambio favorable del peón no
+bloqueado, captura el otro peón y gana. El procedimiento es muy simple. }
+1... Kh4 2. Kf2 Kh3 3. Kg1 g3 4. hxg3 (4. Kh1 { pero
+después de } 4... Kg4 { llegamos a lo mismo. }) 4... Kxg3 { El rey negro está en las
+casillas críticas del peón d3 , por tanto lo captura y corona el suyo. } 0-1
+
+

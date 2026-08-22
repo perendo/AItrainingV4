@@ -21,6 +21,7 @@ class UserUpdate(BaseModel):
     chess_online_nick: Optional[str] = Field(None, max_length=100)
     current_elo: Optional[int] = Field(None, ge=100, le=3000)
     target_elo: Optional[int] = Field(None, ge=100, le=3000)
+    password: Optional[str] = Field(None, min_length=6, description="Nueva contraseña en texto plano; se hashea antes de guardarse")
 
 # Esquema de respuesta (Lo que la API devuelve al cliente de forma pública)
 class UserResponse(UserBase):

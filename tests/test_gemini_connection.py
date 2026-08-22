@@ -1,6 +1,10 @@
 """
 Script de diagnóstico para probar la conexión con Gemini API.
-Ejecutar: python tests/test_gemini_connection.py
+
+Uso:
+- Como script independiente: python tests/test_gemini_connection.py
+- Como test de pytest: solo verifica que la API key está configurada
+  (no hace llamadas de red dentro de la suite para no ralentizarla).
 """
 import sys
 import os
@@ -10,7 +14,8 @@ from app.core.config import settings
 from google import genai
 from google.genai import types
 
-def test_gemini():
+
+def _test_gemini():
     api_key = settings.GEMINI_API_KEY
     print(f"API Key loaded: {api_key[:15]}...")
     print(f"API Key length: {len(api_key)}")
@@ -22,9 +27,9 @@ def test_gemini():
     client = genai.Client(api_key=api_key)
     
     try:
-        print("⏳ Probando conexión con Gemini API (modelo: gemini-2.5-flash)...")
+        print("⏳ Probando conexión con Gemini API (modelo: gemini-flash-latest)...")
         response = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-flash-latest",
             contents="Responde SOLO con un JSON: {\"test\": true, \"message\": \"Conexion exitosa\"}",
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",
@@ -40,7 +45,8 @@ def test_gemini():
         print(f"   Detalle: {e}")
         return False
 
-def test_gm_game_prompt():
+
+def _test_gm_game_prompt():
     """Test específico del prompt que usa gm_service.py"""
     api_key = settings.GEMINI_API_KEY
     client = genai.Client(api_key=api_key)
@@ -57,7 +63,7 @@ def test_gm_game_prompt():
     try:
         print("\n⏳ Probando prompt específico de GM games...")
         response = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-flash-latest",
             contents=prompt,
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",
@@ -72,14 +78,20 @@ def test_gm_game_prompt():
         print(f"   Detalle: {e}")
         return False
 
+
+def test_gemini_api_key_configurada():
+    """Test de pytest: verifica que la API key existe sin llamar a la red."""
+    assert settings.GEMINI_API_KEY, "GEMINI_API_KEY está vacía en .env"
+
+
 if __name__ == "__main__":
     print("=" * 60)
     print("🔍 DIAGNÓSTICO DE CONEXIÓN GEMINI API")
     print("=" * 60)
     
-    success = test_gemini()
+    success = _test_gemini()
     if success:
-        test_gm_game_prompt()
+        _test_gm_game_prompt()
     
     print("\n" + "=" * 60)
     if success:
@@ -87,4 +99,3 @@ if __name__ == "__main__":
     else:
         print("❌ Gemini API NO funciona - Revisa la API key o la configuración")
     print("=" * 60)
-

@@ -2,8 +2,8 @@ import pytest
 from pydantic import ValidationError
 from app.schemas.user import UserCreate, UserUpdate, UserResponse, Token
 from app.schemas.game import MoveErrorBase, MoveErrorResponse, GameBase, GameResponse, GameSummaryResponse, PuzzleResponse
-from app.schemas.exercise import TrainingTaskResponse, UpdateTaskProgress, SolutionValidationRequest, WeeklyPlanResponse
-from app.schemas.coach import CoachReport
+from app.schemas.exercise import TrainingTaskResponse, UpdateTaskProgress, PuzzleSolutionRequest, WeeklyPlanResponse
+from app.schemas.coach import CoachReportJSON
 
 
 class TestUserSchemas:
@@ -97,6 +97,18 @@ class TestGameSchemas:
         assert resp.errors == []
 
 
+class TestCoachSchemas:
+    def test_coach_report_json_valido(self):
+        report = CoachReportJSON(
+            report_markdown="## Informe completo en Markdown",
+        )
+        assert report.report_markdown == "## Informe completo en Markdown"
+
+    def test_coach_report_json_omitir_report_markdown_falla(self):
+        with pytest.raises(ValidationError):
+            CoachReportJSON()
+
+
 class TestExerciseSchemas:
     def test_update_task_progress(self):
         prog = UpdateTaskProgress(increment=3)
@@ -107,9 +119,5 @@ class TestExerciseSchemas:
         assert prog.increment == 1
 
     def test_solution_validation_request(self):
-        req = SolutionValidationRequest(
-            task_id=1,
-            puzzle_id="00008",
-            user_moves="e2e4 e7e5",
-        )
-        assert req.puzzle_id == "00008"
+        req = PuzzleSolutionRequest(user_moves="e2e4 e7e5")
+        assert req.user_moves == "e2e4 e7e5"

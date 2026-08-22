@@ -1,5 +1,8 @@
+from contextlib import contextmanager
+from typing import Iterator
+
 from sqlalchemy import create_engine, event
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.orm import declarative_base, sessionmaker, Session
 from app.core.config import settings  # Asumimos que settings lee DATABASE_URL del .env
 
 # El argumento connect_args es exclusivo y necesario para SQLite en entornos concurrentes
@@ -26,6 +29,21 @@ Base = declarative_base()
 
 # Dependencia que usaremos en los endpoints de FastAPI para abrir y cerrar la BD limpiamente
 def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+@contextmanager
+def background_session() -> Iterator[Session]:
+    """Sesión de BD para tareas en segundo plano (BackgroundTasks).
+
+    Centraliza el patrón ``import app.core.database as database_module;
+    db = database_module.SessionLocal()`` usado en los servicios, permitiendo
+    que los tests intercambien ``SessionLocal`` por la sesión de prueba.
+    """
     db = SessionLocal()
     try:
         yield db

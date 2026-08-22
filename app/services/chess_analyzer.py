@@ -199,47 +199,44 @@ class ChessAnalyzerService:
         Wrapper que ejecuta process_pgn_stream en background.
         Crea su propia sesión de BD y actualiza el registro ProcessingTask.
         """
-        import app.core.database as database_module
+        from app.core.database import background_session
         from app.models.task import ProcessingTask
 
-        db = database_module.SessionLocal()
-        try:
-            task = db.query(ProcessingTask).filter(ProcessingTask.id == task_id).first()
-            if not task:
-                logger.error(f"Task {task_id} no encontrada en la BD.")
-                return
-
-            task.status = "processing"
-            db.commit()
-
-            user = db.query(User).filter(User.id == user_id).first()
-            if not user:
-                task.status = "failed"
-                task.error_message = "Usuario no encontrado."
-                db.commit()
-                return
-
-            stats = self.process_pgn_stream(db, pgn_text=pgn_text, user_data=user)
-
-            task.processed = stats["processed"]
-            task.skipped_duplicate = stats["skipped_duplicate"]
-            task.skipped_not_user = stats["skipped_not_user"]
-            task.errors_found = stats["errors_found"]
-            task.status = "completed"
-            db.commit()
-
-        except Exception as e:
-            logger.error(f"Error en background task {task_id}: {str(e)}")
+        with background_session() as db:
             try:
                 task = db.query(ProcessingTask).filter(ProcessingTask.id == task_id).first()
-                if task:
-                    task.status = "failed"
-                    task.error_message = str(e)[:500]
-                    db.commit()
-            except Exception:
-                pass
+                if not task:
+                    logger.error(f"Task {task_id} no encontrada en la BD.")
+                    return
 
-        finally:
-            db.close()
+                task.status = "processing"
+                db.commit()
+
+                user = db.query(User).filter(User.id == user_id).first()
+                if not user:
+                    task.status = "failed"
+                    task.error_message = "Usuario no encontrado."
+                    db.commit()
+                    return
+
+                stats = self.process_pgn_stream(db, pgn_text=pgn_text, user_data=user)
+
+                task.processed = stats["processed"]
+                task.skipped_duplicate = stats["skipped_duplicate"]
+                task.skipped_not_user = stats["skipped_not_user"]
+                task.errors_found = stats["errors_found"]
+                task.status = "completed"
+                db.commit()
+
+            except Exception as e:
+                logger.error(f"Error en background task {task_id}: {str(e)}")
+                try:
+                    task = db.query(ProcessingTask).filter(ProcessingTask.id == task_id).first()
+                    if task:
+                        task.status = "failed"
+                        task.error_message = str(e)[:500]
+                        db.commit()
+                except Exception:
+                    pass
 
 chess_analyzer_service = ChessAnalyzerService()

@@ -33,9 +33,6 @@ class CoachService:
             user_rating=user_rating,
             count_per_theme=3
         )
-        
-        # Extraemos los IDs para guardarlos en la tarea (ej: "000a9,000b1,000c3")
-        puzzle_ids_str = ",".join([p.id for p in tactical_puzzles])
 
         # 3. Estructurar el plan de tareas
         tareas = [
@@ -44,8 +41,7 @@ class CoachService:
                 user_id=user_id,
                 category=ExerciseCategory.TACTICS,
                 description=f"Resolución de tácticas sobre: {', '.join(themes_to_practice)}",
-                target_count=len(tactical_puzzles),
-                puzzle_ids=puzzle_ids_str  # Guarda los IDs asignados
+                target_count=len(tactical_puzzles)
             ),
             
             # Bloque Posicional / Estratégico

@@ -1,6 +1,5 @@
 # app/api/v1/endpoints_gm_games.py
 import logging
-import traceback
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
@@ -13,24 +12,6 @@ from app.repositories.gm_game_repo import gm_game_repo
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
-
-@router.get(
-    "/{game_id}",
-    response_model=GMGameResponse,
-    summary="Obtener una partida GM por ID"
-)
-def get_gm_game_by_id(
-    game_id: str,
-    db: Session = Depends(get_db)
-):
-    game = gm_game_repo.get_by_id(db, game_id)
-    if not game:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Partida GM con ID {game_id} no encontrada."
-        )
-    return GMGameResponse.model_validate(game)
-
 
 @router.get(
     "/search",
@@ -68,15 +49,32 @@ def search_gm_games(
         return response_games
 
     except Exception as e:
-        # 🚨 IMPRESIÓN DETALLADA DEL ERROR EN LA CONSOLA DEL SERVIDOR
-        print("\n" + "="*60)
-        print(f"🚨 ERROR FATAL EN ENDPOINT /search PARA '{gm_name}':")
-        traceback.print_exc()
-        print("="*60 + "\n")
-
-        logger.error(f"Error fatal en el endpoint /gm-games/search para '{gm_name}': {e}", exc_info=True)
+        logger.error(
+            f"Error fatal en el endpoint /gm-games/search para '{gm_name}': {e}",
+            exc_info=True,
+        )
 
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error al procesar la búsqueda: {str(e)}"
         )
+
+
+# NOTA: este endpoint se registra DESPUÉS de /search para que la ruta
+# dinámica "/{game_id}" no capture la palabra "search" como un ID.
+@router.get(
+    "/{game_id}",
+    response_model=GMGameResponse,
+    summary="Obtener una partida GM por ID"
+)
+def get_gm_game_by_id(
+    game_id: str,
+    db: Session = Depends(get_db)
+):
+    game = gm_game_repo.get_by_id(db, game_id)
+    if not game:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Partida GM con ID {game_id} no encontrada."
+        )
+    return GMGameResponse.model_validate(game)

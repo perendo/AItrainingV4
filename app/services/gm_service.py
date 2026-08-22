@@ -1,29 +1,21 @@
 import logging
-import json
-import re
 from typing import List, Optional, Dict, Any
-import google.generativeai as genai
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from app.models.gm_game import GMGame
-from app.core.config import settings
+from app.services.gemini_client import gemini_client
 
 logger = logging.getLogger("GMGameService")
 
 class GMGameService:
-    _model = None
+    """Búsqueda de partidas de GM (local + fallback a Gemini). La generación con IA delega en ``gemini_client``."""
 
-    def __init__(self):
-        # Lazy initialization of the model
-        pass
-    
     @property
     def model(self) -> Any:
-        if self._model is None:            
-            genai.configure(api_key=settings.GEMINI_API_KEY)
-            self._model = genai.GenerativeModel("gemini-2.5-flash")
-        return self._model
+        # Mantenido por compatibilidad (tests lo parchean); la lógica real usa gemini_client.
+        return gemini_client.model
+
     def get_games_by_gm_or_theme(
         self,
         db: Session,
@@ -78,23 +70,11 @@ class GMGameService:
         """
 
         try:
-            response = self.model.generate_content(
+            games_data = gemini_client.generate_json(
                 prompt,
-                generation_config={
-                    "response_mime_type": "application/json",
-                    "temperature": 0.1,
-                }
+                temperature=0.1,
+                max_output_tokens=8192,
             )
-
-            raw_text = response.text.strip()
-
-            # Limpieza de bloque Markdown si Gemini añade ```json ... ```
-            if raw_text.startswith("```"):
-                raw_text = re.sub(r"^```[a-zA-Z]*\n?", "", raw_text)
-                raw_text = re.sub(r"\n?```$", "", raw_text)
-
-            # Parsear el JSON ya limpio
-            games_data = json.loads(raw_text)
 
             saved_games = []
             for item in games_data:
@@ -136,8 +116,8 @@ class GMGameService:
             db.commit()
             return saved_games
 
-        except json.JSONDecodeError as jde:
-            logger.error(f"Error de parseo JSON desde Gemini: {jde}. Respuesta original: {raw_text}")
+        except ValueError as ve:
+            logger.error(f"Error de parseo JSON desde Gemini: {ve}")
             db.rollback()
             return []
         except Exception as e:

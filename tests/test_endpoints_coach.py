@@ -1,7 +1,7 @@
 import pytest
 import json
-from unittest.mock import patch, MagicMock
-from app.services.llm_coach import llm_coach_service
+from unittest.mock import patch, MagicMock, PropertyMock
+from app.services.gemini_client import GeminiClient
 
 
 class TestCoachEndpoints:
@@ -32,7 +32,8 @@ class TestCoachEndpoints:
         })
         mock_response.candidates = None
 
-        with patch.object(llm_coach_service.client.models, "generate_content", return_value=mock_response):
+        with patch.object(GeminiClient, "model", new_callable=PropertyMock) as mock_model:
+            mock_model.return_value.generate_content.return_value = mock_response
             resp = client.post("/api/v1/coach/diagnostic", headers=auth_headers)
 
         assert resp.status_code == 201
@@ -56,7 +57,8 @@ class TestCoachEndpoints:
         })
         mock_response.candidates = None
 
-        with patch.object(llm_coach_service.client.models, "generate_content", return_value=mock_response):
+        with patch.object(GeminiClient, "model", new_callable=PropertyMock) as mock_model:
+            mock_model.return_value.generate_content.return_value = mock_response
             client.post("/api/v1/coach/diagnostic", headers=auth_headers)
 
         resp = client.get("/api/v1/coach/history", headers=auth_headers)

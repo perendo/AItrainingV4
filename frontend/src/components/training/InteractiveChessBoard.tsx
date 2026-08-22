@@ -4,13 +4,15 @@ import { useState, useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { Chess } from "chess.js";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Lightbulb, AlertCircle, CheckCircle } from "lucide-react";
+import { Lightbulb, AlertCircle, CheckCircle, RotateCcw } from "lucide-react";
 import { PgnViewer } from "./PgnViewer";
 import { BoardControls } from "./BoardControls";
+import { useChessSounds } from "@/hooks/useChessSounds";
 
 const DynamicChessboard = dynamic(
-  () => import("react-chessboard").then((mod) => mod.Chessboard),
+  () => import("react-chessboard").then((mod) => ({ default: mod.Chessboard })),
   { ssr: false }
 );
 
@@ -41,6 +43,13 @@ export function InteractiveChessBoard({
   const [status, setStatus] = useState<PuzzleStatus>("ready");
   const [message, setMessage] = useState<string | null>(null);
   const [lastMove, setLastMove] = useState<[string, string] | null>(null);
+  // Orientación del tablero. Arranca con la perspectiva del ejercicio (p.ej.
+  // el usuario juega con negras) pero siempre se puede alternar manualmente.
+  const [boardOrientation, setBoardOrientation] = useState<"white" | "black">(
+    orientation
+  );
+
+  const { playMoveSound, playErrorSound } = useChessSounds();
 
   const positions = useMemo(() => {
     const g = new Chess(fen);
@@ -65,7 +74,12 @@ export function InteractiveChessBoard({
     setViewIndex(0);
     setLastMove(null);
     setStatus("ready");
-  }, [fen]);
+    setBoardOrientation(orientation);
+  }, [fen, orientation]);
+
+  const toggleOrientation = () => {
+    setBoardOrientation((o) => (o === "white" ? "black" : "white"));
+  };
 
 
   const playSolutionAfterFailure = () => {
@@ -81,6 +95,7 @@ export function InteractiveChessBoard({
       setUserMoveHistory(newHistory);
       setViewIndex(newHistory.length);
       setLastMove([move.substring(0,2), move.substring(2,4)]);
+      playMoveSound();
       
       moveIndex++;
       setTimeout(playNextSolutionMove, 500);
@@ -114,6 +129,7 @@ export function InteractiveChessBoard({
     if (!expectedMove || uciMove !== expectedMove) {
       setMessage("INCORRECTO");
       setStatus("showing_solution_after_failure");
+      playErrorSound();
       setTimeout(() => playSolutionAfterFailure(), 500);
       return true; 
     }
@@ -122,6 +138,7 @@ export function InteractiveChessBoard({
     setUserMoveHistory(newHistory);
     setLastMove([sourceSquare, targetSquare]);
     setViewIndex(newHistory.length);
+    playMoveSound();
 
     if (newHistory.length >= solutionMoves.length) {
       setStatus("solved");
@@ -139,6 +156,7 @@ export function InteractiveChessBoard({
         setLastMove([computerMoveUci.substring(0, 2), computerMoveUci.substring(2, 4)]);
         setViewIndex(nextHistory.length);
         setStatus("ready");
+        playMoveSound();
       }
     }, 500);
 
@@ -159,6 +177,7 @@ export function InteractiveChessBoard({
       setUserMoveHistory(newHistory);
       setViewIndex(newHistory.length);
       setLastMove([uciMove.substring(0, 2), uciMove.substring(2, 4)]);
+      playMoveSound();
       moveIndex++;
       setTimeout(playNextMove, 700);
     };
@@ -210,11 +229,23 @@ export function InteractiveChessBoard({
 
   return (
     <div className="flex flex-col lg:flex-row gap-4">
-      <div className="w-full max-w-[720px] aspect-square">
+      <div className="w-full max-w-[720px]">
+        <div className="flex justify-end pb-2">
+          <Button
+            variant="outline"
+            size="icon"
+            aria-label="Girar orientación del tablero"
+            title="Girar el tablero"
+            onClick={toggleOrientation}
+          >
+            <RotateCcw className="h-4 w-4" />
+          </Button>
+        </div>
+        <div className="w-full aspect-square">
         <DynamicChessboard
           position={currentFen}
           onPieceDrop={onDrop}
-          boardOrientation={orientation}
+          boardOrientation={boardOrientation}
           customBoardStyle={{ borderRadius: "4px" }}
           customSquareStyles={lastMove ? {
             [lastMove[0]]: { backgroundColor: "rgba(255, 255, 0, 0.4)" },
@@ -222,6 +253,7 @@ export function InteractiveChessBoard({
           } : {}}
           arePiecesDraggable={status === 'ready'}
         />
+        </div>
       </div>
       <div className="w-full lg:w-1/3 space-y-4">
         {statusContent}

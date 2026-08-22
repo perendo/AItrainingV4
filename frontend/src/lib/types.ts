@@ -10,10 +10,20 @@ export interface UserCreate {
   password: string;
 }
 
+
+export interface UserUpdate {
+  full_name?: string;
+  chess_online_nick?: string;
+  current_elo?: number;
+  target_elo?: number;
+  password?: string;
+}
+
 export interface UserLogin {
   username: string;
   password: string;
 }
+
 
 export interface TokenResponse {
   access_token: string;
@@ -165,11 +175,29 @@ export interface ConclusionesPlan {
 }
 
 export interface UserGameAnalysisSubmit {
-  gm_game_id: string;
+  gm_game_id?: string | number | null;
+  game_type: "GM" | "USER";
+  white_player?: string;
+  black_player?: string;
+  pgn?: string;
+  analysis_id?: number;
   fases_analisis: FasesAnalisis;
   momentos_criticos: MomentosCriticos;
   factores_posicionales: FactoresPosicionales;
   conclusiones_plan: ConclusionesPlan;
+}
+
+export interface UserGameAnalysisDraft {
+  gm_game_id?: string | number | null;
+  game_type: "GM" | "USER";
+  white_player?: string;
+  black_player?: string;
+  pgn?: string;
+  analysis_id?: number;
+  fases_analisis?: FasesAnalisis;
+  momentos_criticos?: MomentosCriticos;
+  factores_posicionales?: FactoresPosicionales;
+  conclusiones_plan?: ConclusionesPlan;
 }
 
 export interface FeedbackFases {
@@ -205,12 +233,135 @@ export interface GeminiFeedback {
 export interface UserGameAnalysisResponse {
   id: number;
   user_id: number;
-  game_id: number | null;
+  game_id: string | number | null;
   game_type: string;
-  fases_analisis: string;
-  momentos_criticos: string;
-  factores_posicionales: string;
-  conclusiones_plan: string;
+  white_player?: string | null;
+  black_player?: string | null;
+  pgn?: string | null;
+  fases_analisis: string | null;
+  momentos_criticos: string | null;
+  factores_posicionales: string | null;
+  conclusiones_plan: string | null;
   gemini_feedback: string | null;
   created_at: string;
+  updated_at?: string | null;
+}
+
+export type GameAnalysisGameType = "GM" | "USER";
+
+export type GameAnalysisStatus =
+  | "pending"
+  | "evaluated_correct"
+  | "evaluated_incorrect";
+
+export function gameAnalysisStatus(analysis: UserGameAnalysisResponse): GameAnalysisStatus {
+  if (!analysis.gemini_feedback) return "pending";
+  try {
+    const feedback = JSON.parse(analysis.gemini_feedback) as GeminiFeedback;
+    return feedback.auditoria_conclusiones.plan_correcto
+      ? "evaluated_correct"
+      : "evaluated_incorrect";
+  } catch {
+    return "pending";
+  }
+}
+
+// Envío asíncrono de autodiagnóstico al Gran Maestro
+export interface GameAnalysisSubmitResponse {
+  analysis_id: number;
+  status: string;
+}
+
+export interface GameAnalysisStatusResponse {
+  analysis_id: number;
+  status: "processing" | "completed" | "failed";
+  has_feedback: boolean;
+  error_message?: string | null;
+}
+
+// Módulo de Finales Teóricos (Academia de Finales)
+export type LessonCategory = "peones" | "torres" | "piezas_menores" | "damas";
+export type LessonStatus = "not_started" | "in_progress" | "mastered";
+export type ActionType =
+  | "move_piece"
+  | "highlight_square"
+  | "draw_arrow"
+  | "pause_for_quiz";
+
+export interface TimelineEvent {
+  id: number;
+  lesson_id: number;
+  timestamp_seconds: number;
+  action_type: ActionType;
+  payload: Record<string, unknown>;
+}
+
+export interface EndgameLessonListItem {
+  id: number;
+  slug: string;
+  title: string;
+  category: LessonCategory;
+  difficulty: string;
+  target_result: string;
+  has_audio: boolean;
+  status: LessonStatus;
+  last_listened_second: number;
+}
+
+export interface EndgameLessonDetail {
+  id: number;
+  slug: string;
+  title: string;
+  category: LessonCategory;
+  difficulty: string;
+  target_result: string;
+  initial_fen: string;
+  audio_url: string | null;
+  podcast_script: string | null;
+  timeline_events: TimelineEvent[];
+  lesson_number?: number | null;
+  chapter_name?: string | null;
+  concept?: string | null;
+  /** PGN completo de la lección (comentarios, NAGs y variantes incluidos). */
+  pgn_content?: string | null;
+  main_line?: string[] | null;
+  initial_comment?: string | null;
+  theory_tree?: unknown[] | null;
+  final_comment?: string | null;
+}
+
+export interface EndgameProgressResponse {
+  slug: string;
+  status: LessonStatus;
+  last_listened_second: number;
+  updated_at: string;
+}
+
+// Consultas (dudas) al Gran Maestro — procesamiento asíncrono en segundo plano
+export type GMConsultationStatusValue = "processing" | "completed" | "failed";
+
+export interface GMConsultationStatusResponse {
+  consultation_id: number;
+  status: GMConsultationStatusValue;
+  answer?: string | null;
+  error_message?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GMConsultationResponse extends GMConsultationStatusResponse {
+  question: string;
+}
+
+// Stockfish Practice Mode (Finales)
+export interface StockfishMoveRequest {
+  fen: string;
+  skill_level?: number;
+  time_limit?: number;
+}
+
+export interface StockfishMoveResponse {
+  move_uci: string;
+  move_san: string;
+  fen_after: string;
 }

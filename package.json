@@ -1,4 +1,9 @@
 {
+  "scripts": {
+    "dist": ".venv\\Scripts\\python.exe build_dist.py",
+    "build:dist": ".venv\\Scripts\\python.exe build_dist.py",
+    "dist:quick": ".venv\\Scripts\\python.exe build_dist.py --skip-frontend --skip-backend"
+  },
   "dependencies": {
     "html2canvas": "^1.4.1",
     "jspdf": "^4.2.1"

@@ -21,7 +21,7 @@ Backend de una plataforma de entrenamiento de ajedrez con inteligencia artificia
 | Framework          | FastAPI 0.111                           |
 | Base de datos      | SQLAlchemy 2.0 + SQLite (modo WAL)      |
 | Motor de ajedrez   | Stockfish (binario local)               |
-| LLM de coaching    | Google Gemini (`gemini-2.5-flash`)      |
+| LLM de coaching    | Google Gemini (`gemini-flash-latest`)     |
 | Validación         | Pydantic 2.7                            |
 | Autenticación      | PyJWT + passlib/bcrypt                  |
 | Configuración      | pydantic-settings + python-dotenv       |

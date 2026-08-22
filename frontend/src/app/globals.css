@@ -26,26 +26,28 @@
     --radius: 0.5rem;
   }
 
+  /* Paleta oscura estilo Lichess:
+     fondo de pantalla #161512, paneles/tarjetas #262421, bordes #363431. */
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --background: 45 10% 8%;
+    --foreground: 0 0% 78%;
+    --card: 36 7% 14%;
+    --card-foreground: 0 0% 78%;
+    --popover: 36 7% 14%;
+    --popover-foreground: 0 0% 78%;
     --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
+    --primary-foreground: 45 10% 8%;
+    --secondary: 36 7% 17%;
+    --secondary-foreground: 0 0% 78%;
+    --muted: 36 7% 17%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 36 7% 17%;
+    --accent-foreground: 0 0% 78%;
+    --destructive: 0 62.8% 40%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --border: 36 5% 20%;
+    --input: 36 5% 20%;
+    --ring: 0 0% 78%;
   }
 }
 
@@ -79,4 +81,120 @@
   bottom: 0;
   border-radius: 9999px;
   animation: progress-indeterminate 1.4s ease-in-out infinite;
+}
+
+/* Informe del Coach en Markdown: legibilidad en pantalla y en el PDF exportado */
+.report-markdown {
+  line-height: 1.6;
+}
+
+.report-markdown h1,
+.report-markdown h2,
+.report-markdown h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: bold;
+  color: inherit;
+}
+
+.report-markdown h1:first-child,
+.report-markdown h2:first-child,
+.report-markdown h3:first-child {
+  margin-top: 0;
+}
+
+.report-markdown h1 {
+  font-size: 1.5rem;
+}
+
+.report-markdown h2 {
+  font-size: 1.25rem;
+}
+
+.report-markdown h3 {
+  font-size: 1.125rem;
+}
+
+.report-markdown p,
+.report-markdown li {
+  margin-bottom: 0.75rem;
+}
+
+.report-markdown ul,
+.report-markdown ol {
+  padding-left: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.report-markdown li::marker {
+  color: currentColor;
+}
+
+.report-markdown hr {
+  margin: 1.5rem 0;
+  border-color: rgba(148, 163, 184, 0.3);
+}
+
+.report-markdown a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.report-markdown blockquote {
+  border-left: 3px solid rgba(148, 163, 184, 0.4);
+  padding-left: 1rem;
+  margin: 1rem 0;
+  color: inherit;
+}
+
+@page {
+  size: A4;
+  margin: 12mm;
+}
+
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  body > div {
+    background: white !important;
+  }
+
+  aside {
+    display: none !important;
+  }
+
+  .action-buttons,
+  .no-print {
+    display: none !important;
+  }
+
+  .print-report,
+  .print-report :not(.print-board *) {
+    color: black !important;
+    background: white !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  .print-report a {
+    color: black !important;
+    text-decoration: none !important;
+  }
+
+  .print-block {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .print-report h1,
+  .print-report h2,
+  .print-report h3 {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
 }

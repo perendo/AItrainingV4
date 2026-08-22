@@ -1,5 +1,5 @@
 import pytest
-from app.services.coach_service import asignar_plan_entrenamiento_interactivo
+from app.services.coach_service import CoachService
 from app.models.user import User
 from app.models.exercise import TrainingTask, ExerciseCategory
 from app.core.security import hash_password
@@ -21,13 +21,13 @@ class TestCoachService:
 
     def test_asignar_plan_crea_tareas(self, db_session):
         user = self._create_user(db_session)
-        asignar_plan_entrenamiento_interactivo(db_session, user.id)
+        CoachService.asignar_plan_entrenamiento_interactivo(db_session, user.id)
         tareas = db_session.query(TrainingTask).filter(TrainingTask.user_id == user.id).all()
         assert len(tareas) >= 1
 
     def test_asignar_plan_categorias_correctas(self, db_session):
         user = self._create_user(db_session)
-        asignar_plan_entrenamiento_interactivo(db_session, user.id)
+        CoachService.asignar_plan_entrenamiento_interactivo(db_session, user.id)
         tareas = db_session.query(TrainingTask).filter(TrainingTask.user_id == user.id).all()
         categorias = {t.category for t in tareas}
         assert ExerciseCategory.STRATEGY in categorias
@@ -36,8 +36,8 @@ class TestCoachService:
 
     def test_asignar_plan_elimina_anteriores(self, db_session):
         user = self._create_user(db_session)
-        asignar_plan_entrenamiento_interactivo(db_session, user.id)
-        asignar_plan_entrenamiento_interactivo(db_session, user.id)
+        CoachService.asignar_plan_entrenamiento_interactivo(db_session, user.id)
+        CoachService.asignar_plan_entrenamiento_interactivo(db_session, user.id)
         tareas = db_session.query(TrainingTask).filter(TrainingTask.user_id == user.id).all()
         assert len(tareas) >= 1
         assert len(tareas) <= 6

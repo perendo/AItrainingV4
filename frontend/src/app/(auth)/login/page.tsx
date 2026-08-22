@@ -30,6 +30,7 @@ import { loginSchema, type LoginFormData } from "@/lib/validations/auth";
 import { apiFetch, ApiError } from "@/lib/api";
 import { setToken } from "@/lib/auth";
 import type { TokenResponse } from "@/lib/types";
+import { exitToDesktop } from "@/lib/kiosk";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -147,6 +148,14 @@ export default function LoginPage() {
                 Regístrate
               </Link>
             </p>
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full text-muted-foreground hover:text-foreground"
+              onClick={() => exitToDesktop()}
+            >
+              Salir al escritorio
+            </Button>
           </CardFooter>
         </form>
       </Form>

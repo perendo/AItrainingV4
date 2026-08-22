@@ -49,3 +49,6 @@ ejercicios/*.db
 "Historico partidas/Big2006.pgn"
 "Historico partidas/Big2006.pgi"
 "Historico partidas/gm_games.csv"
+
+# Archivos comprimidos de distribución (artefactos de build, >100 MB)
+*.zip

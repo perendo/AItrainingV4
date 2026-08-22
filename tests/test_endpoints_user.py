@@ -66,6 +66,32 @@ class TestUserEndpoints:
         assert resp.json()["full_name"] == "Nombre Actualizado"
         assert resp.json()["current_elo"] == 1800
 
+    def test_update_me_cambia_contraseña(self, client, registered_user, auth_headers):
+        resp = client.put(
+            "/api/v1/users/me",
+            json={"password": "nueva_segura_456"},
+            headers=auth_headers,
+        )
+        assert resp.status_code == 200
+        # La contraseña nunca se devuelve en la respuesta
+        assert "hashed_password" not in resp.json()
+        assert "password" not in resp.json()
+
+        # La contraseña antigua ya no funciona...
+        resp_old = client.post("/api/v1/users/login", data={
+            "username": registered_user["username"],
+            "password": "test123456",
+        })
+        assert resp_old.status_code == 401
+
+        # ...y la nueva sí
+        resp_new = client.post("/api/v1/users/login", data={
+            "username": registered_user["username"],
+            "password": "nueva_segura_456",
+        })
+        assert resp_new.status_code == 200
+        assert "access_token" in resp_new.json()
+
 
 class TestRootEndpoint:
     def test_root(self, client):

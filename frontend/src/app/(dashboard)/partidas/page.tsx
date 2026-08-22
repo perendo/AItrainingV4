@@ -18,6 +18,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { LichessImport } from "@/components/analysis/LichessImport";
 import { apiFetch, ApiError } from "@/lib/api";
 import type { GameResponse, TaskResponse } from "@/lib/types";
 
@@ -157,6 +158,8 @@ export default function PartidasPage() {
           errores. El análisis se procesa en segundo plano.
         </p>
       </div>
+
+      <LichessImport />
 
       {/* Zona de subida Drag & Drop */}
       <Card>

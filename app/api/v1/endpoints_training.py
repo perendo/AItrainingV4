@@ -1,4 +1,5 @@
 # app/api/v1/endpoints_training.py
+import logging
 from typing import List, Optional
 from datetime import date, timedelta
 from fastapi import APIRouter, Depends, HTTPException, status, Query
@@ -17,6 +18,8 @@ from app.schemas.exercise import (
 from app.api.v1.dependencies import get_current_user_id
 from app.models.gm_game import GMGame
 from app.models.user_analyzed_gm_game import UserAnalyzedGMGame
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -124,7 +127,7 @@ def get_pending_tasks(
 
     # 3. If a GM game is found, create a virtual task
     if gm_game_to_analyze:
-        print(f"DEBUG: Found GM game to analyze: {gm_game_to_analyze.gm_name}")
+        logger.debug(f"Found GM game to analyze: {gm_game_to_analyze.gm_name}")
         
         # Find which recommended GM was matched to get the reason
         reason = "Análisis General"
@@ -151,7 +154,7 @@ def get_pending_tasks(
         )
         pending_tasks.append(gm_task)
     else:
-        print("DEBUG: No new GM game found to recommend for this user.")
+        logger.debug("No new GM game found to recommend for this user.")
     
     return pending_tasks
 

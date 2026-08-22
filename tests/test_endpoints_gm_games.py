@@ -1,6 +1,7 @@
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch, PropertyMock
 from app.models.gm_game import GMGame
+from app.services.gemini_client import GeminiClient
 
 def test_search_gm_games_local_cache(client, db_session):
     # Crear una partida en la BD local
@@ -25,8 +26,8 @@ def test_search_gm_games_local_cache(client, db_session):
     assert data[0]["black"] == "Frank James Marshall"
     assert data[0]["theme_tags"] == "Tactical Attack, Sacrifice"
 
-@patch("app.services.gm_service.gm_game_service.client")
-def test_search_gm_games_gemini_fallback(mock_genai_client, client):
+@patch.object(GeminiClient, "model", new_callable=PropertyMock)
+def test_search_gm_games_gemini_fallback(mock_model, client):
     # Mock de Gemini devolviendo un objeto JSON con theme_tags como lista
     mock_response = MagicMock()
     mock_response.text = '''[
@@ -41,7 +42,7 @@ def test_search_gm_games_gemini_fallback(mock_genai_client, client):
         "theme_tags": ["Endgame Technique", "Positional Play"]
       }
     ]'''
-    mock_genai_client.models.generate_content.return_value = mock_response
+    mock_model.return_value.generate_content.return_value = mock_response
 
     response = client.get("/api/v1/gm-games/search?gm_name=Fischer&limit=1")
     assert response.status_code == 200

@@ -3,6 +3,11 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
+interface TabsContextProps {
+  activeTab?: string;
+  setActiveTab?: (value: string) => void;
+}
+
 interface TabsProps {
   children: React.ReactNode;
   defaultValue: string;
@@ -16,10 +21,10 @@ const Tabs = ({ children, defaultValue, className }: TabsProps) => {
     <div className={cn("space-y-4", className)}>
       {React.Children.map(children, (child) => {
         if (!React.isValidElement(child)) return child;
-        return React.cloneElement(child, { 
-          activeTab, 
+        return React.cloneElement(child as React.ReactElement<TabsContextProps>, {
+          activeTab,
           setActiveTab,
-        } as any);
+        });
       })}
     </div>
   );
@@ -28,12 +33,20 @@ const Tabs = ({ children, defaultValue, className }: TabsProps) => {
 interface TabsListProps {
   children: React.ReactNode;
   className?: string;
+  activeTab?: string;
+  setActiveTab?: (value: string) => void;
 }
 
-const TabsList = ({ children, className }: TabsListProps) => {
+const TabsList = ({ children, className, activeTab, setActiveTab }: TabsListProps) => {
   return (
     <div className={cn("grid grid-cols-4 gap-2 p-2 bg-muted rounded-lg", className)}>
-      {children}
+      {React.Children.map(children, (child) => {
+        if (!React.isValidElement(child)) return child;
+        return React.cloneElement(child as React.ReactElement<TabsContextProps>, {
+          activeTab,
+          setActiveTab,
+        });
+      })}
     </div>
   );
 };

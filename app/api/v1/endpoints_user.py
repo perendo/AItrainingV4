@@ -113,6 +113,12 @@ def update_user_profile(
     
     # Actualización dinámica basándonos en los campos que envía el cliente
     update_data = user_in.model_dump(exclude_unset=True)
+
+    # La contraseña se trata aparte: se hashea antes de guardarse en hashed_password
+    new_password = update_data.pop("password", None)
+    if new_password:
+        user.hashed_password = hash_password(new_password)
+
     for key, value in update_data.items():
         setattr(user, key, value)
         

@@ -5,6 +5,7 @@ import { apiFetch, ApiError } from "@/lib/api"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Brain, Award, AlertTriangle, Lightbulb, RefreshCw, FileText, Loader2, Download } from "lucide-react"
+import ReactMarkdown from "react-markdown"
 import type { CoachReportResponse } from "@/lib/types"
 
 // Helper para parsear campos que pueden venir como Array o como String JSON desde SQLite
@@ -22,88 +23,25 @@ function parseJsonOrArray(data: string[] | string | undefined | null): string[] 
   return []
 }
 
-// Helper para formatear negritas (**texto**) sin usar HTML peligroso
-function parseFormattedText(text: string) {
-  const parts = text.split(/(\*\*.*?\*\*)/g)
-  return parts.map((part, i) => {
-    if (part.startsWith("**") && part.endsWith("**")) {
-      return (
-        <strong key={i} className="font-semibold text-slate-900 dark:text-white">
-          {part.slice(2, -2)}
-        </strong>
-      )
-    }
-    return part
-  })
-}
-
-// Componente para renderizar el informe en Markdown completo con listas y negritas
+// Componente para renderizar el informe en Markdown real (react-markdown)
 function MarkdownRenderer({ content }: { content: string }) {
   if (!content) {
     return <p className="text-sm text-slate-500">Sin informe disponible.</p>
   }
 
-  const blocks = content.split("\n\n")
-
   return (
-    <div className="space-y-4 text-slate-700 dark:text-slate-300 leading-relaxed text-sm">
-      {blocks.map((block, idx) => {
-        const trimmed = block.trim()
-
-        if (trimmed.startsWith("### ")) {
-          return (
-            <h3 key={idx} className="text-lg font-bold text-slate-900 dark:text-white pt-2 border-b border-slate-100 dark:border-slate-800 pb-1">
-              {parseFormattedText(trimmed.replace(/^###\s*/, ""))}
-            </h3>
-          )
-        }
-
-        if (trimmed.startsWith("#### ")) {
-          return (
-            <h4 key={idx} className="text-md font-semibold text-blue-600 dark:text-blue-400 pt-1">
-              {parseFormattedText(trimmed.replace(/^####\s*/, ""))}
-            </h4>
-          )
-        }
-
-        if (trimmed.startsWith("---")) {
-          return <hr key={idx} className="my-4 border-slate-200 dark:border-slate-800" />
-        }
-
-        // Listas viñetas (* o -)
-        if (trimmed.startsWith("* ") || trimmed.startsWith("- ")) {
-          const items = trimmed.split("\n")
-          return (
-            <ul key={idx} className="list-disc list-inside space-y-1.5 pl-2">
-              {items.map((item, itemIdx) => (
-                <li key={itemIdx}>
-                  {parseFormattedText(item.replace(/^[\*\-]\s*/, ""))}
-                </li>
-              ))}
-            </ul>
-          )
-        }
-
-        // Listas numeradas (1. 2. 3.)
-        if (/^\d+\.\s/.test(trimmed)) {
-          const items = trimmed.split("\n")
-          return (
-            <ol key={idx} className="list-decimal list-inside space-y-2 pl-2">
-              {items.map((item, itemIdx) => (
-                <li key={itemIdx} className="leading-normal">
-                  {parseFormattedText(item.replace(/^\d+\.\s*/, ""))}
-                </li>
-              ))}
-            </ol>
-          )
-        }
-
-        return (
-          <p key={idx} className="whitespace-pre-line">
-            {parseFormattedText(trimmed)}
-          </p>
-        )
-      })}
+    <div className="report-markdown text-slate-700 dark:text-slate-300 text-sm">
+      <ReactMarkdown
+        components={{
+          strong: ({ children }) => (
+            <strong className="font-semibold text-slate-900 dark:text-white">
+              {children}
+            </strong>
+          ),
+        }}
+      >
+        {content}
+      </ReactMarkdown>
     </div>
   )
 }
@@ -391,7 +329,7 @@ export default function CoachPage() {
                     </Card>
                   </div>
 
-                  <Card ref={reportRef} className="bg-white text-slate-900">
+                  <Card ref={reportRef}>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0">
                       <div>
                         <CardTitle>Informe Estratégico Completo</CardTitle>

@@ -2,32 +2,23 @@ import logging
 import json
 from typing import List, Dict, Any, Optional
 from sqlalchemy.orm import Session
-from pydantic import ValidationError
 
-from app.core.config import settings
 from app.repositories.user_repo import user_repo
 from app.repositories.game_repo import game_repo
 from app.models.game import CoachReport
-from app.schemas.coach import CoachReportJSON # Esquema Pydantic para validar el JSON
+from app.schemas.coach import CoachReportJSON, CoachReportJSONSchema # Esquemas Pydantic para validar el JSON
+from app.services.gemini_client import gemini_client
 
 logger = logging.getLogger("EntrenadorIA")
 
 class LLMCoachService:
-    _model = None
-
-    def __init__(self):
-        # Inicialización del cliente de Google GenAI
-        self.model_name = "gemini-2.5-flash"
+    """Servicio de diagnóstico del entrenador. La generación con IA delega en ``gemini_client``."""
 
     @property
     def model(self) -> Any:
-        if self._model is None:
-            import google.generativeai as genai
-            genai.configure(api_key=settings.GEMINI_API_KEY)
-            # System prompt is now part of the model configuration
-            self._model = genai.GenerativeModel(self.model_name)
-        return self._model
-        
+        # Mantenido por compatibilidad (tests lo parchean); la lógica real usa gemini_client.
+        return gemini_client.model
+
     def generate_diagnostic(self, db: Session, user_id: int) -> CoachReport:
         user = user_repo.get(db, id=user_id)
         if not user:
@@ -56,21 +47,17 @@ Datos de partidas y errores de Stockfish:
 Por favor, genera el Informe Técnico de Desempeño en el formato JSON solicitado."""
 
         try:
-            logger.info(f"Enviando {len(data_summary)} partidas a Gemini ({self.model_name}) para diagnóstico técnico FIDE...")
+            logger.info(f"Enviando {len(data_summary)} partidas a Gemini para diagnóstico técnico FIDE...")
 
-            model_with_system_prompt = self.model
-            model_with_system_prompt.system_instruction = system_prompt
-
-            response = model_with_system_prompt.generate_content(
+            # Generar y validar la respuesta JSON con el cliente unificado de Gemini
+            report_data = gemini_client.generate_json(
                 user_prompt,
-                generation_config={
-                    "response_mime_type": "application/json",
-                    "temperature": 0.3, # Mayor rigor analítico y precisión técnica
-                },
+                system_prompt=system_prompt,
+                schema=CoachReportJSON,
+                response_schema=CoachReportJSONSchema,
+                temperature=0.3,
+                max_output_tokens=8192,
             )
-
-            # Parsear y validar la respuesta JSON con Pydantic
-            report_data = self._parse_and_validate_response(response)
 
             # Crear y guardar el informe en la base de datos
             nuevo_informe = CoachReport(
@@ -124,103 +111,25 @@ Por favor, genera el Informe Técnico de Desempeño en el formato JSON solicitad
 
     def _get_system_prompt(self, user_name: str, user_elo: Any) -> str:
         return f"""
-Actúa como un Gran Maestro de Ajedrez y Entrenador de Élite de nivel internacional. Tu objetivo es generar un Informe Técnico y Estratégico de Desempeño exhaustivo, profesional y personalizado para el jugador {user_name} (ELO FIDE/Registrado: {user_elo}).
+Actúa como un Gran Maestro de Ajedrez y Entrenador de Élite de nivel internacional. Tu objetivo es redactar un informe completo, humano, motivador y fluido en español (usando Markdown) para el jugador {user_name} (ELO FIDE/Registrado: {user_elo}).
 
-ESCALA OFICIAL DE CLASIFICACIÓN FIDE:
-- Principiante (< 1400 ELO): Errores tácticos de 1 jugada, deslices materiales groseros.
-- Aficionado / Jugador de Club (1400 - 1800 ELO): Nociones de apertura y táctica elemental. Rara vez regala piezas, pero carece de comprensión estratégica profunda.
-- Avanzado (1800 - 2000 ELO): Conocimiento amplio posicional y táctico. Jugador habitual de torneos.
-- Maestro (2000 - 2400 ELO): Dominio técnico muy elevado (Incluye Candidato a Maestro CM ~2200, Maestro FIDE FM ~2300, Maestro Internacional MI ~2400).
-- Gran Maestro - GM (> 2500 ELO): Comprensión profunda de élite.
+DIRECTRICES DEL INFORME:
+- Analiza los momentos clave de las partidas de forma narrativa y profunda. Destaca con claridad los aciertos, los errores posicionales o tácticos cometidos y ofrece consejos prácticos muy útiles para el jugador.
+- Mantén un tono profesional pero cercano, constructivo, analítico y motivador, digno de un entrenador personal de élite.
+- Estructura el texto en Markdown limpio y ordenado (con títulos, subtítulos, viñetas y negritas donde sea oportuno).
 
-DIRECTRICES DEL PLAN DE ACCIÓN TÉCNICO:
-- LIBERTAD TEMÁTICA TOTAL: No estás restringido a porcentajes fijos predefinidos. Analiza libremente los patrones de error específicos del jugador y determina cuáles son los **TEMAS Y ÁREAS CLAVE** que necesita ejercitar (táctica específica, finales, juego posicional, estructura de peones, cálculo de capturas, etc.).
-- ENFOQUE EN EJERCICIOS TEMÁTICOS: Para cada área o tema recomendado, especifica los temas o conceptos concretos a buscar en la base de datos de entrenamiento (ej: "Finales de Torres", "Ataque al Rey Enrocado", "Eliminación del Defensor", "Estructuras de Peón Colgante", "Destrucción de la Estructura de Peones").
-- MODELOS Y REFERENTES: Recomienda maestros clásicos o modernos relevantes para esos temas específicos.
-- FORMATO MARKDOWN LIMPIO: Separa CADA título/subtítulo de su contenido con un SALTO DE LÍNEA DOBLE (\\n\\n).
+DIRECTRICES DE FORMATO MARKDOWN (OBLIGATORIO):
+- Separa SIEMPRE los encabezados, párrafos y elementos de lista con una línea en blanco (doble salto de línea, `\n\n`). Nunca juntes bloques consecutivos sin una línea en blanco entre ellos.
+- Deja una línea en blanco después de cada encabezado antes de iniciar el bloque siguiente.
+- Cada elemento de una lista debe ocupar su propia línea independiente: escríbelo como `\n* Elemento` (o `\n- Elemento`). Está PROHIBIDO concatenar varios puntos en la misma línea separados por asteriscos.
+- Usa EXACTAMENTE un símbolo `#` por nivel de encabezado (`#`, `##`, `###`). Está PROHIBIDO duplicar símbolos (ej.: NUNCA escribas `## ## 3. DIAGNÓSTICO`; debes escribir `## 3. DIAGNÓSTICO`).
+- No mezcles encabezados con negritas ni con contenido en la misma línea: el encabezado va solo en su línea y el contenido debajo.
+- Mantén las negritas `**texto**` dentro del mismo párrafo, sin convertirlas en listas.
 
-Tu salida DEBE ser EXCLUSIVAMENTE un objeto JSON válido con este esquema:
+Tu salida DEBE ser EXCLUSIVAMENTE un objeto JSON válido con este único campo:
 {{
-  "estimated_level": "string",
-  "strengths": ["string", "string"],
-  "weaknesses": ["string", "string"],
-  "report_markdown": "string"
+  "report_markdown": "string con todo el informe narrativo completo en formato Markdown"
 }}
-
-Estructura sugerida para el campo "report_markdown":
-
-# Informe Técnico de Desempeño
-**Jugador:** {user_name}  
-**Nivel / Categoría FIDE:** [Categoría FIDE e intervalo de ELO]
-
-## 1. Evaluación General del Rendimiento
-
-[Análisis cuantitativo de la pérdida de centipeones y estabilidad bajo presión adecuada a su categoría FIDE]
-
-## 2. Patrones de Error Identificados
-
-### 2.1 [Primer Patrón de Error / Posicional / Táctico]
-
-[Cita jugadas concretas, partidas y pérdida exacta de cp]
-
-### 2.2 [Segundo Patrón de Error / Finales / Apertura]
-
-[Análisis de errores e imprecisiones específicas con pérdidas de cp]
-
-## 3. Plan de Acción Técnico y Módulos de Entrenamiento
-
-Determina libremente de 2 a 4 secciones temáticas prioritarias a trabajar según los errores detectados:
-
-### 3.1 [Tema / Área Prioritaria 1]
-
-- **Motivo técnico:** [Razón basada en sus errores reales]
-- **Temas de ejercicios recomendados:** [Específica qué tipo de puzzles/posiciones debe buscar en la base de datos]
-- **Estudio y modelos recomendados:** [Jugadores o partidas clave a estudiar]
-
-### 3.2 [Tema / Área Prioritaria 2]
-
-- **Motivo técnico:** [Razón basada en sus errores reales]
-- **Temas de ejercicios recomendados:** [Específica qué tipo de puzzles/posiciones debe buscar en la base de datos]
-- **Estudio y modelos recomendados:** [Jugadores o partidas clave a estudiar]
-
-[Añadir 3.3 o 3.4 si es necesario según el análisis]
-
-## 4. Conclusión Técnica
-
-[Texto de conclusión]
 """
-
-    def _parse_and_validate_response(self, response: Any) -> CoachReportJSON:
-        try:
-            response_text = response.text
-            if not response_text:
-                raise ValueError("La API de Gemini devolvió una respuesta vacía.")
-
-            # Log the raw response for debugging
-            logger.debug(f"Raw Gemini response (first 2000 chars): {response_text[:2000]}")
-
-            # Limpieza de bloques markdown (```json ... ```) si el modelo los añade por error
-            cleaned_text = response_text.strip()
-            if cleaned_text.startswith("```json"):
-                cleaned_text = cleaned_text[7:]
-            if cleaned_text.startswith("```"):
-                cleaned_text = cleaned_text[3:]
-            if cleaned_text.endswith("```"):
-                cleaned_text = cleaned_text[:-3]
-            cleaned_text = cleaned_text.strip()
-
-            # Parseamos el string JSON limpiado
-            data = json.loads(cleaned_text)
-            
-            # Validamos con el esquema Pydantic
-            validated_data = CoachReportJSON(**data)
-            return validated_data
-        except json.JSONDecodeError as e:
-            logger.error(f"Fallo al decodificar JSON de Gemini. Respuesta completa: '{response_text}'. Error: {e}")
-            raise
-        except ValidationError as e:
-            logger.error(f"El JSON de Gemini no cumple con el esquema Pydantic. Respuesta: '{response_text}'. Errores: {e.json()}")
-            raise
-
 
 llm_coach_service = LLMCoachService()
