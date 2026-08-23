@@ -8,9 +8,11 @@ env
 .venv/
 .env
 .env.local
+ejercicios
 entrenador_ia.db
 *.db
 frontend
+Historico partidas
 node_modules
 .git
 .gitignore

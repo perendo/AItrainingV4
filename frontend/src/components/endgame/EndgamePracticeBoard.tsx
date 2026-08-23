@@ -57,6 +57,38 @@ function safeChess(fen?: string): Chess {
   }
 }
 
+// Extrae el color ganador del tag [Result] del PGN ("1-0" -> blancas,
+// "0-1" -> negras). Devuelve null si no hay resultado definido.
+function getPgnWinner(pgn?: string | null): "white" | "black" | null {
+  if (!pgn) return null;
+  const match = pgn.match(/\[Result\s+"([^"]+)"\s*\]/i);
+  if (!match) return null;
+  if (match[1] === "1-0") return "white";
+  if (match[1] === "0-1") return "black";
+  return null;
+}
+
+// Determina qué color juega el usuario.
+// - Si el objetivo es una victoria, el usuario juega el color ganador (según el
+//   tag [Result] del PGN). Así Stockfish mueve el color contrario y, si le toca
+//   según el FEN, abre la partida automáticamente.
+// - Si el objetivo es tablas, el usuario juega el lado que mueve en la posición
+//   inicial (pedagogía del libro).
+function resolveUserColor(
+  fen: string | undefined,
+  targetResult: string | undefined,
+  pgn?: string | null
+): "white" | "black" {
+  const turn = safeChess(fen).turn();
+  if (targetResult === "win") {
+    const winner = getPgnWinner(pgn);
+    if (winner) return winner;
+    // Sin PGN: por defecto asume 1-0 cuando mueven negras.
+    return turn === "b" ? "white" : "black";
+  }
+  return turn === "w" ? "white" : "black";
+}
+
 function describeResult(
   target: string,
   status: PracticeStatus
@@ -84,9 +116,10 @@ export function EndgamePracticeBoard({
   const lessonSlugRef = useRef(lesson.slug);
 
   const [position, setPosition] = useState(lesson.initial_fen);
-  const [orientation, setOrientation] = useState<"white" | "black">(
-    safeChess(lesson.initial_fen).turn() === "w" ? "white" : "black"
+  const [userColor, setUserColor] = useState<"white" | "black">(
+    resolveUserColor(lesson.initial_fen, lesson.target_result)
   );
+  const [orientation, setOrientation] = useState<"white" | "black">(userColor);
   const [status, setStatus] = useState<PracticeStatus>("ready");
   const [skillLevel, setSkillLevel] = useState("8");
   const [moveHistory, setMoveHistory] = useState<string[]>([]);
@@ -96,16 +129,14 @@ export function EndgamePracticeBoard({
 
   const { playMoveSound, playErrorSound } = useChessSounds();
 
-  const userColor = useMemo(() => {
-    return orientation;
-  }, [orientation]);
-
   // Reset explícito al montar o cuando cambia la lección
   useEffect(() => {
     const game = safeChess(lesson.initial_fen);
     gameRef.current = game;
     setPosition(lesson.initial_fen);
-    setOrientation(game.turn() === "w" ? "white" : "black");
+    const uc = resolveUserColor(lesson.initial_fen, lesson.target_result, lesson.pgn_content);
+    setUserColor(uc);
+    setOrientation(uc);
     setLastMove(null);
     setMoveHistory([]);
     setStatus("ready");
@@ -115,7 +146,7 @@ export function EndgamePracticeBoard({
     lessonSlugRef.current = lesson.slug;
     // Forzar re-render del tablero después de un tick
     requestAnimationFrame(() => setBoardReady(true));
-  }, [lesson.slug, lesson.initial_fen]);
+  }, [lesson.slug, lesson.initial_fen, lesson.target_result, lesson.pgn_content]);
 
   const isUserTurn = useMemo(() => {
     return gameRef.current.turn() === userColor.charAt(0);
@@ -203,6 +234,15 @@ export function EndgamePracticeBoard({
     [skillLevel, detectGameResult, playMoveSound, lesson.slug, lesson.target_result, onMastered]
   );
 
+  // Si al iniciar le toca mover al motor (su color), que juegue la primera
+  // jugada automáticamente.
+  useEffect(() => {
+    if (!boardReady || status !== "ready") return;
+    if (gameRef.current.turn() !== userColor.charAt(0)) {
+      fetchStockfishMove(gameRef.current.fen());
+    }
+  }, [boardReady, status, userColor, fetchStockfishMove]);
+
   // Cuando el usuario selecciona la pieza de promoción en el diálogo modal
   const onPromotionPieceSelect = useCallback((piece?: string) => {
     return !!piece;
@@ -273,13 +313,15 @@ export function EndgamePracticeBoard({
     const game = safeChess(lesson.initial_fen);
     gameRef.current = game;
     setPosition(lesson.initial_fen);
-    setOrientation(game.turn() === "w" ? "white" : "black");
+    const uc = resolveUserColor(lesson.initial_fen, lesson.target_result, lesson.pgn_content);
+    setUserColor(uc);
+    setOrientation(uc);
     setLastMove(null);
     setMoveHistory([]);
     setStatus("ready");
     setErrorMessage(null);
     masteredCalledRef.current = false;
-  }, [lesson.initial_fen]);
+  }, [lesson.initial_fen, lesson.target_result, lesson.pgn_content]);
 
   const customSquareStyles = useMemo(() => {
     const styles: Record<string, React.CSSProperties> = {};

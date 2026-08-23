@@ -52,7 +52,9 @@ def get_next_puzzle_for_task(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Task category does not support puzzles")
 
     # Build a query to find a puzzle that has at least one of the required themes
-    theme_filters = [Puzzle.themes.like(f"%{theme}%") for theme in themes]
+    # (ilike y no like: en PostgreSQL LIKE es case-sensitive, en SQLite no;
+    #  así el filtro se comporta igual en ambos dialectos)
+    theme_filters = [Puzzle.themes.ilike(f"%{theme}%") for theme in themes]
     
     puzzle = db.query(Puzzle).filter(or_(*theme_filters)).order_by(func.random()).first()
 

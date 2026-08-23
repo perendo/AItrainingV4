@@ -6,7 +6,7 @@ from sqlalchemy import pool
 from alembic import context
 
 from app.core.config import settings
-from app.core.database import Base
+from app.core.database import Base, normalize_database_url
 
 # Importa todos los modelos para que Alembic detecte los cambios del esquema.
 from app.models.base import TimeStampedModel  # noqa: F401
@@ -27,7 +27,12 @@ import app.db.base  # noqa: F401
 config = context.config
 
 # Sobrescribe la URL con la configuración real del proyecto (.env / settings).
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+# Se normaliza al dialecto psycopg 3 (p.ej. postgres:// de Fly.io →
+# postgresql+psycopg://) para que las migraciones usen el mismo driver
+# que el engine de la aplicación.
+config.set_main_option(
+    "sqlalchemy.url", normalize_database_url(settings.DATABASE_URL)
+)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
