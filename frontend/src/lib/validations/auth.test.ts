@@ -33,11 +33,23 @@ describe("registerSchema", () => {
     target_elo: 2000,
     password: "secret1",
     confirmPassword: "secret1",
+    acceptedTerms: true,
   };
 
   it("acepta un registro válido", () => {
     const result = registerSchema.safeParse(validBase);
     expect(result.success).toBe(true);
+  });
+
+  it("rechaza si no se aceptan los términos", () => {
+    const unchecked = registerSchema.safeParse({ ...validBase, acceptedTerms: false });
+    const missing = registerSchema.safeParse(({ ...validBase, acceptedTerms: undefined }));
+    expect(unchecked.success).toBe(false);
+    expect(missing.success).toBe(false);
+    if (!unchecked.success) {
+      const issue = unchecked.error.issues.find((i) => i.path[0] === "acceptedTerms");
+      expect(issue?.message).toContain("Debes aceptar los Términos");
+    }
   });
 
   it("acepta chess_online_nick opcional o vacío", () => {

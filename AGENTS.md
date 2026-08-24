@@ -6,7 +6,7 @@ FastAPI backend (AI chess coach: Stockfish PGN analysis + Gemini reports + Liche
 
 ```bash
 uvicorn app.main:app --reload        # API en http://127.0.0.1:8000 · Swagger en /api/v1/docs
-.venv\Scripts\python.exe -m pytest tests/ -v   # 16 archivos de test (~114 tests), config en pytest.ini
+.venv\Scripts\python.exe -m pytest tests/ -v   # 16 archivos de test (~120 tests), config en pytest.ini
 ```
 
 - Python corre desde el `.venv` del repo (3.12) — `python` plano puede no resolverse. `start_servers.py`, `server_launcher.py` y `build_dist.py` ya usan `.venv\Scripts\python.exe`.
@@ -35,6 +35,17 @@ uvicorn app.main:app --reload        # API en http://127.0.0.1:8000 · Swagger e
 - **Contenido**: `EndgameGeneratorService.generate_lesson_content(lesson_id, db)` pide a Gemini vía `generate_json(..., response_schema=False)`, actualiza `podcast_script` y reescribe `timeline_events` de forma idempotente.
 - **Estáticos**: `app/main.py` monta `StaticFiles(directory=app/static)` en `/static`.
 
+### Módulo Legal / RGPD
+
+Texto maestro en **`Docs/legal.md`** (Aviso Legal LSSI-CE + Privacidad RGPD/LOPDGDD + Cookies + Términos, responsable **Pedro Rendo Quindós**, contacto **aitrainingv4@gmail.com**, jurisdicción España/UE, versión `2026-08-v1`). Las páginas del frontend replican ese texto.
+
+- **Consentimiento**: `users.legal_accepted_at` + `users.legal_accepted_version` (migración `d4e5f6a7b8c9`, con backfill de usuarios existentes). `UserCreate.accepted_terms` debe ser `true` (validación Pydantic con `model_validator`) o el registro falla con 422. El registro sella fecha+versión desde `settings.LEGAL_VERSION`.
+- **Cambiar los textos legales** = editar `Docs/legal.md` + las 3 páginas del grupo `(legal)` + subir `LEGAL_VERSION` (config.py y `.env`). La re-aceptación se registra vía `POST /api/v1/users/me/legal-accept` (`LegalAcceptRequest`); el endpoint existe pero el frontend aún no fuerza re-aceptación automática al cambiar versión.
+- **Derechos RGPD** en `endpoints_user.py`: `GET /users/me/export` (JSON descargable con Content-Disposition; cubre las 10 tablas dependientes) y `DELETE /users/me` (204; borra **explícitamente tabla por tabla** — no confíes en cascade ORM ni en `ondelete` SQL porque SQLite no enforcea FKs y varias FKs no declaran CASCADE).
+- **Sin cookies ni tracking**: no añadas banner de cookies ni analytics sin actualizar Política de Cookies y `LEGAL_VERSION`. JWT va en `localStorage` (técnico, exento).
+- **Frontend**: páginas estáticas públicas `src/app/(legal)/{legal,privacidad,cookies}/page.tsx` + layout compartido con nav/footer. Constantes en `src/lib/legal.ts` (`LEGAL_VERSION`, `CONTACT_EMAIL`, `LEGAL_LINKS`) — mantenlas sincronizadas con `Docs/legal.md`. Enlaces legales visibles en login (CardFooter), registro y Sidebar (bloque inferior). Checkbox obligatorio en registro (`acceptedTerms` Zod `.refine`, checkbox nativo con `onChange={e => field.onChange(e.target.checked)}` — no uses `onCheckedChange`, es de Radix).
+- **Perfil** tiene Card "Mis datos y privacidad": exportación (blob download) y borrado de cuenta con confirmación en dos pasos → tras borrar, `removeToken()` + redirect `/login`.
+
 ## Flujos asíncronos de GM (arquitectura clave)
 
 "Consultas al GM" y "Evaluación del Gran Maestro" son **no bloqueantes**: el endpoint devuelve **HTTP 202** y un `BackgroundTasks` procesa la IA; el frontend hace polling. **No los hagas síncronos** — congela la UI.
@@ -57,12 +68,22 @@ python start_servers.py        # backend :8000 + frontend :3000 en paralelo; Ctr
 - `dist/` incluye `entrenador_ia.db` y excluye `Historico partidas`. Los testers lanzan `dist/start.bat` (no `dist/EntrenadorIA.exe`).
 - `build_dist.py --skip-frontend` recompila solo el backend `.exe`; requiere `dist/frontend` ya ensamblado.
 
+## Despliegue en producción (frontend Vercel + backend en portátil con ngrok)
+
+Arquitectura: **frontend estático/serverless en Vercel** y **backend FastAPI corriendo en un portátil personal (Lenovo i5 12ª gen, 16 GB RAM, SSD 480 GB)** expuesto a Internet con un **túnel ngrok HTTPS**. La BD es SQLite local del portátil. Los artefactos de Fly.io (`fly.toml`, `Dockerfile`, `Procfile`) quedaron obsoletos con este plan (no borrar sin avisar; no se usan).
+
+1. **Backend**: `.env` con `DATABASE_URL="sqlite:///./entrenador_ia.db"` y `ALLOWED_ORIGINS="https://<tu-proyecto>.vercel.app,http://localhost:3000"` (sin la URL de Vercel el navegador bloqueará las peticiones por CORS). Arrancar con `uvicorn app.main:app --host 0.0.0.0 --port 8000`.
+2. **Túnel**: `ngrok http 8000`. Usa **dominio estático** (gratis en panel de ngrok) para no tener que cambiar `NEXT_PUBLIC_API_URL` en Vercel en cada reinicio. El frontend añade automáticamente el header `ngrok-skip-browser-warning` cuando `NEXT_PUBLIC_API_URL` contiene `ngrok` (ver `apiFetch` en `src/lib/api.ts`) — el plan free de ngrok intercepta peticiones de navegador con una página de aviso.
+3. **Frontend en Vercel**: root directory `frontend/`; env `NEXT_PUBLIC_API_URL=https://<tu-dominio>.ngrok-free.app`. Las páginas legales `(legal)` son estáticas — se prerenderizan en Vercel sin tocar el backend.
+4. **Pendiente al tener los dominios reales**: rellenar `ALLOWED_ORIGINS` (backend) y `NEXT_PUBLIC_API_URL` (Vercel) con los valores definitivos; sincronizar si cambian.
+5. **CORS**: `app/main.py` ya envía `allow_headers=["*"]` (necesario para el header de ngrok). Si ngrok cae, la UI muestra "No se pudo conectar con el servidor Backend".
+
 ## Frontend — `frontend/`
 
 ```bash
 cmd /c "cd frontend && npm run dev"     # http://localhost:3000, redirige a /login
 cmd /c "cd frontend && npm run build"   # type-check + build de producción
-cmd /c "cd frontend && npm test"        # Jest + Testing Library (20 suites)
+cmd /c "cd frontend && npm test"        # Jest + Testing Library (20 suites, ~166 tests)
 ```
 
 - `frontend/.env.local` debe tener `NEXT_PUBLIC_API_URL=http://127.0.0.1:8000`.

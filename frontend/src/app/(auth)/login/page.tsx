@@ -29,6 +29,7 @@ import {
 import { loginSchema, type LoginFormData } from "@/lib/validations/auth";
 import { apiFetch, ApiError } from "@/lib/api";
 import { setToken } from "@/lib/auth";
+import { CONTACT_EMAIL } from "@/lib/legal";
 import type { TokenResponse } from "@/lib/types";
 import { exitToDesktop } from "@/lib/kiosk";
 
@@ -156,6 +157,30 @@ export default function LoginPage() {
             >
               Salir al escritorio
             </Button>
+            <div className="space-y-1 border-t pt-3 text-center text-xs text-muted-foreground">
+              <p>
+                <a href="/legal" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-foreground">
+                  Aviso legal
+                </a>
+                {" · "}
+                <a href="/privacidad" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-foreground">
+                  Privacidad
+                </a>
+                {" · "}
+                <a href="/cookies" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-foreground">
+                  Cookies
+                </a>
+              </p>
+              <p>
+                Contacto:{" "}
+                <a
+                  href={`mailto:${CONTACT_EMAIL}`}
+                  className="font-medium underline underline-offset-2 hover:text-foreground"
+                >
+                  {CONTACT_EMAIL}
+                </a>
+              </p>
+            </div>
           </CardFooter>
         </form>
       </Form>

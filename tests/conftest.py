@@ -73,6 +73,7 @@ def sample_user_data():
         "current_elo": 1700,
         "target_elo": 2000,
         "password": "test123456",
+        "accepted_terms": True,
     }
 
 

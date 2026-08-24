@@ -15,9 +15,19 @@ class TestUserSchemas:
             current_elo=1700,
             target_elo=2000,
             password="test123",
+            accepted_terms=True,
         )
         assert user.username == "pedro"
         assert user.current_elo == 1700
+
+    def test_user_create_sin_aceptar_terminos_falla(self):
+        with pytest.raises(ValidationError):
+            UserCreate(
+                username="pedro",
+                full_name="Pedro Rendo",
+                password="test123",
+                accepted_terms=False,
+            )
 
     def test_user_create_username_corto_falla(self):
         with pytest.raises(ValidationError):

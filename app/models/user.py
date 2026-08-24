@@ -1,5 +1,5 @@
 # app/models/user.py
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from app.models.base import TimeStampedModel 
 
@@ -17,6 +17,10 @@ class User(TimeStampedModel):
     # ⚡ CAMPOS DINÁMICOS DE ELO
     current_elo = Column(Integer, default=1500, nullable=False)  # Elo actual (Ej: 1500 o 2100)
     target_elo = Column(Integer, default=1700, nullable=False)   # Elo objetivo (Ej: 1700 o 2200)
+
+    # 📜 CONSENTIMIENTO RGPD: prueba de aceptación de Términos y Política de Privacidad
+    legal_accepted_at = Column(DateTime, nullable=True)
+    legal_accepted_version = Column(String(20), nullable=True)
 
     # ID de la partida GM asignada actualmente (para que no cambie al refrescar)
     current_assigned_gm_game_id = Column(String(36), ForeignKey("gm_games.id", ondelete="SET NULL"), nullable=True)

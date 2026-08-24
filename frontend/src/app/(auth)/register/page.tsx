@@ -32,6 +32,7 @@ import {
 } from "@/lib/validations/auth";
 import { apiFetch, ApiError } from "@/lib/api";
 import { setToken } from "@/lib/auth";
+import { CONTACT_EMAIL } from "@/lib/legal";
 import type { TokenResponse } from "@/lib/types";
 
 export default function RegisterPage() {
@@ -48,6 +49,7 @@ export default function RegisterPage() {
       target_elo: 2000,
       password: "",
       confirmPassword: "",
+      acceptedTerms: false,
     },
   });
 
@@ -65,6 +67,7 @@ export default function RegisterPage() {
           current_elo: data.current_elo,
           target_elo: data.target_elo,
           password: data.password,
+          accepted_terms: data.acceptedTerms,
         },
       });
       setToken(response.access_token);
@@ -234,6 +237,55 @@ export default function RegisterPage() {
                 </FormItem>
               )}
             />
+
+            <FormField
+              control={form.control}
+              name="acceptedTerms"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex flex-row items-start space-x-3 space-y-0 rounded-lg border p-3">
+                    <FormControl>
+                      <input
+                        type="checkbox"
+                        checked={field.value}
+                        onChange={(e) => field.onChange(e.target.checked)}
+                        onBlur={field.onBlur}
+                        name={field.name}
+                        disabled={isSubmitting}
+                        className="mt-0.5 size-4 shrink-0 cursor-pointer accent-primary"
+                        aria-label="Aceptar términos y privacidad"
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel className="font-normal leading-snug">
+                        Declaro que soy mayor de 14 años y he leído y acepto
+                        los{" "}
+                        <a
+                          href="/legal"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-medium text-primary underline underline-offset-2"
+                        >
+                          Términos y Condiciones
+                        </a>{" "}
+                        y la{" "}
+                        <a
+                          href="/privacidad"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-medium text-primary underline underline-offset-2"
+                        >
+                          Política de Privacidad
+                        </a>
+                        , incluido el tratamiento de mis partidas por la IA del
+                        servicio.
+                      </FormLabel>
+                      <FormMessage />
+                    </div>
+                  </div>
+                </FormItem>
+              )}
+            />
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
             <Button type="submit" className="w-full" disabled={isSubmitting}>
@@ -259,6 +311,19 @@ export default function RegisterPage() {
               >
                 Inicia sesión
               </Link>
+            </p>
+            <p className="text-center text-xs text-muted-foreground">
+              <a href="/legal" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-foreground">
+                Aviso legal
+              </a>
+              {" · "}
+              <a href="/privacidad" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-foreground">
+                Privacidad
+              </a>
+              {" · "}
+              <a href={`mailto:${CONTACT_EMAIL}`} className="underline underline-offset-2 hover:text-foreground">
+                {CONTACT_EMAIL}
+              </a>
             </p>
           </CardFooter>
         </form>

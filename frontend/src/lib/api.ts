@@ -46,6 +46,12 @@ export async function apiFetch<T>(
     headers["Authorization"] = `Bearer ${token}`;
   }
 
+  // Túnel ngrok (free): sin esta cabecera responde con una página de aviso
+  // en lugar del JSON de la API.
+  if (/ngrok(-free)?\.(app|dev|io)/i.test(BASE_URL)) {
+    headers["ngrok-skip-browser-warning"] = "true";
+  }
+
   let requestBody: BodyInit | undefined;
 
   if (body instanceof FormData) {
@@ -208,6 +214,42 @@ export const updateUserProfile = (
     body: data,
   });
 };
+
+// RGPD: consentimiento, portabilidad y supresión
+export const acceptLegalTerms = (): Promise<import("./types").UserResponse> => {
+  return apiFetch<import("./types").UserResponse>(
+    "/api/v1/users/me/legal-accept",
+    {
+      method: "POST",
+      body: { accepted_terms: true },
+    },
+  );
+};
+
+export const deleteMyAccount = (): Promise<void> => {
+  return apiFetch<void>("/api/v1/users/me", {
+    method: "DELETE",
+  });
+};
+
+export async function downloadDataExport(): Promise<void> {
+  const token = getToken();
+  const res = await fetch(`${BASE_URL}/api/v1/users/me/export`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  });
+  if (!res.ok) {
+    throw new ApiError(res.status, `Error ${res.status} al exportar los datos`);
+  }
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "entrenador_ia_mis_datos.json";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
 
 // Módulo de Finales Teóricos (Academia de Finales)
 export const getEndgameLessons = (

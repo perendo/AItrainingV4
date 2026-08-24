@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 import { Trophy, Brain, Target, User, LogOut, History, Gamepad2, ClipboardList, MessageCircleQuestion, Crown, DoorOpen } from "lucide-react"
 import { useGMConsultation } from "@/context/GMConsultationContext"
 import { exitToDesktop } from "@/lib/kiosk"
+import { LEGAL_LINKS, CONTACT_EMAIL } from "@/lib/legal"
 
 const menuOptions = [
   { name: "Mis Partidas", href: "/partidas", icon: Trophy },
@@ -77,6 +78,30 @@ export function Sidebar() {
       </nav>
 
       <div className="p-4 border-t border-slate-800 space-y-1">
+        <div className="space-y-0.5 px-3 pb-2 text-[11px] leading-relaxed text-slate-500">
+          <div className="flex flex-wrap gap-x-3 gap-y-0.5">
+            {LEGAL_LINKS.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline-offset-2 hover:text-slate-300 hover:underline"
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
+          <p>
+            Contacto:{" "}
+            <a
+              href={`mailto:${CONTACT_EMAIL}`}
+              className="underline underline-offset-2 hover:text-slate-300"
+            >
+              {CONTACT_EMAIL}
+            </a>
+          </p>
+        </div>
         <button
           onClick={() => exitToDesktop()}
           className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors"

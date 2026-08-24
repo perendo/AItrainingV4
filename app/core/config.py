@@ -21,6 +21,10 @@ class Settings(BaseSettings):
     # Si se supera, la tarea de fondo captura el timeout y marca la tarea como fallida.
     GEMINI_TIMEOUT_SECONDS: int = 120
 
+    # Versión vigente de los textos legales (Docs/legal.md). Al cambiarla, los usuarios
+    # deberán re-aceptar términos vía POST /users/me/legal-accept.
+    LEGAL_VERSION: str = "2026-08-v1"
+
     # Configuración para leer el archivo .env en la raíz del proyecto
     model_config = SettingsConfigDict(
         env_file=os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), ".env"),
@@ -33,7 +37,7 @@ class Settings(BaseSettings):
     CORS_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000"
 
     # Directorio de archivos estáticos (audios de finales, etc.).
-    # En producción (Fly.io) debe apuntar al volumen persistente, p.ej. /data/static.
+    # En producción (portátil con Docker) debe apuntar al volumen persistente, p.ej. /data/static.
     STATIC_DIR: str = ""
 
     @property

@@ -2,9 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, ShieldCheck, UserCircle } from "lucide-react";
+import {
+  AlertTriangle,
+  Download,
+  Loader2,
+  ShieldCheck,
+  Trash2,
+  UserCircle,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,8 +36,15 @@ import {
 } from "@/components/ui/form";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { getCurrentUser, updateUserProfile, ApiError } from "@/lib/api";
-import { getToken } from "@/lib/auth";
+import {
+  getCurrentUser,
+  updateUserProfile,
+  downloadDataExport,
+  deleteMyAccount,
+  ApiError,
+} from "@/lib/api";
+import { getToken, removeToken } from "@/lib/auth";
+import { CONTACT_EMAIL } from "@/lib/legal";
 import type { UserResponse, UserUpdate } from "@/lib/types";
 import {
   profileSchema,
@@ -55,6 +70,11 @@ export default function PerfilPage() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const form = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
@@ -129,6 +149,39 @@ export default function PerfilPage() {
       } else {
         setServerError("Error de conexión. Inténtalo de nuevo.");
       }
+    }
+  }
+
+  async function handleExport() {
+    setExporting(true);
+    setExportError(null);
+    try {
+      await downloadDataExport();
+    } catch (error) {
+      setExportError(
+        error instanceof ApiError
+          ? error.message
+          : "No se pudo exportar tus datos. Inténtalo de nuevo.",
+      );
+    } finally {
+      setExporting(false);
+    }
+  }
+
+  async function handleDeleteAccount() {
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      await deleteMyAccount();
+      removeToken();
+      router.push("/login");
+    } catch (error) {
+      setDeleteError(
+        error instanceof ApiError
+          ? error.message
+          : "No se pudo eliminar la cuenta. Inténtalo de nuevo.",
+      );
+      setDeleting(false);
     }
   }
 
@@ -341,6 +394,130 @@ export default function PerfilPage() {
                     "Guardar cambios"
                   )}
                 </Button>
+              </CardFooter>
+            </Card>
+
+            <Card className="border-destructive/30">
+              <CardHeader className="flex flex-row items-center gap-4">
+                <ShieldCheck className="size-6 text-muted-foreground" />
+                <div>
+                  <CardTitle>Mis datos y privacidad</CardTitle>
+                  <CardDescription>
+                    Ejerce tus derechos RGPD: portabilidad y supresión.{" "}
+                    <Link
+                      href="/privacidad"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline underline-offset-2"
+                    >
+                      Política de Privacidad
+                    </Link>
+                  </CardDescription>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {exportError && (
+                  <Alert variant="destructive">
+                    <AlertTitle>No se pudo exportar</AlertTitle>
+                    <AlertDescription>{exportError}</AlertDescription>
+                  </Alert>
+                )}
+                {deleteError && (
+                  <Alert variant="destructive">
+                    <AlertTitle>No se pudo eliminar la cuenta</AlertTitle>
+                    <AlertDescription>{deleteError}</AlertDescription>
+                  </Alert>
+                )}
+
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-sm text-muted-foreground">
+                    Descarga todos tus datos (perfil, partidas, informes,
+                    consultas y progreso) en un fichero JSON.
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleExport}
+                    disabled={exporting || deleting}
+                  >
+                    {exporting ? (
+                      <>
+                        <Loader2 className="mr-2 size-4 animate-spin" />
+                        Exportando...
+                      </>
+                    ) : (
+                      <>
+                        <Download className="mr-2 size-4" />
+                        Exportar mis datos
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                <div className="space-y-3 border-t pt-4">
+                  <div className="flex items-start gap-2 text-sm text-destructive">
+                    <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+                    <p>
+                      Eliminar la cuenta borra{" "}
+                      <strong>definitivamente</strong> tu perfil y todas tus
+                      partidas, informes y progresos. Esta acción no se puede
+                      deshacer.
+                    </p>
+                  </div>
+                  {!confirmingDelete ? (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      onClick={() => setConfirmingDelete(true)}
+                      disabled={deleting}
+                    >
+                      <Trash2 className="mr-2 size-4" />
+                      Eliminar mi cuenta
+                    </Button>
+                  ) : (
+                    <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-3">
+                      <p className="text-sm font-medium text-destructive">
+                        ¿Seguro que quieres eliminar tu cuenta para siempre?
+                      </p>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          onClick={handleDeleteAccount}
+                          disabled={deleting}
+                        >
+                          {deleting ? (
+                            <>
+                              <Loader2 className="mr-2 size-4 animate-spin" />
+                              Eliminando...
+                            </>
+                          ) : (
+                            "Sí, eliminar definitivamente"
+                          )}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setConfirmingDelete(false)}
+                          disabled={deleting}
+                        >
+                          Cancelar
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+              <CardFooter>
+                <p className="text-xs text-muted-foreground">
+                  Para cualquier otro derecho RGPD, escribe a{" "}
+                  <a
+                    href={`mailto:${CONTACT_EMAIL}`}
+                    className="font-medium underline underline-offset-2"
+                  >
+                    {CONTACT_EMAIL}
+                  </a>
+                </p>
               </CardFooter>
             </Card>
           </form>

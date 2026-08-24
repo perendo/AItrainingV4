@@ -1,5 +1,5 @@
 # app/schemas/user.py
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from typing import Optional
 from datetime import datetime
 
@@ -14,6 +14,18 @@ class UserBase(BaseModel):
 # Esquema para registrar un usuario por primera vez (Pide la contraseña)
 class UserCreate(UserBase):
     password: str = Field(..., min_length=6, description="Contraseña en texto plano para el registro")
+    accepted_terms: bool = Field(
+        ...,
+        description="Consentimiento expreso RGPD: aceptación de Términos y Política de Privacidad",
+    )
+
+    @model_validator(mode="after")
+    def _terms_must_be_accepted(self) -> "UserCreate":
+        if not self.accepted_terms:
+            raise ValueError(
+                "Debes aceptar los Términos y la Política de Privacidad para registrarte."
+            )
+        return self
 
 # Esquema para actualizar el perfil del usuario más adelante
 class UserUpdate(BaseModel):
@@ -27,11 +39,17 @@ class UserUpdate(BaseModel):
 class UserResponse(UserBase):
     id: int
     created_at: datetime
+    legal_accepted_at: Optional[datetime] = None
+    legal_accepted_version: Optional[str] = None
 
     # Activamos la compatibilidad con objetos de SQLAlchemy (ORM)
     model_config = {
         "from_attributes": True
     }
+
+# Re-aceptación de los textos legales cuando cambia su versión (RGPD, art. 6.1.a)
+class LegalAcceptRequest(BaseModel):
+    accepted_terms: bool = Field(..., description="Debe ser true para registrar la aceptación")
 
 # Esquema complementario para el manejo de Tokens JWT
 class Token(BaseModel):

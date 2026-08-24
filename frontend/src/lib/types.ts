@@ -8,6 +8,7 @@ export interface UserCreate {
   current_elo: number;
   target_elo: number;
   password: string;
+  accepted_terms: boolean;
 }
 
 
@@ -38,6 +39,8 @@ export interface UserResponse {
   current_elo: number;
   target_elo: number;
   created_at: string;
+  legal_accepted_at?: string | null;
+  legal_accepted_version?: string | null;
 }
 
 // Games
