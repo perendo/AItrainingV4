@@ -5,6 +5,7 @@ from typing import List
 
 from app.core.database import get_db
 from app.services.llm_coach import llm_coach_service
+from app.services.gemini_client import GeminiSaturadoError, MENSAJE_SATURACION
 from app.api.v1.dependencies import get_current_user_id
 from app.models.game import CoachReport as CoachReportModel
 from app.schemas.coach import CoachReportResponse # <-- Actualizado
@@ -37,8 +38,17 @@ def get_game_diagnostic(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e),
         )
+    except GeminiSaturadoError:
+        # Primario y reserva saturados (503/alta demanda) tras agotar reintentos.
+        # Se devuelve 503 con mensaje amigable; el frontend lo muestra tal cual.
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=MENSAJE_SATURACION,
+        )
     except Exception as e:
         # Errores inesperados del servidor o de la API de Gemini
+        db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error al procesar el diagnóstico con el Entrenador IA: {e}",

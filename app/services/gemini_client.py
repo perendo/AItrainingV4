@@ -4,13 +4,32 @@ Centraliza la inicialización perezosa del modelo, la configuración de la API,
 el formateo de prompts (system instruction), el manejo de timeouts y la
 limpieza/validación de respuestas JSON. Evita la duplicación que existía en
 ``llm_coach``, ``tutor_service``, ``gm_consultation_service`` y ``gm_service``.
+
+Resiliencia ante saturación de Google (503 UNAVAILABLE / alta demanda):
+- Reintentos automáticos con backoff exponencial configurable
+  (por defecto 1s → 2s → 4s) para cada modelo.
+- Failover automático al modelo de reserva (más ligero) cuando el primario
+  sigue saturado tras agotar sus reintentos.
+- Si ambos modelos fallan se lanza :class:`GeminiSaturadoError`, que la capa
+  HTTP traduce en una respuesta 503 con mensaje amigable para el usuario.
+
+Nota sobre concurrencia: el backend es síncrono (FastAPI ejecuta endpoints
+``def`` y tareas de fondo en el threadpool), por lo que ``time.sleep`` entre
+reintentos NO bloquea el event loop.
 """
 import logging
 import json
-from typing import Any, Optional, Type, TypeVar
+import time
+from typing import Any, List, Optional, Tuple, Type, TypeVar
 
 from google import genai
 from google.genai import types
+from google.genai import errors as genai_errors
+
+try:  # google-api-core llega como dependencia transitiva; se defiende su ausencia.
+    from google.api_core.exceptions import ServiceUnavailable as _ApiCoreUnavailable
+except ImportError:  # pragma: no cover
+    _ApiCoreUnavailable = None
 
 from app.core.config import settings
 
@@ -19,6 +38,31 @@ logger = logging.getLogger("GeminiClient")
 T = TypeVar("T")
 
 DEFAULT_MODEL_NAME = "gemini-flash-latest"
+
+MENSAJE_SATURACION = (
+    "El Entrenador IA se encuentra saturado momentáneamente. "
+    "Por favor, reinténtalo en unos segundos."
+)
+
+
+class GeminiSaturadoError(RuntimeError):
+    """Primario y reserva agotados por indisponibilidad de Google (503/alta demanda)."""
+
+    def __init__(self, mensaje: str = MENSAJE_SATURACION):
+        super().__init__(mensaje)
+
+
+# Marcadores textuales de indisponibilidad, por si el SDK envuelve el fallo en
+# una excepción genérica sin código tipado (p.ej. a través de httpx).
+_MARCAS_TRANSITORIAS = (
+    "503",
+    "unavailable",
+    "high demand",
+    "overloaded",
+    "overload",
+    "resource_exhausted",
+    "429",
+)
 
 
 class GeminiClient:
@@ -56,8 +100,96 @@ class GeminiClient:
         return _GeminiModel(self)
 
     # ------------------------------------------------------------------ #
-    # Generación
+    # Generación (con reintentos y failover)
     # ------------------------------------------------------------------ #
+    @staticmethod
+    def _es_error_transitorio(exc: Exception) -> bool:
+        """True si el fallo es de sobrecarga/servidor: tiene sentido reintentar
+        o conmutar al modelo de reserva. Los 4xx reales (payload, credenciales)
+        fallan rápido sin reintentos."""
+        if isinstance(exc, genai_errors.ServerError):  # 5xx tipados del SDK nuevo
+            return True
+        if _ApiCoreUnavailable is not None and isinstance(exc, _ApiCoreUnavailable):
+            return True
+        if isinstance(exc, genai_errors.ClientError):
+            # Solo 429 (RESOURCE_EXHAUSTED) es transitorio; resto de 4xx no.
+            return getattr(exc, "code", None) == 429
+        texto = f"{type(exc).__name__}: {exc}".lower()
+        return any(marca in texto for marca in _MARCAS_TRANSITORIAS)
+
+    def _cadena_de_modelos(self) -> List[str]:
+        """Modelos a probar en orden: primario y, si difiere, el de reserva."""
+        modelos = [self.model_name or settings.GEMINI_MODEL_PRIMARY]
+        reserva = settings.GEMINI_MODEL_FALLBACK
+        if reserva and reserva not in modelos:
+            modelos.append(reserva)
+        return modelos
+
+    def _intentar_modelo(
+        self, nombre_modelo: str, prompt: str, config: types.GenerateContentConfig
+    ) -> Tuple[Optional[Any], Optional[Exception]]:
+        """Llama a un modelo reintentando con backoff exponencial si hay sobrecarga.
+
+        Devuelve ``(respuesta, None)`` en caso de éxito o ``(None, ultimo_error)``
+        si se agotaron los intentos por errores transitorios. Los errores no
+        transitorios se relanzan inmediatamente.
+        """
+        esperas = settings.gemini_retry_waits_list  # p. ej. [1.0, 2.0, 4.0]
+        total_intentos = len(esperas) + 1  # intento inicial + N reintentos
+        ultimo_error: Optional[Exception] = None
+
+        for intento in range(1, total_intentos + 1):
+            if intento > 1:
+                espera = esperas[min(intento - 2, len(esperas) - 1)]
+                logger.warning(
+                    "Gemini: %s saturado (%s). Reintento %d/%d en %.0fs...",
+                    nombre_modelo,
+                    ultimo_error,
+                    intento,
+                    total_intentos,
+                    espera,
+                )
+                time.sleep(espera)
+            try:
+                respuesta = self.model.generate_content(
+                    prompt, config=config, model_name=nombre_modelo
+                )
+                if intento > 1:
+                    logger.info(
+                        "Gemini: %s respondió en el intento %d/%d.",
+                        nombre_modelo,
+                        intento,
+                        total_intentos,
+                    )
+                return respuesta, None
+            except Exception as exc:  # noqa: BLE001 - se clasifica abajo
+                if not self._es_error_transitorio(exc):
+                    raise  # error permanente: reintentar o conmutar no ayuda
+                ultimo_error = exc
+
+        logger.error(
+            "Gemini: modelo %s agotó sus %d intentos por indisponibilidad.",
+            nombre_modelo,
+            total_intentos,
+        )
+        return None, ultimo_error
+
+    def _generar_con_failover(
+        self, prompt: str, config: types.GenerateContentConfig
+    ) -> Any:
+        """Prueba el modelo primario y, si sigue saturado, conmuta al de reserva."""
+        ultimo_error: Optional[Exception] = None
+        for nombre_modelo in self._cadena_de_modelos():
+            respuesta, ultimo_error = self._intentar_modelo(nombre_modelo, prompt, config)
+            if respuesta is not None:
+                return respuesta
+            logger.warning(
+                "Gemini: conmutando del modelo %s al modelo de reserva...",
+                nombre_modelo,
+            )
+        logger.error("Gemini: primario y reserva saturados. Se informa al cliente.")
+        raise GeminiSaturadoError() from ultimo_error
+
     def _generate(
         self,
         prompt: str,
@@ -66,6 +198,15 @@ class GeminiClient:
         generation_config: Optional[dict] = None,
         timeout: Optional[int] = None,
     ) -> Any:
+        config = self._construir_config(system_prompt, generation_config, timeout)
+        return self._generar_con_failover(prompt, config)
+
+    def _construir_config(
+        self,
+        system_prompt: Optional[str],
+        generation_config: Optional[dict],
+        timeout: Optional[int],
+    ) -> types.GenerateContentConfig:
         generation_config = generation_config or {}
         config = types.GenerateContentConfig()
 
@@ -84,10 +225,11 @@ class GeminiClient:
         timeout = timeout if timeout is not None else settings.GEMINI_TIMEOUT_SECONDS
         # google.genai espera HttpOptions.timeout en MILISEGUNDOS
         config.http_options = types.HttpOptions(timeout=timeout * 1000)
+        return config
 
-        response = self.model.generate_content(prompt, config=config)
-        return response
-
+    # ------------------------------------------------------------------ #
+    # API pública de generación
+    # ------------------------------------------------------------------ #
     def generate_json(
         self,
         prompt: str,
@@ -210,12 +352,14 @@ class _GeminiModel:
     def __init__(self, wrapper: "GeminiClient"):
         self._wrapper = wrapper
 
-    def generate_content(self, prompt: str, config: Any = None) -> Any:
+    def generate_content(
+        self, prompt: str, config: Any = None, model_name: Optional[str] = None
+    ) -> Any:
         return self._wrapper.client.models.generate_content(
-            model=self._wrapper.model_name,
+            model=model_name or self._wrapper.model_name,
             contents=prompt,
             config=config,
         )
 
 
-gemini_client = GeminiClient()
+gemini_client = GeminiClient(model_name=settings.GEMINI_MODEL_PRIMARY)
