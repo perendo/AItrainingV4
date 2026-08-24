@@ -34,6 +34,13 @@ class GeminiClient:
     def configure(self) -> None:
         """Configura la API una sola vez por proceso."""
         if not self._configured:
+            if not settings.GEMINI_API_KEY:
+                raise RuntimeError(
+                    "GEMINI_API_KEY no está configurada (vacía). El backend no puede "
+                    "autenticarse con Gemini y caería en credenciales por defecto (ADC), "
+                    "que Gemini rechaza con 401 ACCESS_TOKEN_TYPE_UNSUPPORTED. "
+                    "Define GEMINI_API_KEY en el .env del backend."
+                )
             genai.configure(api_key=settings.GEMINI_API_KEY)
             self._configured = True
 

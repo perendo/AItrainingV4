@@ -4,7 +4,26 @@ from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
 
+# Carga explícita del .env por ruta absoluta (raíz del repo), independientemente
+# del directorio de trabajo del proceso (p.ej. systemd arranca con CWD distinto).
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+_ENV_FILE = _REPO_ROOT / ".env"
+try:
+    from dotenv import load_dotenv
+
+    if _ENV_FILE.is_file():
+        load_dotenv(dotenv_path=str(_ENV_FILE), override=False)
+except Exception:  # pragma: no cover - dotenv es opcional pero sí está instalado
+    pass
+
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=str(_ENV_FILE),
+        env_file_encoding="utf-8",
+        extra="ignore",
+        case_sensitive=False,
+    )
+
     PROJECT_NAME: str = "EntrenadorIA Backend"
     API_V1_STR: str = "/api/v1"
     
