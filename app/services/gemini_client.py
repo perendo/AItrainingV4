@@ -37,7 +37,7 @@ logger = logging.getLogger("GeminiClient")
 
 T = TypeVar("T")
 
-DEFAULT_MODEL_NAME = "gemini-flash-latest"
+DEFAULT_MODEL_NAME = "gemini-3.7-flash"
 
 MENSAJE_SATURACION = (
     "El Entrenador IA se encuentra saturado momentáneamente. "

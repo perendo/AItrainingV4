@@ -46,8 +46,10 @@ class Settings(BaseSettings):
     # - Esperas (segundos) entre reintentos por modelo, separadas por coma
     #   (backoff exponencial: 1s → 2s → 4s). El número de reintentos por modelo
     #   coincide con la cantidad de esperas configuradas.
-    GEMINI_MODEL_PRIMARY: str = "gemini-flash-latest"
-    GEMINI_MODEL_FALLBACK: str = "gemini-flash-lite-latest"
+    # Modelos vigentes de Gemini (los retirados por Google dan 404). Primario:
+    # el flash más capaz; reserva: 2.5 Flash-Lite, más ligero y rápido.
+    GEMINI_MODEL_PRIMARY: str = "gemini-3.7-flash"
+    GEMINI_MODEL_FALLBACK: str = "gemini-2.5-flash-lite"
     GEMINI_RETRY_WAITS_SECONDS: str = "1,2,4"
 
     # Versión vigente de los textos legales (Docs/legal.md). Al cambiarla, los usuarios
