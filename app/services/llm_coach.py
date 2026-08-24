@@ -1,6 +1,7 @@
 import logging
 import json
 from typing import List, Dict, Any, Optional
+from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
 from app.repositories.user_repo import user_repo
