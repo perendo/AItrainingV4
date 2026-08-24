@@ -1,11 +1,16 @@
 import os
+import shutil
+import sys
 import pytest
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
-os.environ["STOCKFISH_PATH"] = "D:\\AItrainingV4\\stockfish\\stockfish.exe"
+if sys.platform == "win32":
+    os.environ["STOCKFISH_PATH"] = "D:\\AItrainingV4\\stockfish\\stockfish.exe"
+else:
+    os.environ["STOCKFISH_PATH"] = shutil.which("stockfish") or "/usr/games/stockfish"
 os.environ["GEMINI_API_KEY"] = "test-key"
 os.environ["SECRET_KEY"] = "test-secret-key-for-testing-only"
 

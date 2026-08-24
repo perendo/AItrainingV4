@@ -9,7 +9,8 @@ import logging
 import json
 from typing import Any, Optional, Type, TypeVar
 
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 
 from app.core.config import settings
 
@@ -21,19 +22,18 @@ DEFAULT_MODEL_NAME = "gemini-flash-latest"
 
 
 class GeminiClient:
-    """Wrapper delgado sobre ``google.generativeai`` reutilizable por todos los servicios."""
+    """Wrapper delgado sobre ``google.genai`` reutilizable por todos los servicios."""
 
     def __init__(self, model_name: str = DEFAULT_MODEL_NAME):
         self.model_name = model_name
-        self._model: Any = None
-        self._configured = False
+        self._client: Optional[genai.Client] = None
 
     # ------------------------------------------------------------------ #
     # Inicialización
     # ------------------------------------------------------------------ #
     def configure(self) -> None:
-        """Configura la API una sola vez por proceso."""
-        if not self._configured:
+        """Configura el cliente una sola vez por proceso."""
+        if self._client is None:
             if not settings.GEMINI_API_KEY:
                 raise RuntimeError(
                     "GEMINI_API_KEY no está configurada (vacía). El backend no puede "
@@ -41,15 +41,19 @@ class GeminiClient:
                     "que Gemini rechaza con 401 ACCESS_TOKEN_TYPE_UNSUPPORTED. "
                     "Define GEMINI_API_KEY en el .env del backend."
                 )
-            genai.configure(api_key=settings.GEMINI_API_KEY)
-            self._configured = True
+            self._client = genai.Client(api_key=settings.GEMINI_API_KEY)
+
+    @property
+    def client(self) -> genai.Client:
+        if self._client is None:
+            self.configure()
+        return self._client
 
     @property
     def model(self) -> Any:
-        if self._model is None:
-            self.configure()
-            self._model = genai.GenerativeModel(self.model_name)
-        return self._model
+        """Wrapper para mantener compatibilidad con los tests que parchean
+        ``GeminiClient.model``. En producción delega en el cliente nuevo."""
+        return _GeminiModel(self)
 
     # ------------------------------------------------------------------ #
     # Generación
@@ -62,18 +66,26 @@ class GeminiClient:
         generation_config: Optional[dict] = None,
         timeout: Optional[int] = None,
     ) -> Any:
-        model = self.model
+        generation_config = generation_config or {}
+        config = types.GenerateContentConfig()
+
         if system_prompt is not None:
-            model.system_instruction = system_prompt
-        response = model.generate_content(
-            prompt,
-            generation_config=generation_config or {},
-            request_options={
-                "timeout": timeout
-                if timeout is not None
-                else settings.GEMINI_TIMEOUT_SECONDS
-            },
-        )
+            config.system_instruction = system_prompt
+        if generation_config.get("temperature") is not None:
+            config.temperature = generation_config["temperature"]
+        if generation_config.get("max_output_tokens") is not None:
+            config.max_output_tokens = generation_config["max_output_tokens"]
+        if generation_config.get("response_mime_type") is not None:
+            config.response_mime_type = generation_config["response_mime_type"]
+        gemini_schema = generation_config.get("response_schema")
+        if gemini_schema is not None and gemini_schema is not False:
+            config.response_schema = gemini_schema
+
+        timeout = timeout if timeout is not None else settings.GEMINI_TIMEOUT_SECONDS
+        # google.genai espera HttpOptions.timeout en MILISEGUNDOS
+        config.http_options = types.HttpOptions(timeout=timeout * 1000)
+
+        response = self.model.generate_content(prompt, config=config)
         return response
 
     def generate_json(
@@ -190,6 +202,20 @@ class GeminiClient:
             raise ValueError(
                 f"La respuesta no cumple el esquema esperado: {e}"
             ) from e
+
+
+class _GeminiModel:
+    """Adaptador mínimo que enruta ``generate_content`` al cliente ``google.genai``."""
+
+    def __init__(self, wrapper: "GeminiClient"):
+        self._wrapper = wrapper
+
+    def generate_content(self, prompt: str, config: Any = None) -> Any:
+        return self._wrapper.client.models.generate_content(
+            model=self._wrapper.model_name,
+            contents=prompt,
+            config=config,
+        )
 
 
 gemini_client = GeminiClient()
