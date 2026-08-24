@@ -1,0 +1,17 @@
+[Unit]
+Description=Tailscale Funnel para Entrenador IA (puerto 8000)
+After=network-online.target tailscaled.service entrenador-backend.service
+Wants=tailscaled.service entrenador-backend.service
+Requires=entrenador-backend.service
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/bin/tailscale funnel 8000
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

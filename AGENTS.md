@@ -14,7 +14,7 @@ uvicorn app.main:app --reload        # API en http://127.0.0.1:8000 · Swagger e
 
 ### Quirks de backend (fáciles de errar)
 
-- **Stockfish**: binario Windows en `stockfish/stockfish.exe`, ruta desde `STOCKFISH_PATH`. 0.1s/move (rápido pero superficial).
+- **Stockfish**: ruta desde `STOCKFISH_PATH`. En Windows es `stockfish/stockfish.exe`; en el despliegue WSL/Linux es `/usr/games/stockfish` (Stockfish v17 instalado vía `apt install stockfish`). 0.1s/move (rápido pero superficial).
 - **Gemini centralizado**: todo el IA usa el singleton `gemini_client` en `app/services/gemini_client.py` (modelo alias `gemini-flash-latest`). **No inicialices `genai.GenerativeModel`** ni dupliques `genai.configure` en los servicios; llama `gemini_client.generate_json(...)` / `generate_text(...)`. El timeout (`settings.GEMINI_TIMEOUT_SECONDS`, default 120) se aplica en `GeminiClient._generate`.
 - **Login** (`POST /api/v1/users/login`) es `def` síncrono (FastAPI lo corre en threadpool, no bloquea el loop). bcrypt (`pwd_context.verify()`) es lento por diseño (~100-300 ms, no es un bug). Devuelve solo `{access_token, token_type}`. JWT: secreto `settings.SECRET_KEY`, expira en 7 días; auth vía `Depends(get_current_user_id)`.
 - **CORS**: `CORS_ORIGINS` en `.env` (comma-separated), default `http://localhost:3000,http://127.0.0.1:3000`; `*` abre dev (sin credenciales).
@@ -68,15 +68,59 @@ python start_servers.py        # backend :8000 + frontend :3000 en paralelo; Ctr
 - `dist/` incluye `entrenador_ia.db` y excluye `Historico partidas`. Los testers lanzan `dist/start.bat` (no `dist/EntrenadorIA.exe`).
 - `build_dist.py --skip-frontend` recompila solo el backend `.exe`; requiere `dist/frontend` ya ensamblado.
 
-## Despliegue en producción (frontend Vercel + backend en portátil con ngrok)
+## Despliegue en producción (frontend Vercel + backend en WSL/Linux con Tailscale Funnel)
 
-Arquitectura: **frontend estático/serverless en Vercel** y **backend FastAPI corriendo en un portátil personal (Lenovo i5 12ª gen, 16 GB RAM, SSD 480 GB)** expuesto a Internet con un **túnel ngrok HTTPS**. La BD es SQLite local del portátil. Los artefactos de Fly.io (`fly.toml`, `Dockerfile`, `Procfile`) quedaron obsoletos con este plan (no borrar sin avisar; no se usan).
+Arquitectura real (verificada en funcionamiento): **frontend estático/serverless en Vercel** y **backend FastAPI corriendo dentro de WSL2 Debian 13 sobre Windows 11** (el binario de Windows `start.bat`/`ngrok` quedó reemplazado). El backend se expone a Internet con **Tailscale Funnel** (URL estable y gratis, sin plan de pago), no con ngrok. La BD es SQLite local del WSL (`~/chess-backend/entrenador_ia.db`). Los artefactos de Fly.io (`fly.toml`, `Dockerfile`, `Procfile`) están obsoletos (no borrar sin avisar; no se usan).
 
-1. **Backend**: `.env` con `DATABASE_URL="sqlite:///./entrenador_ia.db"` y `ALLOWED_ORIGINS="https://<tu-proyecto>.vercel.app,http://localhost:3000"` (sin la URL de Vercel el navegador bloqueará las peticiones por CORS). Arrancar con `uvicorn app.main:app --host 0.0.0.0 --port 8000`.
-2. **Túnel**: `ngrok http 8000`. Usa **dominio estático** (gratis en panel de ngrok) para no tener que cambiar `NEXT_PUBLIC_API_URL` en Vercel en cada reinicio. El frontend añade automáticamente el header `ngrok-skip-browser-warning` cuando `NEXT_PUBLIC_API_URL` contiene `ngrok` (ver `apiFetch` en `src/lib/api.ts`) — el plan free de ngrok intercepta peticiones de navegador con una página de aviso.
-3. **Frontend en Vercel**: root directory `frontend/`; env `NEXT_PUBLIC_API_URL=https://<tu-dominio>.ngrok-free.app`. Las páginas legales `(legal)` son estáticas — se prerenderizan en Vercel sin tocar el backend.
-4. **Pendiente al tener los dominios reales**: rellenar `ALLOWED_ORIGINS` (backend) y `NEXT_PUBLIC_API_URL` (Vercel) con los valores definitivos; sincronizar si cambian.
-5. **CORS**: `app/main.py` ya envía `allow_headers=["*"]` (necesario para el header de ngrok). Si ngrok cae, la UI muestra "No se pudo conectar con el servidor Backend".
+Dominios actuales:
+- Vercel: `https://a-itraining-v4-mj2c.vercel.app` (+ aliases `…-git-master-rendo3.vercel.app`, `…-620xuzx2f-rendo3.vercel.app`).
+- Backend público (Funnel): `https://rendo-portatil.taila5fcb.ts.net`.
+
+### 1. Backend (`.env`, gitignore — por entorno)
+- `DATABASE_URL="sqlite:///./entrenador_ia.db"`
+- `STOCKFISH_PATH="/usr/games/stockfish"` (en WSL/Linux; en Windows usar `stockfish/stockfish.exe`). Stockfish v17 instalado vía `apt install stockfish`.
+- `ALLOWED_ORIGINS` / `CORS_ORIGINS`: deben incluir los 3 dominios de Vercel **y** la URL de Tailscale. ⚠️ `config.py` usa `ALLOWED_ORIGINS or CORS_ORIGINS`, y `ALLOWED_ORIGINS` tiene default `http://localhost:3000`, así que SIEMPRE pon los dominios en `ALLOWED_ORIGINS` (no solo en `CORS_ORIGINS`) o no se aplicarán.
+- `NEXT_PUBLIC_API_URL` no va en el `.env` del backend; lo consume el frontend.
+
+### 2. Túnel: Tailscale Funnel (en vez de ngrok)
+- Instala Tailscale en el WSL y autentica: `tailscale up`.
+- `tailscaled` ya corre como servicio; para abrir el puerto público: `tailscale funnel 8000` (da `https://<nodo>.<tailnet>.ts.net`). El frontend NO necesita el header `ngrok-skip-browser-warning` porque la URL no contiene "ngrok".
+- El plan Free de ngrok no permite subdominio fijo; Tailscale Funnel da URL estable sin pagar.
+
+### 3. Frontend en Vercel
+- Root directory `frontend/`.
+- `NEXT_PUBLIC_API_URL` (build-time): el dashboard de Vercel **no autorizó la variable para Production** en esta cuenta, así que se fijó commiteando `frontend/.env.production` con `NEXT_PUBLIC_API_URL=https://rendo-portatil.taila5fcb.ts.net`. Ese archivo tiene prioridad y evita el fallback a `http://localhost:8000`. Si usas el dashboard, asegúrate de habilitar la variable para Production y redesplegar.
+- Las páginas `(legal)` son estáticas y se prerenderizan sin tocar el backend.
+
+### 4. Mantener el portátil despierto (Windows 11)
+Como el backend vive en WSL sobre Windows 11, quien suspende es Windows. Como **Administrador** en PowerShell/CMD:
+```powershell
+powercfg /change lidcloseaction 0
+powercfg /change standby-timeout-ac 0
+powercfg /change standby-timeout-dc 0
+powercfg /change hibernate-timeout-ac 0
+powercfg /change hibernate-timeout-dc 0
+```
+(también por GUI: Configuración → Sistema → Alimentación → "Al cerrar la tapa" = No hacer nada; "Suspensión" = Nunca). Opcional: desactivar Inicio rápido y habilitar "WSL en segundo plano" para que siga vivo al cerrar sesión.
+
+### 5. Arranque persistente del backend (WSL/Linux)
+- `start_backend.sh` (raíz): lanza `uvicorn` + `tailscale funnel` con `setsid` (sobrevive al cerrar la terminal) y no duplica si ya corren. Usar: `./start_backend.sh`.
+- `start_deploy.bat` (raíz, ejecutar como **Administrador** en Windows): aplica `powercfg` y llama al script vía WSL (`wsl -u pedro -- ~/chess-backend/start_backend.sh`).
+- **systemd** (WSL con systemd como PID 1): units en `deploy/`:
+  - `entrenador-backend.service` → uvicorn como `pedro`.
+  - `entrenador-tunnel.service` → `tailscale funnel 8000` como `root` (requiere `tailscaled.service`).
+  Instalar:
+  ```bash
+  sudo tailscale funnel --terminate
+  sudo fuser -k 8000/tcp
+  sudo cp ~/chess-backend/deploy/*.service /etc/systemd/system/
+  sudo systemctl daemon-reload
+  sudo systemctl enable --now entrenador-backend.service entrenador-tunnel.service
+  ```
+  ⚠️ Para parar los manuales usa `fuser -k 8000/tcp` / `tailscale funnel --terminate`; `pkill -f "uvicorn app.main:app"` puede matar su propia shell por coincidencia de patrón.
+
+### 6. CORS y fallos
+- `app/main.py` envía `allow_headers=["*"]`. Si el backend cae, la UI muestra "No se pudo conectar con el servidor Backend" (ese mensaje salta en cualquier fallo de `fetch`: red caída, CORS o backend apagado). Si ves eso, comprueba que uvicorn + Funnel siguen arriba y que `ALLOWED_ORIGINS` incluye el origen de Vercel.
 
 ## Frontend — `frontend/`
 
