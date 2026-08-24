@@ -91,6 +91,7 @@ def _build_frontend() -> None:
     _log("Compilando frontend Next.js (standalone)...")
     env = dict(os.environ)
     env["NEXT_PUBLIC_API_URL"] = API_URL
+    env["NEXT_STANDALONE"] = "1"  # activa output:'standalone' en next.config.mjs (solo build de escritorio)
     # npm.cmd evita el shim .ps1 que PowerShell bloquea por política de ejecución.
     _run(["cmd", "/c", "npm.cmd", "run", "build"], FRONTEND_DIR, env=env)
     standalone = FRONTEND_DIR / ".next" / "standalone"

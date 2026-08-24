@@ -1,9 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Salida standalone: permite ejecutar el frontend con `node server.js`
-  // sin necesidad de node_modules completos ni de un servidor Node externo.
-  // Es la base del empaquetado para testers (build_dist.py).
-  output: "standalone",
+  // Salida standalone: solo para el empaquetado de escritorio (PyInstaller/build_dist.py),
+  // que la activa vía la variable NEXT_STANDALONE=1.
+  // En Vercel NO debe activarse: usa el output por defecto de Next.js y evita
+  // conflictos con el pipeline de build de Vercel.
+  ...(process.env.NEXT_STANDALONE === "1" ? { output: "standalone" } : {}),
 };
 
 export default nextConfig;
