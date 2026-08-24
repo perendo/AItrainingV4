@@ -133,11 +133,36 @@ def cleanup_stuck_background_tasks() -> None:
         logger.warning(f"No se pudo limpiar las tareas atascadas: {e}")
 
 
+def validar_secret_key() -> None:
+    """
+    Avisa al arrancar si SECRET_KEY no es apta para firmar JWT:
+    ausente, la default de desarrollo o corta (<32 bytes). Una clave débil
+    provoca InsecureKeyLengthWarning en tiempo de firma y tokens forjables.
+    Cambiarla invalida todas las sesiones activas (los usuarios re-loguean).
+    """
+    clave = settings.SECRET_KEY or ""
+    if not clave or clave == "cambia_esta_clave_en_produccion":
+        logger.warning(
+            "SECRET_KEY no configurada (se usa la default de desarrollo). "
+            "Define una clave fuerte en el .env: "
+            "python -c \"import secrets; print(secrets.token_urlsafe(48))\""
+        )
+    elif len(clave.encode()) < 32:
+        logger.warning(
+            "SECRET_KEY demasiado corta (%d bytes < 32). Genera una más larga, "
+            "p. ej.: python -c \"import secrets; print(secrets.token_urlsafe(48))\"",
+            len(clave.encode()),
+        )
+
+
 # Aplica migraciones de Alembic al iniciar la aplicación.
 apply_database_migrations()
 
 # Ejecuta la limpieza de tareas huérfanas al iniciar la aplicación.
 cleanup_stuck_background_tasks()
+
+# Valida que SECRET_KEY sea apta para firmar JWT (solo avisa, no bloquea).
+validar_secret_key()
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
