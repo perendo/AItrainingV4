@@ -188,7 +188,7 @@ def test_create_consultation_handles_gemini_failure(mock_model, client, auth_hea
     assert status_data["status"] == "failed"
     assert status_data["error_message"]
     assert "Gran Maestro" in status_data["error_message"]
-    assert "3 intentos" in status_data["error_message"]
+    assert "2 intentos" in status_data["error_message"]
 
 
 @patch.object(GeminiClient, "model", new_callable=PropertyMock)

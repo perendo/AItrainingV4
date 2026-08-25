@@ -119,7 +119,7 @@ class TestSubmitGameAnalysis:
         assert "Gran Maestro" in status_data["error_message"]
 
     def test_submit_agota_reintentos_y_expone_intentos(self, client, db_session, auth_headers):
-        """Tras agotar los reintentos queda 'failed' con attempts==3 y campos expuestos."""
+        """Tras agotar los reintentos queda 'failed' con attempts==2 y campos expuestos."""
         gm_game = _create_gm_game(db_session)
         payload = {"gm_game_id": gm_game.id, "game_type": "GM", **FORM_BLOCKS}
 
@@ -134,13 +134,13 @@ class TestSubmitGameAnalysis:
 
         full = client.get(f"/api/v1/game-analysis/{analysis_id}", headers=auth_headers).json()
         assert full["status"] == "failed"
-        assert full["audit_attempts"] == 3
-        assert "3 intentos" in full["error_message"]
+        assert full["audit_attempts"] == 2
+        assert "2 intentos" in full["error_message"]
 
         history = client.get("/api/v1/game-analysis/history", headers=auth_headers).json()
         item = next(a for a in history if a["id"] == analysis_id)
         assert item["status"] == "failed"
-        assert item["audit_attempts"] == 3
+        assert item["audit_attempts"] == 2
 
     def test_submit_reintenta_tras_fallo_puntual(self, client, db_session, auth_headers):
         """Primer intento caído, segundo correcto: se completa solo y resetea intentos."""

@@ -39,7 +39,9 @@ class Settings(BaseSettings):
 
     # Tiempo máximo (segundos) de espera por respuesta de la API de Gemini.
     # Si se supera, la tarea de fondo captura el timeout y marca la tarea como fallida.
-    GEMINI_TIMEOUT_SECONDS: int = 120
+    # 30s evita que un thread del threadpool quede bloqueado demasiado tiempo
+    # cuando Gemini tarda o no responde (sat. 503, timeout de red, etc.).
+    GEMINI_TIMEOUT_SECONDS: int = 30
 
     # Resiliencia ante saturación de Google (503 UNAVAILABLE / alta demanda):
     # - Modelo primario y modelo de reserva (más ligero/rápido) para failover.
@@ -57,8 +59,10 @@ class Settings(BaseSettings):
     # ante fallos transitorios de la IA (saturación/timeout). Entre intentos se
     # espera GEMINI_TASK_RETRY_WAIT_SECONDS; agotados los intentos el registro
     # queda "failed" y el usuario puede reenviarlo manualmente desde el histórico.
-    GEMINI_TASK_RETRIES: int = 3
-    GEMINI_TASK_RETRY_WAIT_SECONDS: int = 180
+    # 2 reintentos por modelo (primario + reserva = 4 intentos totales).
+    # Peor caso: 4 × 30s timeout + 3 × 10s espera = ~150s (~2.5 min, vs 24 min antes).
+    GEMINI_TASK_RETRIES: int = 2
+    GEMINI_TASK_RETRY_WAIT_SECONDS: int = 10
 
     # Versión vigente de los textos legales (Docs/legal.md). Al cambiarla, los usuarios
     # deberán re-aceptar términos vía POST /users/me/legal-accept.
