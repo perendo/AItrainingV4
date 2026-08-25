@@ -26,6 +26,7 @@ import { cn } from "@/lib/utils";
 import { getGameAnalysis } from "@/lib/api";
 import { useGMConsultation } from "@/context/GMConsultationContext";
 import { useChessAnalysis } from "@/hooks/useChessAnalysis";
+import { useChessSounds } from "@/hooks/useChessSounds";
 import { toast } from "sonner";
 import {
   UserGameAnalysisResponse,
@@ -208,6 +209,7 @@ export function AnalysisFormPanel({
     setDraftSavedAt(null);
   }, [draftKey]);
 
+  const { playNotifySound, playErrorSound } = useChessSounds();
   const analysisIdRef = useRef<number | null>(null);
   const { submit: submitAnalysis, isPolling } = useChessAnalysis(
     async (resp) => {
@@ -216,6 +218,8 @@ export function AnalysisFormPanel({
           const full = await getGameAnalysis(analysisIdRef.current);
           setAnalysisResult(full);
           setStatus("success");
+          playNotifySound();
+          toast.success("Auditoría del Gran Maestro completada.");
         } catch {
           setError("No se pudo obtener la auditoría completa de la partida.");
           setStatus("error");
@@ -226,6 +230,11 @@ export function AnalysisFormPanel({
             "La evaluación del Gran Maestro falló. Inténtalo de nuevo.",
         );
         setStatus("error");
+        playErrorSound();
+        toast.error(
+          resp.error_message ||
+            "La evaluación del Gran Maestro falló. Inténtalo de nuevo.",
+        );
       }
     },
     () => {
@@ -233,6 +242,10 @@ export function AnalysisFormPanel({
         "La evaluación está tardando más de lo esperado. Recarga la página para reintentar.",
       );
       setStatus("error");
+      playErrorSound();
+      toast.error(
+        "La evaluación está tardando más de lo esperado. Recarga la página para reintentar.",
+      );
     },
   );
 
