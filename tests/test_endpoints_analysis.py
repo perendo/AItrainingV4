@@ -118,6 +118,58 @@ class TestSubmitGameAnalysis:
         assert status_data["error_message"]
         assert "Gran Maestro" in status_data["error_message"]
 
+    def test_submit_agota_reintentos_y_expone_intentos(self, client, db_session, auth_headers):
+        """Tras agotar los reintentos queda 'failed' con attempts==3 y campos expuestos."""
+        gm_game = _create_gm_game(db_session)
+        payload = {"gm_game_id": gm_game.id, "game_type": "GM", **FORM_BLOCKS}
+
+        with patch.object(GeminiClient, "model", new_callable=PropertyMock) as mock_model:
+            mock_model.return_value.generate_content.side_effect = RuntimeError(
+                "Gemini no responde (timeout de red)"
+            )
+            resp = client.post(
+                "/api/v1/game-analysis/submit", json=payload, headers=auth_headers
+            )
+        analysis_id = resp.json()["analysis_id"]
+
+        full = client.get(f"/api/v1/game-analysis/{analysis_id}", headers=auth_headers).json()
+        assert full["status"] == "failed"
+        assert full["audit_attempts"] == 3
+        assert "3 intentos" in full["error_message"]
+
+        history = client.get("/api/v1/game-analysis/history", headers=auth_headers).json()
+        item = next(a for a in history if a["id"] == analysis_id)
+        assert item["status"] == "failed"
+        assert item["audit_attempts"] == 3
+
+    def test_submit_reintenta_tras_fallo_puntual(self, client, db_session, auth_headers):
+        """Primer intento caído, segundo correcto: se completa solo y resetea intentos."""
+        gm_game = _create_gm_game(db_session)
+        payload = {"gm_game_id": gm_game.id, "game_type": "GM", **FORM_BLOCKS}
+
+        with patch.object(GeminiClient, "model", new_callable=PropertyMock) as mock_model:
+            mock_response = MagicMock()
+            mock_response.text = json.dumps(VALID_FEEDBACK)
+            mock_response.candidates = None
+            mock_model.return_value.generate_content.side_effect = [
+                RuntimeError("Gemini no responde (timeout de red)"),
+                mock_response,
+            ]
+            resp = client.post(
+                "/api/v1/game-analysis/submit", json=payload, headers=auth_headers
+            )
+        analysis_id = resp.json()["analysis_id"]
+
+        status = client.get(
+            f"/api/v1/game-analysis/{analysis_id}/status", headers=auth_headers
+        ).json()
+        assert status["status"] == "completed"
+        assert status["has_feedback"] is True
+
+        full = client.get(f"/api/v1/game-analysis/{analysis_id}", headers=auth_headers).json()
+        assert full["audit_attempts"] == 0
+        assert full["error_message"] is None
+
     def test_submit_partida_propia(self, client, auth_headers):
         payload = {
             "game_type": "USER",

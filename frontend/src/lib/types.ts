@@ -246,6 +246,9 @@ export interface UserGameAnalysisResponse {
   factores_posicionales: string | null;
   conclusiones_plan: string | null;
   gemini_feedback: string | null;
+  status?: "processing" | "completed" | "failed" | null;
+  error_message?: string | null;
+  audit_attempts?: number;
   created_at: string;
   updated_at?: string | null;
 }
@@ -254,18 +257,22 @@ export type GameAnalysisGameType = "GM" | "USER";
 
 export type GameAnalysisStatus =
   | "pending"
+  | "audit_failed"
   | "evaluated_correct"
   | "evaluated_incorrect";
 
 export function gameAnalysisStatus(analysis: UserGameAnalysisResponse): GameAnalysisStatus {
-  if (!analysis.gemini_feedback) return "pending";
+  if (!analysis.gemini_feedback) {
+    // Sin auditoría: borrador pendiente o fallo de la IA tras agotar reintentos.
+    return analysis.status === "failed" ? "audit_failed" : "pending";
+  }
   try {
     const feedback = JSON.parse(analysis.gemini_feedback) as GeminiFeedback;
     return feedback.auditoria_conclusiones.plan_correcto
       ? "evaluated_correct"
       : "evaluated_incorrect";
   } catch {
-    return "pending";
+    return analysis.status === "failed" ? "audit_failed" : "pending";
   }
 }
 

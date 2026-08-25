@@ -1,7 +1,9 @@
 # app/services/gm_consultation_service.py
 import logging
+import time
 from typing import Any, Optional
 
+from app.core.config import settings
 from app.core.database import SessionLocal
 from app.models.gm_consultation import GMConsultation
 from app.services.gemini_client import gemini_client
@@ -61,6 +63,10 @@ class GMConsultationService:
     ) -> None:
         """
         Tarea de fondo: consulta a Gemini y guarda la respuesta.
+        Ante fallo transitorio de la IA (saturación/timeout) reintenta hasta
+        ``settings.GEMINI_TASK_RETRIES`` veces esperando
+        ``settings.GEMINI_TASK_RETRY_WAIT_SECONDS`` entre intentos; agotados los
+        intentos queda "failed" con mensaje claro para reenviar manualmente.
         Abre su propia sesión de BD para poder ser monkeypatcheada en tests y no
         depender del request original.
         """
@@ -79,10 +85,33 @@ class GMConsultationService:
                     )
                     return
 
-                answer = self._ask_grandmaster(question)
+                max_intentos = max(1, settings.GEMINI_TASK_RETRIES)
+                espera = settings.GEMINI_TASK_RETRY_WAIT_SECONDS
+                answer = None
+                for intento in range(1, max_intentos + 1):
+                    try:
+                        answer = self._ask_grandmaster(question)
+                        break
+                    except Exception as e:
+                        logger.error(
+                            f"Intento {intento}/{max_intentos} de consulta GM "
+                            f"#{consultation_id} falló: {e}"
+                        )
+                        if intento >= max_intentos:
+                            raise
+                        # La pregunta ya está persistida; anotamos el reintento y esperamos.
+                        consultation.attempts = intento
+                        consultation.error_message = (
+                            f"La IA está saturada (intento {intento}/{max_intentos}). "
+                            "Reintentando automáticamente..."
+                        )
+                        db.commit()
+                        time.sleep(espera)
 
                 consultation.answer = answer
                 consultation.status = "completed"
+                consultation.attempts = 0
+                consultation.error_message = None
                 db.commit()
                 logger.info(f"Consulta GM #{consultation_id} completada.")
             except Exception as e:
@@ -98,8 +127,11 @@ class GMConsultationService:
                     )
                     if consultation:
                         consultation.status = "failed"
+                        consultation.attempts = settings.GEMINI_TASK_RETRIES
                         consultation.error_message = (
-                            f"Error al procesar la consulta con el Gran Maestro: {e}"
+                            "El Gran Maestro no pudo responder tu consulta: "
+                            f"la IA no respondió tras {settings.GEMINI_TASK_RETRIES} "
+                            "intentos. Vuelve a enviarla cuando quieras."
                         )
                         db.commit()
                 except Exception:

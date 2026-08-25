@@ -80,14 +80,21 @@ def test_create_requires_auth(client):
     assert resp.status_code == 401
 
 
-def test_startup_cleanup_recovers_stuck_tasks(db_session, registered_user):
+def test_startup_cleanup_recovers_stuck_tasks(db_session, registered_user, monkeypatch):
+    from app.core.config import settings
     from app.main import cleanup_stuck_background_tasks
     from app.models.gm_consultation import GMConsultation
     from app.models.user_game_analysis import UserGameAnalysis
 
-    # Tareas que quedaron "processing" por un reinicio del servidor.
+    # Consulta con los reintentos agotados y análisis antiguo sin snapshot:
+    # ambos deben marcarse como fallidos para liberar el estado.
     db_session.add(
-        GMConsultation(user_id=registered_user["id"], question="duda", status="processing")
+        GMConsultation(
+            user_id=registered_user["id"],
+            question="duda",
+            status="processing",
+            attempts=settings.GEMINI_TASK_RETRIES,
+        )
     )
     db_session.add(
         UserGameAnalysis(
@@ -111,6 +118,42 @@ def test_startup_cleanup_recovers_stuck_tasks(db_session, registered_user):
     assert all(c.status == "failed" for c in consultations)
     assert all(a.status == "failed" for a in analyses)
     assert consultations[0].error_message
+
+
+def test_startup_cleanup_relanza_reintentos_recientes(db_session, registered_user, monkeypatch):
+    """Una consulta reciente a mitad de reintentos se relanza en vez de fallar."""
+    import app.main as app_main
+    from app.main import cleanup_stuck_background_tasks
+    from app.models.gm_consultation import GMConsultation
+
+    lanzamientos = []
+    monkeypatch.setattr(app_main, "_lanzar_hilo_daemon", lambda t, *a: lanzamientos.append((t, a)))
+
+    db_session.add(
+        GMConsultation(
+            user_id=registered_user["id"],
+            question="¿Cómo ataco el rey?",
+            status="processing",
+            attempts=1,
+        )
+    )
+    db_session.commit()
+
+    cleanup_stuck_background_tasks()
+
+    consultation = (
+        db_session.query(GMConsultation)
+        .filter(GMConsultation.user_id == registered_user["id"])
+        .first()
+    )
+    assert consultation.status == "processing"  # sigue en curso
+    assert len(lanzamientos) == 1
+    target, args = lanzamientos[0]
+    from app.services.gm_consultation_service import gm_consultation_service
+
+    assert target == gm_consultation_service.process_consultation
+    assert args[0] == consultation.id
+    assert args[2] == "¿Cómo ataco el rey?"
 
 
 @patch.object(GeminiClient, "model", new_callable=PropertyMock)
@@ -140,7 +183,38 @@ def test_create_consultation_handles_gemini_failure(mock_model, client, auth_hea
     assert status_resp.status_code == 200
     status_data = status_resp.json()
 
-    # 3. El estado pasa a "failed" y el mensaje de error es legible por el frontend.
+    # 3. El estado pasa a "failed" tras agotar los reintentos y el mensaje es
+    # legible por el frontend.
     assert status_data["status"] == "failed"
     assert status_data["error_message"]
-    assert "Gemini" in status_data["error_message"]
+    assert "Gran Maestro" in status_data["error_message"]
+    assert "3 intentos" in status_data["error_message"]
+
+
+@patch.object(GeminiClient, "model", new_callable=PropertyMock)
+def test_create_consultation_reintenta_y_sale_adelante(mock_model, client, auth_headers):
+    """Primer intento saturado, segundo correcto: la consulta se completa sola."""
+    mock_response = MagicMock()
+    mock_response.text = "Centraliza las piezas y el ataque llega solo."
+    mock_model.return_value.generate_content.side_effect = [
+        RuntimeError("Gemini no responde (timeout de red)"),
+        mock_response,
+    ]
+
+    resp = client.post(
+        "/api/v1/gm-consultations/",
+        json={"question": "¿Cómo sigo tras perder el peón central?"},
+        headers=auth_headers,
+    )
+    assert resp.status_code == 202
+    consultation_id = resp.json()["consultation_id"]
+
+    status_resp = client.get(
+        f"/api/v1/gm-consultations/{consultation_id}/status", headers=auth_headers
+    )
+    status_data = status_resp.json()
+    assert status_data["status"] == "completed"
+    assert "Centraliza" in (status_data["answer"] or "")
+
+    detail = client.get(f"/api/v1/gm-consultations/{consultation_id}", headers=auth_headers)
+    assert detail.json()["attempts"] == 0  # reset al completarse

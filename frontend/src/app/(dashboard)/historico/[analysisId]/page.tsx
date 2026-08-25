@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Loader2, ChevronLeft, Crown, UserRound, FileDown } from "lucide-react";
+import { Loader2, ChevronLeft, Crown, UserRound, FileDown, AlertTriangle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -62,6 +62,11 @@ function StatusBadge({ status }: { status: GameAnalysisStatus }) {
       label: "Pendiente de Análisis",
       classes: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
     },
+    audit_failed: {
+      label: "Pendiente de reenvío por error",
+      classes:
+        "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300",
+    },
     evaluated_correct: {
       label: "Evaluado Correcto",
       classes: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
@@ -72,7 +77,12 @@ function StatusBadge({ status }: { status: GameAnalysisStatus }) {
     },
   }[status];
 
-  return <Badge className={config.classes}>{config.label}</Badge>;
+  return (
+    <Badge className={config.classes}>
+      {status === "audit_failed" && <AlertTriangle className="mr-1 h-3 w-3" />}
+      {config.label}
+    </Badge>
+  );
 }
 
 export default function HistoricoDetailPage() {
@@ -232,6 +242,18 @@ export default function HistoricoDetailPage() {
           <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
             Esta partida aún no se ha enviado al Gran Maestro. Completa el formulario de
             autodiagnóstico y pulsa &quot;Enviar a Evaluación del Gran Maestro&quot;.
+          </div>
+        )}
+
+        {status === "audit_failed" && (
+          <div className="rounded-lg border border-orange-200 bg-orange-50 p-4 text-sm text-orange-800 dark:border-orange-800 dark:bg-orange-900/20 dark:text-orange-200">
+            <p className="font-medium">La auditoría del Gran Maestro no se completó.</p>
+            <p className="mt-1">
+              {analysis.error_message ||
+                "El Gran Maestro no pudo completar la auditoría: la IA no respondió tras varios intentos."}{" "}
+              Tus respuestas están guardadas: revisa el formulario y vuelve a pulsar
+              &quot;Enviar a Evaluación del Gran Maestro&quot; cuando quieras reintentarlo.
+            </p>
           </div>
         )}
 

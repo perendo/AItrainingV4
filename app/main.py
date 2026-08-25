@@ -2,6 +2,8 @@
 import logging
 import os
 import sys
+import threading
+from datetime import datetime, timedelta
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
@@ -89,27 +91,63 @@ def apply_database_migrations() -> None:
             pass
 
 
+def _lanzar_hilo_daemon(target, *args) -> None:
+    """Lanza una tarea de fondo fuera del ciclo de vida del request (reinicio)."""
+    threading.Thread(target=target, args=args, daemon=True).start()
+
+
 def cleanup_stuck_background_tasks() -> None:
     """
-    Al arrancar el servidor, marca como fallidas las tareas que quedaron
-    atascadas en estado "processing" (por un reinicio del servidor o una caída
-    durante el procesamiento en segundo plano). Así se libera el estado y el
-    frontend deja de hacer polling infinito.
-    """
-    try:
-        from app.core.database import SessionLocal
+    Al arrancar el servidor, recupera las tareas que quedaron atascadas en
+    estado "processing" (por un reinicio del servidor o una caída durante el
+    procesamiento en segundo plano):
 
+    - Si estaban a mitad de los reintentos ante saturación de la IA (quedan
+      intentos disponibles y se actualizaron hace poco), se relanzan en un hilo
+      de fondo para no perder la auditoría: el borrador y sus datos ya están
+      persistidos.
+    - En caso contrario se marcan como fallidas para liberar el estado y que
+      el frontend deje de hacer polling infinito; el usuario puede reenviarlas
+      manualmente desde el histórico.
+    """
+    from app.core.database import SessionLocal
+    from app.services.gm_consultation_service import gm_consultation_service
+    from app.services.tutor_service import tutor_gemini_service
+
+    ventana_relanzamiento = datetime.utcnow() - timedelta(minutes=30)
+    max_intentos = max(1, settings.GEMINI_TASK_RETRIES)
+    relanzadas = 0
+    fallidas = 0
+    try:
         db = SessionLocal()
         try:
             message = "Procesamiento interrumpido por reinicio del servidor."
+
             stuck_consultations = (
                 db.query(GMConsultation)
                 .filter(GMConsultation.status == "processing")
                 .all()
             )
             for consultation in stuck_consultations:
+                reciente = bool(
+                    consultation.updated_at
+                    and consultation.updated_at >= ventana_relanzamiento
+                )
+                if reciente and consultation.attempts < max_intentos:
+                    # Relanzar con la pregunta persistida (hilo daemon: si el
+                    # arranque vuelve a caer, el siguiente inicio reintenta igual).
+                    _lanzar_hilo_daemon(
+                        gm_consultation_service.process_consultation,
+                        consultation.id,
+                        consultation.user_id,
+                        consultation.question,
+                    )
+                    relanzadas += 1
+                    continue
                 consultation.status = "failed"
-                consultation.error_message = message
+                if not consultation.error_message or "Reintentando" in consultation.error_message:
+                    consultation.error_message = message
+                fallidas += 1
 
             stuck_analyses = (
                 db.query(UserGameAnalysis)
@@ -117,20 +155,55 @@ def cleanup_stuck_background_tasks() -> None:
                 .all()
             )
             for analysis in stuck_analyses:
+                data = _reconstruir_analysis_data(analysis)
+                reciente = bool(
+                    analysis.updated_at and analysis.updated_at >= ventana_relanzamiento
+                )
+                if data is not None and reciente and analysis.audit_attempts < max_intentos:
+                    _lanzar_hilo_daemon(
+                        tutor_gemini_service.audit_existing_analysis,
+                        analysis.id,
+                        analysis.user_id,
+                        data,
+                    )
+                    relanzadas += 1
+                    continue
                 analysis.status = "failed"
-                analysis.error_message = message
+                if not analysis.error_message or "Reintentando" in analysis.error_message:
+                    analysis.error_message = message
+                fallidas += 1
 
             if stuck_consultations or stuck_analyses:
                 db.commit()
                 logger.info(
                     "Tareas en segundo plano recuperadas tras reinicio: "
-                    f"{len(stuck_consultations)} consultas y "
-                    f"{len(stuck_analyses)} análisis marcados como fallidos."
+                    f"{relanzadas} relanzadas (reintentos de IA) y "
+                    f"{fallidas} marcadas como fallidas."
                 )
         finally:
             db.close()
     except Exception as e:
         logger.warning(f"No se pudo limpiar las tareas atascadas: {e}")
+
+
+def _reconstruir_analysis_data(analysis: "UserGameAnalysis"):
+    """Reconstruye el GameAnalysisCreate guardado con el envío (audit_payload).
+
+    Devuelve None si no hay snapshot utilizable (registros antiguos o corruptos),
+    en cuyo caso la tarea se marca como fallida en lugar de relanzarse a ciegas.
+    """
+    from app.schemas.analysis import GameAnalysisCreate
+
+    raw = getattr(analysis, "audit_payload", None)
+    if not raw:
+        return None
+    try:
+        return GameAnalysisCreate.model_validate_json(raw)
+    except Exception as e:
+        logger.warning(
+            f"Autodiagnóstico #{analysis.id}: snapshot no recuperable ({e}); se marca como fallido."
+        )
+        return None
 
 
 def validar_secret_key() -> None:

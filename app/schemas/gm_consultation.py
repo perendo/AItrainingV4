@@ -23,6 +23,7 @@ class GMConsultationStatus(BaseModel):
     status: str  # "processing" | "completed" | "failed"
     answer: Optional[str] = None
     error_message: Optional[str] = None
+    attempts: int = 0  # Intentos de llamada a Gemini en la última ronda
     created_at: datetime
     updated_at: datetime
 

@@ -20,6 +20,16 @@ describe("gameAnalysisStatus", () => {
     expect(gameAnalysisStatus(base)).toBe("pending");
   });
 
+  it("devuelve 'audit_failed' si la auditoría falló sin feedback", () => {
+    const analysis = { ...base, status: "failed" as const };
+    expect(gameAnalysisStatus(analysis)).toBe("audit_failed");
+  });
+
+  it("devuelve 'pending' para registros antiguos sin estado", () => {
+    const analysis = { ...base, status: null };
+    expect(gameAnalysisStatus(analysis)).toBe("pending");
+  });
+
   it("devuelve 'pending' si el feedback no es JSON válido", () => {
     const analysis = { ...base, gemini_feedback: "not-json" };
     expect(gameAnalysisStatus(analysis)).toBe("pending");

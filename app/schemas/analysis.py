@@ -116,6 +116,9 @@ class GameAnalysisResponse(BaseModel):
     factores_posicionales: Optional[str] = None
     conclusiones_plan: Optional[str] = None
     gemini_feedback: Optional[str] = None
+    status: Optional[str] = None  # "processing" | "completed" | "failed"
+    error_message: Optional[str] = None
+    audit_attempts: int = 0
     created_at: str
     updated_at: Optional[datetime] = None
 

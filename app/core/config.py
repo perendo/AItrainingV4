@@ -47,10 +47,18 @@ class Settings(BaseSettings):
     #   (backoff exponencial: 1s → 2s → 4s). El número de reintentos por modelo
     #   coincide con la cantidad de esperas configuradas.
     # Modelos vigentes de Gemini (los retirados por Google dan 404). Primario:
-    # el flash más capaz; reserva: 2.5 Flash-Lite, más ligero y rápido.
+    # el flash más capaz; reserva: 3.1 Flash-Lite, más ligero y rápido
+    # (2.5 Flash-Lite fue retirado para cuentas nuevas: daba 404).
     GEMINI_MODEL_PRIMARY: str = "gemini-3.7-flash"
-    GEMINI_MODEL_FALLBACK: str = "gemini-2.5-flash-lite"
+    GEMINI_MODEL_FALLBACK: str = "gemini-3.1-flash-lite"
     GEMINI_RETRY_WAITS_SECONDS: str = "1,2,4"
+
+    # Reintentos de las tareas de fondo (auditoría de análisis y consultas GM)
+    # ante fallos transitorios de la IA (saturación/timeout). Entre intentos se
+    # espera GEMINI_TASK_RETRY_WAIT_SECONDS; agotados los intentos el registro
+    # queda "failed" y el usuario puede reenviarlo manualmente desde el histórico.
+    GEMINI_TASK_RETRIES: int = 3
+    GEMINI_TASK_RETRY_WAIT_SECONDS: int = 180
 
     # Versión vigente de los textos legales (Docs/legal.md). Al cambiarla, los usuarios
     # deberán re-aceptar términos vía POST /users/me/legal-accept.

@@ -15,3 +15,4 @@ class GMConsultation(TimeStampedModel):
     answer = Column(Text, nullable=True)
     status = Column(String(20), default="processing", nullable=False, index=True)
     error_message = Column(Text, nullable=True)
+    attempts = Column(Integer, nullable=False, default=0, doc="Intentos de llamada a Gemini realizados en la última ronda")

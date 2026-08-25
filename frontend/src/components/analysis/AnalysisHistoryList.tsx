@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, FileText, ChevronRight, Crown, UserRound, Clock } from "lucide-react";
+import { Loader2, FileText, ChevronRight, Crown, UserRound, Clock, AlertTriangle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { listGameAnalyses } from "@/lib/api";
@@ -33,6 +33,12 @@ function StatusBadge({ status }: { status: GameAnalysisStatus }) {
       label: "Pendiente de Análisis",
       classes: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
       icon: Clock,
+    },
+    audit_failed: {
+      label: "Pendiente de reenvío por error",
+      classes:
+        "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300",
+      icon: AlertTriangle,
     },
     evaluated_correct: {
       label: "Evaluado Correcto",

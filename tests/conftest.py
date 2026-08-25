@@ -25,6 +25,15 @@ from app.models.task import ProcessingTask
 from app.core.security import hash_password, create_access_token
 
 
+@pytest.fixture(autouse=True)
+def _reintentos_instantaneos(monkeypatch):
+    """En tests no esperamos los reintentos (ni internos ni de tareas GM) reales."""
+    from app.core.config import settings
+
+    monkeypatch.setattr(settings, "GEMINI_TASK_RETRY_WAIT_SECONDS", 0)
+    monkeypatch.setattr(settings, "GEMINI_RETRY_WAITS_SECONDS", "0,0,0")
+
+
 @pytest.fixture(scope="function")
 def db_engine():
     engine = create_engine(

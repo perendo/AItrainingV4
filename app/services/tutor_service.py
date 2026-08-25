@@ -1,8 +1,10 @@
 import logging
+import time
 from datetime import datetime
 from typing import Any, Optional
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.repositories.gm_game_repo import gm_game_repo
 from app.models.user_game_analysis import UserGameAnalysis
 from app.models.user_analyzed_gm_game import UserAnalyzedGMGame
@@ -132,6 +134,9 @@ class TutorGeminiService:
         if not analysis.created_at:
             analysis.created_at = datetime.utcnow().isoformat()
         analysis.status = "processing"
+        # Snapshot del envío: permite relanzar la auditoría tras un reinicio
+        # del servidor sin perder el contexto (nick, bando, PGN, formularios).
+        analysis.audit_payload = analysis_data.model_dump_json()
         db.add(analysis)
         db.commit()
         db.refresh(analysis)
@@ -139,7 +144,7 @@ class TutorGeminiService:
         return analysis
 
     def _mark_analysis_failed(
-        self, db: Session, analysis_id: int, message: str
+        self, db: Session, analysis_id: int, message: str, attempts: int = 0
     ) -> None:
         """Marca un autodiagnóstico como fallido almacenando el error para el frontend."""
         try:
@@ -151,6 +156,7 @@ class TutorGeminiService:
             if analysis:
                 analysis.status = "failed"
                 analysis.error_message = message
+                analysis.audit_attempts = attempts
                 db.commit()
         except Exception:
             db.rollback()
@@ -162,6 +168,13 @@ class TutorGeminiService:
         analysis_data: GameAnalysisCreate,
     ) -> None:
         """Tarea de fondo: ejecuta la auditoría de Gemini y guarda el feedback.
+
+        Ante fallo transitorio de la IA (saturación/timeout) reintenta hasta
+        ``settings.GEMINI_TASK_RETRIES`` veces esperando
+        ``settings.GEMINI_TASK_RETRY_WAIT_SECONDS`` entre intentos; el borrador
+        y los datos del formulario ya están persistidos, así que solo se repite
+        la llamada a Gemini. Agotados los intentos queda "failed" con mensaje
+        claro para reenviar manualmente desde el histórico.
 
         Abre su propia sesión de BD para poder ser monkeypatcheada en tests y no
         depender del request original.
@@ -190,26 +203,52 @@ class TutorGeminiService:
                     pgn, white_player, black_player, analysis_data, player_username, user_side
                 )
 
-                logger.info(f"Auditoría en segundo plano para autodiagnóstico #{analysis_id}...")
-                try:
-                    feedback_data = gemini_client.generate_json(
-                        user_prompt,
-                        system_prompt=system_prompt,
-                        schema=GeminiFeedback,
-                        temperature=0.3,
-                        max_output_tokens=4096,
+                max_intentos = max(1, settings.GEMINI_TASK_RETRIES)
+                espera = settings.GEMINI_TASK_RETRY_WAIT_SECONDS
+                feedback_data = None
+                for intento in range(1, max_intentos + 1):
+                    logger.info(
+                        f"Auditoría en segundo plano para autodiagnóstico "
+                        f"#{analysis_id} (intento {intento}/{max_intentos})..."
                     )
-                except Exception as e:
-                    logger.error(f"Timeout/error de Gemini en auditoría #{analysis_id}: {e}")
-                    self._mark_analysis_failed(
-                        db, analysis_id,
-                        "La auditoría del Gran Maestro tardó demasiado o falló al contactar con la IA.",
-                    )
-                    return
+                    try:
+                        feedback_data = gemini_client.generate_json(
+                            user_prompt,
+                            system_prompt=system_prompt,
+                            schema=GeminiFeedback,
+                            temperature=0.3,
+                            max_output_tokens=4096,
+                        )
+                        break
+                    except Exception as e:
+                        logger.error(
+                            f"Intento {intento}/{max_intentos} de auditoría "
+                            f"#{analysis_id} falló: {e}"
+                        )
+                        if intento >= max_intentos:
+                            self._mark_analysis_failed(
+                                db, analysis_id,
+                                "El Gran Maestro no pudo completar la auditoría: "
+                                f"la IA no respondió tras {max_intentos} intentos. "
+                                "Vuelve a enviar el análisis cuando quieras.",
+                                attempts=intento,
+                            )
+                            return
+                        # El borrador sigue a salvo; anotamos el reintento y esperamos.
+                        analysis.audit_attempts = intento
+                        analysis.error_message = (
+                            f"La IA está saturada (intento {intento}/{max_intentos}). "
+                            "Reintentando automáticamente..."
+                        )
+                        db.commit()
+                        time.sleep(espera)
+
                 gemini_json = feedback_data.model_dump_json()
 
                 analysis.gemini_feedback = gemini_json
                 analysis.status = "completed"
+                analysis.audit_attempts = 0
+                analysis.error_message = None
                 analysis.game_type = game_type
                 analysis.game_id = game_id
                 analysis.white_player = white_player
