@@ -262,18 +262,27 @@ export type GameAnalysisStatus =
   | "evaluated_incorrect";
 
 export function gameAnalysisStatus(analysis: UserGameAnalysisResponse): GameAnalysisStatus {
-  if (!analysis.gemini_feedback) {
-    // Sin auditoría: borrador pendiente o fallo de la IA tras agotar reintentos.
-    return analysis.status === "failed" ? "audit_failed" : "pending";
+  // El estado de la tarea prima sobre el feedback antiguo: durante una
+  // re-auditoría (status "processing") hay un veredicto previo guardado que no
+  // debe mostrarse; se muestra ámbar hasta que termine.
+  if (analysis.status === "failed") {
+    return "audit_failed";
   }
-  try {
-    const feedback = JSON.parse(analysis.gemini_feedback) as GeminiFeedback;
-    return feedback.auditoria_conclusiones.plan_correcto
-      ? "evaluated_correct"
-      : "evaluated_incorrect";
-  } catch {
-    return analysis.status === "failed" ? "audit_failed" : "pending";
+  if (analysis.status === "processing") {
+    return "pending";
   }
+  if (analysis.gemini_feedback) {
+    try {
+      const feedback = JSON.parse(analysis.gemini_feedback) as GeminiFeedback;
+      return feedback.auditoria_conclusiones.plan_correcto
+        ? "evaluated_correct"
+        : "evaluated_incorrect";
+    } catch {
+      // Feedback corrupto: mostrar como pendiente de reauditar.
+      return "pending";
+    }
+  }
+  return "pending";
 }
 
 // Envío asíncrono de autodiagnóstico al Gran Maestro
