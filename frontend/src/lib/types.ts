@@ -262,15 +262,13 @@ export type GameAnalysisStatus =
   | "evaluated_incorrect";
 
 export function gameAnalysisStatus(analysis: UserGameAnalysisResponse): GameAnalysisStatus {
-  // El estado de la tarea prima sobre el feedback antiguo: durante una
-  // re-auditoría (status "processing") hay un veredicto previo guardado que no
-  // debe mostrarse; se muestra ámbar hasta que termine.
-  if (analysis.status === "failed") {
-    return "audit_failed";
-  }
+  // Una re-auditoría en curso (status "processing") oculta el veredicto previo
+  // y se muestra ámbar hasta que termine.
   if (analysis.status === "processing") {
     return "pending";
   }
+  // Si hay veredicto guardado, se muestra verde/rojo (incluso si el estado
+  // dice "failed" por un flag obsoleto de una auditoría previa).
   if (analysis.gemini_feedback) {
     try {
       const feedback = JSON.parse(analysis.gemini_feedback) as GeminiFeedback;
@@ -281,6 +279,11 @@ export function gameAnalysisStatus(analysis: UserGameAnalysisResponse): GameAnal
       // Feedback corrupto: mostrar como pendiente de reauditar.
       return "pending";
     }
+  }
+  // Sin veredicto: "failed" real (IA agotó reintentos) -> naranja de reenvío;
+  // en cualquier otro caso, ámbar de pendiente.
+  if (analysis.status === "failed") {
+    return "audit_failed";
   }
   return "pending";
 }
