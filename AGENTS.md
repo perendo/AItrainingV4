@@ -6,7 +6,7 @@ FastAPI backend (AI chess coach: Stockfish PGN analysis + Gemini reports + Liche
 
 ```bash
 uvicorn app.main:app --reload        # API en http://127.0.0.1:8000 · Swagger en /api/v1/docs
-.venv\Scripts\python.exe -m pytest tests/ -v   # 16 archivos de test (~120 tests), config en pytest.ini
+.venv\Scripts\python.exe -m pytest tests/ -v   # tests/ (~125 tests), config en pytest.ini
 ```
 
 - Python corre desde el `.venv` del repo (3.12) — `python` plano puede no resolverse. `start_servers.py`, `server_launcher.py` y `build_dist.py` ya usan `.venv\Scripts\python.exe`.
@@ -15,7 +15,7 @@ uvicorn app.main:app --reload        # API en http://127.0.0.1:8000 · Swagger e
 ### Quirks de backend (fáciles de errar)
 
 - **Stockfish**: ruta desde `STOCKFISH_PATH`. En Windows es `stockfish/stockfish.exe`; en el despliegue WSL/Linux es `/usr/games/stockfish` (Stockfish v17 instalado vía `apt install stockfish`). 0.1s/move (rápido pero superficial).
-- **Gemini centralizado**: todo el IA usa el singleton `gemini_client` en `app/services/gemini_client.py` (modelo primario `gemini-3.7-flash`, reserva `gemini-3.1-flash-lite` — la anterior `gemini-2.5-flash-lite` quedó retirada por Google y devolvía 404; con reintentos 1s/2s/4s y failover automático ante 503; solo modelos vigentes — los retirados por Google dan 404). **No inicialices `genai.GenerativeModel`** ni dupliques `genai.configure` en los servicios; llama `gemini_client.generate_json(...)` / `generate_text(...)`. El timeout (`settings.GEMINI_TIMEOUT_SECONDS`, default 120) se aplica en `GeminiClient._generate`.
+- **Gemini centralizado**: todo el IA usa el singleton `gemini_client` en `app/services/gemini_client.py` (modelo primario `gemini-3.7-flash`, reserva `gemini-3.1-flash-lite` — la anterior `gemini-2.5-flash-lite` quedó retirada por Google y devolvía 404; con reintentos 1s/2s/4s y failover automático ante 503; solo modelos vigentes — los retirados por Google dan 404). **No inicialices `genai.GenerativeModel`** ni dupliques `genai.configure` en los servicios; llama `gemini_client.generate_json(...)` / `generate_text(...)`. El timeout (`settings.GEMINI_TIMEOUT_SECONDS`, default 30) se aplica en `GeminiClient._generate` (bajado de 120 para no bloquear threads del threadpool cuando Gemini tarda).
 - **Login** (`POST /api/v1/users/login`) es `def` síncrono (FastAPI lo corre en threadpool, no bloquea el loop). bcrypt (`pwd_context.verify()`) es lento por diseño (~100-300 ms, no es un bug). Devuelve solo `{access_token, token_type}`. JWT: secreto `settings.SECRET_KEY`, expira en 7 días; auth vía `Depends(get_current_user_id)`.
 - **CORS**: `CORS_ORIGINS` en `.env` (comma-separated), default `http://localhost:3000,http://127.0.0.1:3000`; `*` abre dev (sin credenciales).
 - **Tareas de fondo** abren suya propia sesión con `background_session()` (`app/core/database.py`), no con `SessionLocal()` directo — así el monkey-patch de `conftest` (swapea `database_module.SessionLocal`) sigue funcionando. Lo usan `tutor_service.audit_existing_analysis`, `gm_consultation_service.process_consultation`, `chess_analyzer.process_pgn_background`.
@@ -58,11 +58,11 @@ Texto maestro en **`Docs/legal.md`** (Aviso Legal LSSI-CE + Privacidad RGPD/LOPD
 
 ### Reintentos ante saturación de la IA (clave)
 
-Las auditorías de autodiagnóstico (`tutor_service.audit_existing_analysis`) y las consultas al GM (`gm_consultation_service.process_consultation`) **reintentan ante fallos transitorios de Gemini** (saturación/timeout): hasta `GEMINI_TASK_RETRIES` (3) intentos esperando `GEMINI_TASK_RETRY_WAIT_SECONDS` (180) entre ellos. El borrador y los datos del formulario ya están persistidos, así que solo se repite la llamada a Gemini (Stockfish no interviene: es un análisis de conceptos, no de posiciones). Agotados los intentos, el registro queda `failed` con mensaje claro para reenviar manualmente desde el histórico.
+Las auditorías de autodiagnóstico (`tutor_service.audit_existing_analysis`) y las consultas al GM (`gm_consultation_service.process_consultation`) **reintentan ante fallos transitorios de Gemini** (saturación/timeout): hasta `GEMINI_TASK_RETRIES` (2) intentos esperando `GEMINI_TASK_RETRY_WAIT_SECONDS` (10) entre ellos. El borrador y los datos del formulario ya están persistidos, así que solo se repite la llamada a Gemini (Stockfish no interviene: es un análisis de conceptos, no de posiciones). Agotados los intentos, el registro queda `failed` con mensaje claro para reenviar manualmente desde el histórico.
 
 - **Estados en el histórico** (`frontend/src/lib/types.ts` → `gameAnalysisStatus`): `processing` → ámbar "Pendiente de Análisis" (también durante una re-auditoría, aunque haya un veredicto anterior guardado — el estado de la tarea prima sobre el feedback viejo); `completed`/`failed` **con feedback** → verde "Evaluado Correcto" / rojo "Evaluado Incorrecto" (el veredicto del GM prima sobre el flag de estado); `failed` **sin feedback** → naranja "Pendiente de reenvío por error" (falló la IA tras los reintentos; reenvío manual). El rojo queda reservado al veredicto del GM, nunca a fallos técnicos.
 - **Recuperación tras reinicio** (`cleanup_stuck_background_tasks` en `app/main.py`): al arrancar, las tareas a mitad de reintentos (con `audit_attempts`/`attempts` < máximo y recientes) se **relanzan** en un hilo daemon usando un snapshot `audit_payload` persistido con el envío; solo se marcan `failed` las agotadas o antiguas. Nunca dejan la tarea colgada sin red de seguridad.
-- **Tests**: `tests/test_endpoints_analysis.py` y `tests/test_endpoints_gm_consultations.py` cubren reintento puntual, agotamiento (attempts==3) y relanzamiento en limpieza. En tests el wait se pone a 0 vía fixture en `tests/conftest.py`.
+- **Tests**: `tests/test_endpoints_analysis.py` y `tests/test_endpoints_gm_consultations.py` cubren reintento puntual, agotamiento (attempts==2) y relanzamiento en limpieza. En tests el wait se pone a 0 vía fixture en `tests/conftest.py`.
 
 ## Levantar ambos servidores
 
@@ -136,7 +136,7 @@ powercfg /change hibernate-timeout-dc 0
 ```bash
 cmd /c "cd frontend && npm run dev"     # http://localhost:3000, redirige a /login
 cmd /c "cd frontend && npm run build"   # type-check + build de producción
-cmd /c "cd frontend && npm test"        # Jest + Testing Library (20 suites, ~166 tests)
+cmd /c "cd frontend && npm test"        # Jest + Testing Library (~168 tests)
 ```
 
 - `frontend/.env.local` debe tener `NEXT_PUBLIC_API_URL=http://127.0.0.1:8000`.
