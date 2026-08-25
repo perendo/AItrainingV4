@@ -2,8 +2,11 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Save } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 import { ReplayBoard } from "./ReplayBoard";
-import { AnalysisFormPanel } from "./AnalysisFormPanel";
+import { AnalysisFormPanel, GeminiFeedbackDisplay } from "./AnalysisFormPanel";
+import { GeminiFeedback } from "@/lib/types";
+import { useCallback, useState } from "react";
 
 interface GMGameAnalysisViewProps {
   gmGame: {
@@ -23,6 +26,12 @@ export function GMGameAnalysisView({
   gmGame,
   onComplete,
 }: GMGameAnalysisViewProps) {
+  const [feedback, setFeedback] = useState<GeminiFeedback | null>(null);
+  const handleFeedback = useCallback(
+    (f: GeminiFeedback | null) => setFeedback(f),
+    [],
+  );
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -58,9 +67,22 @@ export function GMGameAnalysisView({
             whitePlayer={gmGame.white}
             blackPlayer={gmGame.black}
             onComplete={onComplete}
+            hideFeedback
+            onFeedbackChange={handleFeedback}
           />
         </div>
       </div>
+
+      {/* Informe del GM: siempre al final, a todo ancho */}
+      {feedback && (
+        <div className="space-y-4">
+          <Separator />
+          <h2 className="text-xl font-semibold text-primary">
+            Informe del Gran Maestro
+          </h2>
+          <GeminiFeedbackDisplay feedback={feedback} />
+        </div>
+      )}
     </div>
   );
 }

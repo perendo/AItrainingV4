@@ -1,11 +1,13 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Chess } from "chess.js";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Crown,
@@ -22,9 +24,9 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { searchGmGames, listMyGames } from "@/lib/api";
-import { GMGameResponse, GameResponse } from "@/lib/types";
+import { GMGameResponse, GameResponse, GeminiFeedback } from "@/lib/types";
 import { ReplayBoard } from "./ReplayBoard";
-import { AnalysisFormPanel } from "./AnalysisFormPanel";
+import { AnalysisFormPanel, GeminiFeedbackDisplay } from "./AnalysisFormPanel";
 import { InteractiveDemo } from "./InteractiveDemo";
 
 type Mode = "GM" | "USER" | "DB";
@@ -44,6 +46,12 @@ function formatDate(iso: string): string {
 export function OwnGameAnalysisView() {
   const [mode, setMode] = useState<Mode>("GM");
   const [showDemo, setShowDemo] = useState(false);
+  const searchParams = useSearchParams();
+
+  // Desde el menú "Cómo analizar una partida" se abre la demo automáticamente.
+  useEffect(() => {
+    if (searchParams.get("leccion")) setShowDemo(true);
+  }, [searchParams]);
 
   // GM mode state
   const [searchTerm, setSearchTerm] = useState("");
@@ -66,6 +74,13 @@ export function OwnGameAnalysisView() {
   const [dbError, setDbError] = useState<string | null>(null);
   const [selectedDbGame, setSelectedDbGame] = useState<GameResponse | null>(null);
 
+  // Informe del GM emitido por el panel, para renderizarlo al final de la página.
+  const [feedback, setFeedback] = useState<GeminiFeedback | null>(null);
+  const handleFeedback = useCallback(
+    (f: GeminiFeedback | null) => setFeedback(f),
+    [],
+  );
+
   const loadDbGames = async () => {
     setDbLoading(true);
     setDbError(null);
@@ -81,6 +96,7 @@ export function OwnGameAnalysisView() {
 
   const switchMode = (m: Mode) => {
     setMode(m);
+    setFeedback(null);
     setPgnError(null);
     setSearchError(null);
     setDbError(null);
@@ -162,13 +178,13 @@ export function OwnGameAnalysisView() {
             guardadas o analiza una de tus partidas de liga/torneo pegando el PGN.
           </p>
         </div>
-        <Button
-          onClick={() => setShowDemo(true)}
-          className="gap-2 bg-amber-600 hover:bg-amber-700 text-white shadow-sm shrink-0"
-        >
-          <Sparkles className="h-4 w-4" />
-          Demo Interactiva
-        </Button>
+          <Button
+            onClick={() => setShowDemo(true)}
+            className="gap-2 bg-amber-600 hover:bg-amber-700 text-white shadow-sm shrink-0"
+          >
+            <Sparkles className="h-4 w-4" />
+            Cómo analizar una partida
+          </Button>
       </div>
 
       {showDemo ? (
@@ -458,6 +474,8 @@ export function OwnGameAnalysisView() {
               pgn={selectedGmGame.pgn}
               whitePlayer={selectedGmGame.white}
               blackPlayer={selectedGmGame.black}
+              hideFeedback
+              onFeedbackChange={handleFeedback}
             />
           </div>
         </div>
@@ -474,6 +492,8 @@ export function OwnGameAnalysisView() {
               pgn={loadedPgn}
               whitePlayer={whitePlayer.trim() || "Blancas"}
               blackPlayer={blackPlayer.trim() || "Negras"}
+              hideFeedback
+              onFeedbackChange={handleFeedback}
             />
           </div>
         </div>
@@ -490,8 +510,21 @@ export function OwnGameAnalysisView() {
               pgn={selectedDbGame.pgn_content}
               whitePlayer={selectedDbGame.white_player || "Blancas"}
               blackPlayer={selectedDbGame.black_player || "Negras"}
+              hideFeedback
+              onFeedbackChange={handleFeedback}
             />
           </div>
+        </div>
+      )}
+
+      {/* Informe del GM: siempre al final, a todo ancho */}
+      {gameLoaded && feedback && (
+        <div className="space-y-4">
+          <Separator />
+          <h2 className="text-xl font-semibold text-primary">
+            Informe del Gran Maestro
+          </h2>
+          <GeminiFeedbackDisplay feedback={feedback} />
         </div>
       )}
         </>

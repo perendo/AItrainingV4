@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Loader2, ChevronLeft, Crown, UserRound, FileDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { getGameAnalysis, getGmGameById } from "@/lib/api";
 import {
   UserGameAnalysisResponse,
@@ -13,10 +14,11 @@ import {
   gameAnalysisStatus,
   GameAnalysisStatus,
 } from "@/lib/types";
-import { LichessReplay } from "@/components/analysis/LichessReplay";
+import { ReplayBoard } from "@/components/analysis/ReplayBoard";
 import { parsePgnHeaders } from "@/components/analysis/LichessReplay";
 import {
   AnalysisFormPanel,
+  GeminiFeedbackDisplay,
   AnalysisFormState,
 } from "@/components/analysis/AnalysisFormPanel";
 import { PrintAnalysisReport } from "@/components/analysis/PrintAnalysisReport";
@@ -83,6 +85,12 @@ export default function HistoricoDetailPage() {
   const [gmGame, setGmGame] = useState<GMGameResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<GeminiFeedback | null>(null);
+
+  const handleFeedback = useCallback(
+    (f: GeminiFeedback | null) => setFeedback(f),
+    [],
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -194,7 +202,9 @@ export default function HistoricoDetailPage() {
               {white} vs {black}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Analizado el {new Date(analysis.created_at).toLocaleString("es-ES")}
+              {gmGame
+                ? `${gmGame.event} · ${gmGame.year} · ${gmGame.result} · GM: ${gmGame.gm_name}`
+                : `Analizado el ${new Date(analysis.created_at).toLocaleString("es-ES")}`}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -227,23 +237,42 @@ export default function HistoricoDetailPage() {
 
         {pgn ? (
           <div className="space-y-8">
-            {/* Tablero + notación estilo Lichess (notación a la derecha) */}
-            <LichessReplay pgn={pgn} layout="side" />
-            {/* Autodiagnóstico y auditoría del Gran Maestro */}
-            <div className="mx-auto w-full max-w-3xl">
-              <AnalysisFormPanel
-                gameType={gameType}
-                gmGameId={gameType === "GM" ? analysis.game_id : null}
-                pgn={pgn}
-                whitePlayer={white}
-                blackPlayer={black}
-                analysisId={analysis.id}
-                initialForm={initialForm}
-                initialFeedback={initialFeedback}
-                submitDisabled={alreadyEvaluatedCorrect}
-                onComplete={() => load()}
-              />
+            {/* Layout de 2 columnas igual que el análisis de partida de GM */}
+            <div className="flex flex-col lg:flex-row gap-6">
+              {/* Columna izquierda: tablero (55%) */}
+              <div className="w-full lg:w-[55%]">
+                <ReplayBoard pgn={pgn} />
+              </div>
+
+              {/* Columna derecha: formulario de autodiagnóstico (45%) */}
+              <div className="w-full lg:w-[45%]">
+                <AnalysisFormPanel
+                  gameType={gameType}
+                  gmGameId={gameType === "GM" ? analysis.game_id : null}
+                  pgn={pgn}
+                  whitePlayer={white}
+                  blackPlayer={black}
+                  analysisId={analysis.id}
+                  initialForm={initialForm}
+                  initialFeedback={initialFeedback}
+                  submitDisabled={alreadyEvaluatedCorrect}
+                  onComplete={() => load()}
+                  hideFeedback
+                  onFeedbackChange={handleFeedback}
+                />
+              </div>
             </div>
+
+            {/* Informe del GM: siempre al final, a todo ancho */}
+            {feedback && (
+              <div className="space-y-4">
+                <Separator />
+                <h2 className="text-xl font-semibold text-primary">
+                  Informe del Gran Maestro
+                </h2>
+                <GeminiFeedbackDisplay feedback={feedback} />
+              </div>
+            )}
           </div>
         ) : (
           <div className="rounded-xl border bg-white p-10 text-center shadow-sm dark:bg-slate-900">

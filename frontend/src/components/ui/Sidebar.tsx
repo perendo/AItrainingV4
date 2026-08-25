@@ -4,12 +4,13 @@ import Link from "next/link"
 import { useEffect } from "react"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils" 
-import { Trophy, Brain, Target, User, LogOut, History, Gamepad2, ClipboardList, MessageCircleQuestion, Crown, DoorOpen, X } from "lucide-react"
+import { Trophy, Brain, Target, User, LogOut, History, Gamepad2, ClipboardList, MessageCircleQuestion, Crown, DoorOpen, X, BookOpen } from "lucide-react"
 import { useGMConsultation } from "@/context/GMConsultationContext"
 import { exitToDesktop } from "@/lib/kiosk"
 import { LEGAL_LINKS, CONTACT_EMAIL } from "@/lib/legal"
 
 const menuOptions = [
+  { name: "Cómo analizar una partida", href: "/analisis?leccion=1", icon: BookOpen },
   { name: "Mis Partidas", href: "/partidas", icon: Trophy },
   { name: "Analizar Partida", href: "/analisis", icon: ClipboardList },
   { name: "Jugar 1 contra 1", href: "/jugar", icon: Gamepad2 },

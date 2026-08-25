@@ -466,6 +466,7 @@ export function LichessReplay({
         title={playing ? "Pausar partida" : "Reproducir partida"}
         onClick={handlePlayPause}
         disabled={totalPlies === 0}
+        data-tour="replay-play"
       >
         {playing ? (
           <Pause className="h-4 w-4" />

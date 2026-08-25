@@ -61,6 +61,17 @@ interface AnalysisFormPanelProps {
   initialFeedback?: GeminiFeedback | null;
   submitDisabled?: boolean;
   onComplete?: () => void;
+  /** Si true, el informe del GM NO se renderiza aquí (lo renderiza el padre al final). */
+  hideFeedback?: boolean;
+  /** Notifica al padre el feedback activo para que lo renderice donde corresponda. */
+  onFeedbackChange?: (feedback: GeminiFeedback | null) => void;
+  /** Tour: fuerza un bloque concreto abierto (ignora el toggle interno). */
+  openBlock?: string | null;
+  /** Tour: valores de ejemplo mostrados en los textareas (solo lectura). */
+  controlledValues?: AnalysisFormState | null;
+  /** Tour: desactiva el envío real y usa onDemoSubmit. */
+  demoMode?: boolean;
+  onDemoSubmit?: () => void;
 }
 
 const EMPTY_FORM: AnalysisFormState = {
@@ -94,6 +105,12 @@ export function AnalysisFormPanel({
   initialFeedback,
   submitDisabled,
   onComplete,
+  hideFeedback,
+  onFeedbackChange,
+  openBlock,
+  controlledValues,
+  demoMode,
+  onDemoSubmit,
 }: AnalysisFormPanelProps) {
   const { trackAnalysis } = useGMConsultation();
   const [form, setForm] = useState<AnalysisFormState>(() => ({
@@ -109,14 +126,44 @@ export function AnalysisFormPanel({
   const [draftSavedAt, setDraftSavedAt] = useState<string | null>(null);
   const [openBlocks, setOpenBlocks] = useState<Record<string, boolean>>({});
 
+  // Feedback activo: tras el polling tiene prioridad el recién evaluado.
+  const activeFeedback = useMemo<GeminiFeedback | null>(() => {
+    if (analysisResult?.gemini_feedback) {
+      try {
+        return JSON.parse(analysisResult.gemini_feedback) as GeminiFeedback;
+      } catch {
+        return null;
+      }
+    }
+    return initialFeedback ?? null;
+  }, [analysisResult, initialFeedback]);
+
+  // Emitimos el feedback al padre para que lo renderice al final de la página.
+  const onFeedbackChangeRef = useRef(onFeedbackChange);
+  useEffect(() => {
+    onFeedbackChangeRef.current = onFeedbackChange;
+  });
+  useEffect(() => {
+    onFeedbackChangeRef.current?.(activeFeedback);
+  }, [activeFeedback]);
+
   const draftKey = useMemo(() => {
     if (analysisId) return `${DRAFT_KEY_PREFIX}${analysisId}`;
     if (gameType === "GM" && gmGameId) return `${DRAFT_KEY_PREFIX}gm_${gmGameId}`;
     return `${DRAFT_KEY_PREFIX}user_${hashCode(pgn ?? "")}`;
   }, [analysisId, gameType, gmGameId, pgn]);
 
-  const toggleBlock = (key: string) =>
+  // En modo tour, el bloque abierto lo controla el padre.
+  const openState = openBlock != null ? { [openBlock]: true } : openBlocks;
+
+  const toggleBlock = (key: string) => {
+    if (openBlock != null) return;
     setOpenBlocks((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  // En modo tour, los textareas muestran los valores de ejemplo (solo lectura).
+  const values = controlledValues ?? form;
+  const readOnly = controlledValues != null;
 
   // Pre-fill the form when an existing analysis (histórico) is loaded.
   useEffect(() => {
@@ -240,25 +287,26 @@ export function AnalysisFormPanel({
       <Card>
         <button
           type="button"
+          data-tour="block-1"
           onClick={() => toggleBlock("fases")}
           className="flex w-full items-center justify-between p-4 text-left cursor-pointer hover:bg-muted/50 transition-colors rounded-t-lg"
         >
           <div className="flex items-center gap-2">
             <BookOpen className="h-4 w-4 text-primary" />
             <span className="font-semibold text-sm">Bloque 1 — Fases</span>
-            {!openBlocks["fases"] && (
+            {!openState["fases"] && (
               <span className="text-xs text-muted-foreground ml-1">
                 (Apertura · Medio Juego · Final)
               </span>
             )}
           </div>
-          {openBlocks["fases"] ? (
+          {openState["fases"] ? (
             <ChevronUp className="h-4 w-4 shrink-0 text-muted-foreground" />
           ) : (
             <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
           )}
         </button>
-        {openBlocks["fases"] && (
+        {openState["fases"] && (
           <CardContent className="pt-0 pb-4 px-4 space-y-4 border-t">
             <div>
               <Label htmlFor="apertura" className="block text-sm font-medium mb-1">
@@ -266,7 +314,7 @@ export function AnalysisFormPanel({
               </Label>
               <Textarea
                 id="apertura"
-                value={form.fases.apertura}
+                value={values.fases.apertura} readOnly={readOnly}
                 onChange={(e) =>
                   setForm((prev) => ({
                     ...prev,
@@ -284,7 +332,7 @@ export function AnalysisFormPanel({
               </Label>
               <Textarea
                 id="medio_juego"
-                value={form.fases.medio_juego}
+                value={values.fases.medio_juego} readOnly={readOnly}
                 onChange={(e) =>
                   setForm((prev) => ({
                     ...prev,
@@ -302,7 +350,7 @@ export function AnalysisFormPanel({
               </Label>
               <Textarea
                 id="final"
-                value={form.fases.final}
+                value={values.fases.final} readOnly={readOnly}
                 onChange={(e) =>
                   setForm((prev) => ({
                     ...prev,
@@ -322,25 +370,26 @@ export function AnalysisFormPanel({
       <Card>
         <button
           type="button"
+          data-tour="block-2"
           onClick={() => toggleBlock("criticas")}
           className="flex w-full items-center justify-between p-4 text-left cursor-pointer hover:bg-muted/50 transition-colors rounded-t-lg"
         >
           <div className="flex items-center gap-2">
             <HelpCircle className="h-4 w-4 text-primary" />
             <span className="font-semibold text-sm">Bloque 2 — Preguntas Críticas</span>
-            {!openBlocks["criticas"] && (
+            {!openState["criticas"] && (
               <span className="text-xs text-muted-foreground ml-1">
                 (Pieza · Amenaza)
               </span>
             )}
           </div>
-          {openBlocks["criticas"] ? (
+          {openState["criticas"] ? (
             <ChevronUp className="h-4 w-4 shrink-0 text-muted-foreground" />
           ) : (
             <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
           )}
         </button>
-        {openBlocks["criticas"] && (
+        {openState["criticas"] && (
           <CardContent className="pt-0 pb-4 px-4 space-y-4 border-t">
             <div>
               <Label htmlFor="pieza_a_mejorar" className="block text-sm font-medium mb-1">
@@ -348,7 +397,7 @@ export function AnalysisFormPanel({
               </Label>
               <Textarea
                 id="pieza_a_mejorar"
-                value={form.momentos.pieza_a_mejorar}
+                value={values.momentos.pieza_a_mejorar} readOnly={readOnly}
                 onChange={(e) =>
                   setForm((prev) => ({
                     ...prev,
@@ -366,7 +415,7 @@ export function AnalysisFormPanel({
               </Label>
               <Textarea
                 id="amenaza_rival"
-                value={form.momentos.amenaza_rival}
+                value={values.momentos.amenaza_rival} readOnly={readOnly}
                 onChange={(e) =>
                   setForm((prev) => ({
                     ...prev,
@@ -386,25 +435,26 @@ export function AnalysisFormPanel({
       <Card>
         <button
           type="button"
+          data-tour="block-3"
           onClick={() => toggleBlock("posicionales")}
           className="flex w-full items-center justify-between p-4 text-left cursor-pointer hover:bg-muted/50 transition-colors rounded-t-lg"
         >
           <div className="flex items-center gap-2">
             <Layers className="h-4 w-4 text-primary" />
             <span className="font-semibold text-sm">Bloque 3 — Factores Posicionales</span>
-            {!openBlocks["posicionales"] && (
+            {!openState["posicionales"] && (
               <span className="text-xs text-muted-foreground ml-1">
                 (Material · Rey · Espacio)
               </span>
             )}
           </div>
-          {openBlocks["posicionales"] ? (
+          {openState["posicionales"] ? (
             <ChevronUp className="h-4 w-4 shrink-0 text-muted-foreground" />
           ) : (
             <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
           )}
         </button>
-        {openBlocks["posicionales"] && (
+        {openState["posicionales"] && (
           <CardContent className="pt-0 pb-4 px-4 space-y-4 border-t">
             <div>
               <Label htmlFor="material" className="block text-sm font-medium mb-1">
@@ -412,7 +462,7 @@ export function AnalysisFormPanel({
               </Label>
               <Textarea
                 id="material"
-                value={form.factores.material}
+                value={values.factores.material} readOnly={readOnly}
                 onChange={(e) =>
                   setForm((prev) => ({
                     ...prev,
@@ -430,7 +480,7 @@ export function AnalysisFormPanel({
               </Label>
               <Textarea
                 id="seguridad_rey"
-                value={form.factores.seguridad_rey}
+                value={values.factores.seguridad_rey} readOnly={readOnly}
                 onChange={(e) =>
                   setForm((prev) => ({
                     ...prev,
@@ -448,7 +498,7 @@ export function AnalysisFormPanel({
               </Label>
               <Textarea
                 id="espacio"
-                value={form.factores.espacio}
+                value={values.factores.espacio} readOnly={readOnly}
                 onChange={(e) =>
                   setForm((prev) => ({
                     ...prev,
@@ -468,25 +518,26 @@ export function AnalysisFormPanel({
       <Card>
         <button
           type="button"
+          data-tour="block-4"
           onClick={() => toggleBlock("conclusiones")}
           className="flex w-full items-center justify-between p-4 text-left cursor-pointer hover:bg-muted/50 transition-colors rounded-t-lg"
         >
           <div className="flex items-center gap-2">
             <ClipboardCheck className="h-4 w-4 text-primary" />
             <span className="font-semibold text-sm">Bloque 4 — Conclusiones</span>
-            {!openBlocks["conclusiones"] && (
+            {!openState["conclusiones"] && (
               <span className="text-xs text-muted-foreground ml-1">
                 (Plan · Error · Idea)
               </span>
             )}
           </div>
-          {openBlocks["conclusiones"] ? (
+          {openState["conclusiones"] ? (
             <ChevronUp className="h-4 w-4 shrink-0 text-muted-foreground" />
           ) : (
             <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
           )}
         </button>
-        {openBlocks["conclusiones"] && (
+        {openState["conclusiones"] && (
           <CardContent className="pt-0 pb-4 px-4 space-y-4 border-t">
             <div>
               <Label htmlFor="conclusiones" className="block text-sm font-medium mb-1">
@@ -494,7 +545,7 @@ export function AnalysisFormPanel({
               </Label>
               <Textarea
                 id="conclusiones"
-                value={form.conclusiones.plan_estrategico}
+                value={values.conclusiones.plan_estrategico} readOnly={readOnly}
                 onChange={(e) =>
                   setForm((prev) => ({
                     ...prev,
@@ -514,6 +565,7 @@ export function AnalysisFormPanel({
       </Card>
 
       {/* Action Buttons */}
+      {!demoMode && (
       <div className="flex flex-col sm:flex-row gap-3 print:hidden">
         <Button
           onClick={handleSaveDraft}
@@ -537,8 +589,9 @@ export function AnalysisFormPanel({
           </Button>
         )}
       </div>
+      )}
 
-      {draftSavedAt && (
+      {!demoMode && draftSavedAt && (
         <Badge variant="secondary" className="text-xs w-fit">
           <Save className="mr-1 h-3 w-3" />
           Borrador guardado{" "}
@@ -550,7 +603,14 @@ export function AnalysisFormPanel({
       )}
 
       <Button
-        onClick={handleSubmit}
+        onClick={() => {
+          if (demoMode) {
+            onDemoSubmit?.();
+            return;
+          }
+          handleSubmit();
+        }}
+        data-tour="submit"
         disabled={status === "loading" || isPolling || submitDisabled}
         title={
           submitDisabled
@@ -591,27 +651,13 @@ export function AnalysisFormPanel({
       )}
 
       {/* Results / Auditoría de Gemini */}
-      {initialFeedback && !analysisResult && (
+      {!hideFeedback && activeFeedback && (
         <div className="space-y-4">
           <Separator />
           <h2 className="text-xl font-semibold text-primary">
             Auditoría del Gran Maestro
           </h2>
-          <GeminiFeedbackDisplay feedback={initialFeedback} />
-        </div>
-      )}
-
-      {analysisResult && analysisResult.gemini_feedback && (
-        <div className="space-y-4">
-          <Separator />
-          <h2 className="text-xl font-semibold text-primary">
-            Auditoría del Gran Maestro
-          </h2>
-          <GeminiFeedbackDisplay
-            feedback={
-              JSON.parse(analysisResult.gemini_feedback) as GeminiFeedback
-            }
-          />
+          <GeminiFeedbackDisplay feedback={activeFeedback} />
         </div>
       )}
     </div>
