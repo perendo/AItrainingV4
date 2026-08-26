@@ -294,7 +294,8 @@ export function EndgamePracticeBoard({
         setStatus(result);
         if (
           (result === "won" && lesson.target_result === "win") ||
-          (result === "draw" && lesson.target_result === "draw")
+          ((result === "draw" || result === "stalemate") &&
+            lesson.target_result === "draw")
         ) {
           if (!masteredCalledRef.current) {
             masteredCalledRef.current = true;
