@@ -18,8 +18,9 @@ import {
   CheckCircle2,
   MessageSquarePlus,
 } from "lucide-react";
-import { saveAnalysisDraft } from "@/lib/api";
+import { apiFetch, ApiError } from "@/lib/api";
 import { useChessSounds } from "@/hooks/useChessSounds";
+import type { TaskResponse } from "@/lib/types";
 
 const DynamicChessboard = dynamic(
   () => import("react-chessboard").then((mod) => ({ default: mod.Chessboard })),
@@ -257,16 +258,25 @@ export function LiveGameBoard() {
 
       const pgn = `${headerLines}\n${pgnParts.join(" ")}`;
 
-      const analysis = await saveAnalysisDraft({
-        game_type: "USER",
-        white_player: whiteName,
-        black_player: blackName,
-        pgn,
+      const blob = new Blob([pgn], { type: "application/x-chess-pgn" });
+      const filename = `1v1_${whiteName}_vs_${blackName}_${today}.pgn`;
+      const file = new File([blob], filename, { type: "application/x-chess-pgn" });
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      await apiFetch<TaskResponse>("/api/v1/games/upload-pgn", {
+        method: "POST",
+        body: formData,
       });
 
-      router.push(`/historico/${analysis.id}`);
+      router.push("/partidas");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al registrar la partida.");
+      if (err instanceof ApiError) {
+        setError(err.message);
+      } else {
+        setError(err instanceof Error ? err.message : "Error al registrar la partida.");
+      }
       setSaving(false);
     }
   };
@@ -288,7 +298,40 @@ export function LiveGameBoard() {
         <div className="w-full lg:w-[55%] space-y-4">
           <Card>
             <CardContent className="p-4">
-              <div ref={boardContainerRef} className="w-full aspect-square max-w-[720px] mx-auto">
+              <div
+                ref={boardContainerRef}
+                className="w-full aspect-square max-w-[720px] mx-auto"
+                onPaste={(e) => {
+                  const target = e.target as HTMLElement;
+                  if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") return;
+                  const text = e.clipboardData?.getData("text") || "";
+                  if (!text.trim()) return;
+                  const g = new Chess();
+                  try {
+                    g.loadPgn(text);
+                  } catch {
+                    return;
+                  }
+                  const history = g.history();
+                  if (history.length === 0) return;
+                  e.preventDefault();
+                  e.stopPropagation();
+                  gameRef.current = new Chess();
+                  for (const san of history) {
+                    gameRef.current.move(san);
+                  }
+                  const headers = g.getHeaders();
+                  const white = headers.White;
+                  const black = headers.Black;
+                  if (white && white !== "?" && white !== "Blancas") setWhitePlayer(white);
+                  if (black && black !== "?" && black !== "Negras") setBlackPlayer(black);
+                  setFen(gameRef.current.fen());
+                  setLastMove(null);
+                  setError(null);
+                  setComments({});
+                  setGameResult("auto");
+                }}
+              >
                 <DynamicChessboard
                   position={fen}
                   onPieceDrop={handleDrop}
@@ -465,7 +508,7 @@ export function LiveGameBoard() {
             ) : (
               <>
                 <Flag className="mr-2 h-5 w-5" />
-                Finalizar y Analizar esta partida
+                Finalizar y Guardar
               </>
             )}
           </Button>
@@ -473,8 +516,7 @@ export function LiveGameBoard() {
           {hasMoves && !saving && (
             <p className="flex items-center gap-2 text-xs text-muted-foreground">
               <Play className="h-3 w-3" />
-              Al finalizar, la partida se guardará en el Histórico como &quot;Pendiente de Análisis&quot;
-              para que la evalúes y la envíes al Gran Maestro.
+              Al finalizar, la partida se analizará con Stockfish y se guardará en tu historial de partidas.
             </p>
           )}
 
