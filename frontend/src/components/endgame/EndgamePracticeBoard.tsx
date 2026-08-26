@@ -209,7 +209,8 @@ export function EndgamePracticeBoard({
           setStatus(result);
           if (
             (result === "won" && lesson.target_result === "win") ||
-            (result === "draw" && lesson.target_result === "draw")
+            ((result === "draw" || result === "stalemate") &&
+              lesson.target_result === "draw")
           ) {
             if (!masteredCalledRef.current) {
               masteredCalledRef.current = true;
@@ -356,7 +357,13 @@ export function EndgamePracticeBoard({
         );
       case "draw":
       case "stalemate":
-        return (
+        return lesson.target_result === "draw" ? (
+          <Alert className="border-green-500 bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-300">
+            <CheckCircle className="h-4 w-4" />
+            <AlertTitle className="text-lg font-bold">¡Tablas!</AlertTitle>
+            <AlertDescription>{describeResult(lesson.target_result, status)}</AlertDescription>
+          </Alert>
+        ) : (
           <Alert className="border-amber-500 bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300">
             <CheckCircle className="h-4 w-4" />
             <AlertTitle className="text-lg font-bold">Tablas</AlertTitle>
