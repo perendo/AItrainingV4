@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { Chess } from "chess.js";
@@ -43,8 +43,7 @@ export function LiveGameBoard() {
   const [error, setError] = useState<string | null>(null);
 
   const moves = useMemo(() => {
-    const g = new Chess(fen);
-    return g.history({ verbose: true });
+    return gameRef.current.history({ verbose: true });
   }, [fen]);
 
   const game = useMemo(() => new Chess(fen), [fen]);
@@ -73,7 +72,12 @@ export function LiveGameBoard() {
 
   const pgnPreview = useMemo(() => {
     try {
-      const g = new Chess(fen);
+      const history = gameRef.current.history();
+      if (history.length === 0) return "";
+      const g = new Chess();
+      for (const san of history) {
+        g.move(san);
+      }
       g.setHeader("White", whitePlayer.trim() || "Blancas");
       g.setHeader("Black", blackPlayer.trim() || "Negras");
       g.setHeader("Result", resultFor(g));
@@ -90,6 +94,38 @@ export function LiveGameBoard() {
     if (game.isDraw()) return "Tablas";
     return game.turn() === "w" ? "Juegan Blancas" : "Juegan Negras";
   }, [game]);
+
+  // Ctrl+V para pegar PGN desde portapapeles
+  useEffect(() => {
+    const handlePaste = (e: ClipboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") return;
+      const text = e.clipboardData?.getData("text") || "";
+      if (!text.trim()) return;
+      const g = new Chess();
+      try {
+        g.loadPgn(text);
+      } catch {
+        return;
+      }
+      const history = g.history();
+      if (history.length === 0) return;
+      e.preventDefault();
+      gameRef.current = new Chess();
+      for (const san of history) {
+        gameRef.current.move(san);
+      }
+      const white = g.getHeader("White");
+      const black = g.getHeader("Black");
+      if (white && white !== "?" && white !== "Blancas") setWhitePlayer(white);
+      if (black && black !== "?" && black !== "Negras") setBlackPlayer(black);
+      setFen(gameRef.current.fen());
+      setLastMove(null);
+      setError(null);
+    };
+    document.addEventListener("paste", handlePaste);
+    return () => document.removeEventListener("paste", handlePaste);
+  }, []);
 
   const handleDrop = (
     sourceSquare: string,
