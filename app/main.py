@@ -270,10 +270,10 @@ class RequestLogMiddleware(BaseHTTPMiddleware):
         start = time.time()
         response = await call_next(request)
         if request.url.path.startswith(f"{settings.API_V1_STR}"):
-            logger_req = logging.getLogger("request_log")
-            logger_req.info(
-                f"{request.method} {request.url.path} -> {response.status_code} "
-                f"({round((time.time() - start) * 1000)} ms)"
+            print(
+                f"[REQLOG] {request.method} {request.url.path} -> {response.status_code} "
+                f"({round((time.time() - start) * 1000)} ms)",
+                flush=True,
             )
         return response
 
