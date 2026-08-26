@@ -131,22 +131,19 @@ export function LiveGameBoard() {
   const lastMoveIdx = moves.length > 0 ? moves.length - 1 : -1;
   const existingComment = lastMoveIdx >= 0 ? comments[lastMoveIdx] : undefined;
 
-  // Ctrl+V para pegar PGN desde portapapeles
-  const handlePaste = useCallback(
-    (e: ClipboardEvent) => {
-      const target = e.target as HTMLElement;
-      if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") return;
-      const text = e.clipboardData?.getData("text") || "";
-      if (!text.trim()) return;
+  const [pgnInput, setPgnInput] = useState("");
+
+  const loadPgnFromText = useCallback(
+    (text: string) => {
+      if (!text.trim()) return false;
       const g = new Chess();
       try {
         g.loadPgn(text);
       } catch {
-        return;
+        return false;
       }
       const history = g.history();
-      if (history.length === 0) return;
-      e.preventDefault();
+      if (history.length === 0) return false;
       gameRef.current = new Chess();
       for (const san of history) {
         gameRef.current.move(san);
@@ -161,14 +158,51 @@ export function LiveGameBoard() {
       setError(null);
       setComments({});
       setGameResult("auto");
+      setPgnInput("");
+      return true;
     },
     []
+  );
+
+  const handlePgnBlur = useCallback(
+    (e: React.FocusEvent<HTMLTextAreaElement>) => {
+      const text = e.currentTarget.value;
+      if (text.trim() && text !== pgnPreview) {
+        loadPgnFromText(text);
+      } else {
+        setPgnInput("");
+      }
+    },
+    [pgnPreview, loadPgnFromText]
+  );
+
+  const handlePgnChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      setPgnInput(e.currentTarget.value);
+    },
+    []
+  );
+
+  // Ctrl+V global (fuera de inputs): delega en loadPgnFromText
+  const handlePaste = useCallback(
+    (e: ClipboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") return;
+      const text = e.clipboardData?.getData("text") || "";
+      if (loadPgnFromText(text)) e.preventDefault();
+    },
+    [loadPgnFromText]
   );
 
   useEffect(() => {
     document.addEventListener("paste", handlePaste);
     return () => document.removeEventListener("paste", handlePaste);
   }, [handlePaste]);
+
+  // Sincronizar pgnInput con pgnPreview cuando no hay input del usuario
+  useEffect(() => {
+    if (!pgnInput) setPgnInput(pgnPreview);
+  }, [pgnPreview, pgnInput]);
 
   const handleDrop = (
     sourceSquare: string,
@@ -301,36 +335,6 @@ export function LiveGameBoard() {
               <div
                 ref={boardContainerRef}
                 className="w-full aspect-square max-w-[720px] mx-auto"
-                onPaste={(e) => {
-                  const target = e.target as HTMLElement;
-                  if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") return;
-                  const text = e.clipboardData?.getData("text") || "";
-                  if (!text.trim()) return;
-                  const g = new Chess();
-                  try {
-                    g.loadPgn(text);
-                  } catch {
-                    return;
-                  }
-                  const history = g.history();
-                  if (history.length === 0) return;
-                  e.preventDefault();
-                  e.stopPropagation();
-                  gameRef.current = new Chess();
-                  for (const san of history) {
-                    gameRef.current.move(san);
-                  }
-                  const headers = g.getHeaders();
-                  const white = headers.White;
-                  const black = headers.Black;
-                  if (white && white !== "?" && white !== "Blancas") setWhitePlayer(white);
-                  if (black && black !== "?" && black !== "Negras") setBlackPlayer(black);
-                  setFen(gameRef.current.fen());
-                  setLastMove(null);
-                  setError(null);
-                  setComments({});
-                  setGameResult("auto");
-                }}
               >
                 <DynamicChessboard
                   position={fen}
@@ -486,9 +490,11 @@ export function LiveGameBoard() {
               )}
 
               <Textarea
-                readOnly
-                value={pgnPreview}
+                value={pgnInput}
+                onChange={handlePgnChange}
+                onBlur={handlePgnBlur}
                 rows={6}
+                placeholder="Pega un PGN aquí y pulsa Tab/Click fuera para cargarlo..."
                 className="font-mono text-xs"
               />
             </CardContent>
