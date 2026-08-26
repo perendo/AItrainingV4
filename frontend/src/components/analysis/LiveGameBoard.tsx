@@ -115,8 +115,9 @@ export function LiveGameBoard() {
       for (const san of history) {
         gameRef.current.move(san);
       }
-      const white = g.getHeader("White");
-      const black = g.getHeader("Black");
+      const headers = g.getHeaders();
+      const white = headers.White;
+      const black = headers.Black;
       if (white && white !== "?" && white !== "Blancas") setWhitePlayer(white);
       if (black && black !== "?" && black !== "Negras") setBlackPlayer(black);
       setFen(gameRef.current.fen());
