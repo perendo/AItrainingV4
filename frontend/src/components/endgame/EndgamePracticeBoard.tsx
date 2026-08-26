@@ -214,7 +214,9 @@ export function EndgamePracticeBoard({
           ) {
             if (!masteredCalledRef.current) {
               masteredCalledRef.current = true;
-              updateEndgameProgress(lesson.slug, "mastered", 0).catch(() => {});
+              updateEndgameProgress(lesson.slug, "mastered", 0).catch((e) =>
+                console.error("[EndgamePractice] Fallo al marcar mastered:", e),
+              );
               onMastered?.();
             }
           }
@@ -296,7 +298,9 @@ export function EndgamePracticeBoard({
         ) {
           if (!masteredCalledRef.current) {
             masteredCalledRef.current = true;
-            updateEndgameProgress(lesson.slug, "mastered", 0).catch(() => {});
+            updateEndgameProgress(lesson.slug, "mastered", 0).catch((e) =>
+              console.error("[EndgamePractice] Fallo al marcar mastered:", e),
+            );
             onMastered?.();
           }
         }

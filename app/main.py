@@ -260,6 +260,25 @@ app.add_middleware(
 # 2. Inyectamos el middleware global de errores
 app.add_middleware(GlobalExceptionMiddleware)
 
+# 2b. Logging de peticiones (debug): registra method, path y status en el journal.
+import time
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+
+class RequestLogMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        start = time.time()
+        response = await call_next(request)
+        if request.url.path.startswith(f"{settings.API_V1_STR}"):
+            logger_req = logging.getLogger("request_log")
+            logger_req.info(
+                f"{request.method} {request.url.path} -> {response.status_code} "
+                f"({round((time.time() - start) * 1000)} ms)"
+            )
+        return response
+
+app.add_middleware(RequestLogMiddleware)
+
 # 3. Registramos las rutas de la API unificadas
 app.include_router(api_router, prefix=settings.API_V1_STR)
 

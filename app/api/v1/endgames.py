@@ -222,7 +222,13 @@ def update_lesson_progress(
         )
         db.add(progress)
 
-    progress.status = LessonStatus(payload.status.value)
+    # No degradar un progreso ya dominado: reabrir la teoría (markInProgress
+    # envía "in_progress") no debe borrar un "mastered" conseguido en la práctica.
+    from app.models.endgame import LessonStatus as _LS
+    if progress.status == _LS.MASTERED and payload.status != _LS.MASTERED:
+        pass
+    else:
+        progress.status = LessonStatus(payload.status.value)
     progress.last_listened_second = payload.last_listened_second
     db.commit()
     db.refresh(progress)

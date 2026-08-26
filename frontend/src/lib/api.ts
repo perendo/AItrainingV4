@@ -70,6 +70,9 @@ export async function apiFetch<T>(
       ...rest,
       headers,
       body: requestBody,
+      // keepalive: el POST de progreso debe llegar aunque el usuario navegue
+      // justo después de completar la práctica (evita que el fetch se cancele).
+      keepalive: true,
     });
   } catch (err) {
     // Fallo de red / backend apagado / CORS bloqueado: fetch lanza TypeError "Failed to fetch"
