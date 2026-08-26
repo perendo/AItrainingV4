@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { Chess } from "chess.js";
@@ -16,6 +16,7 @@ import {
   Loader2,
   Play,
   CheckCircle2,
+  MessageSquarePlus,
 } from "lucide-react";
 import { saveAnalysisDraft } from "@/lib/api";
 import { useChessSounds } from "@/hooks/useChessSounds";
@@ -31,9 +32,19 @@ function resultFor(g: Chess): string {
   return "*";
 }
 
+const RESULT_OPTIONS = [
+  { value: "auto", label: "Auto (detectar)" },
+  { value: "1-0", label: "1-0  Blancas" },
+  { value: "0-1", label: "0-1  Negras" },
+  { value: "1/2-1/2", label: "1/2-1/2  Tablas" },
+  { value: "*", label: "*  Sin resultado" },
+];
+
 export function LiveGameBoard() {
   const router = useRouter();
   const gameRef = useRef(new Chess());
+  const boardContainerRef = useRef<HTMLDivElement>(null);
+  const commentInputRef = useRef<HTMLInputElement>(null);
   const { playMoveSound } = useChessSounds();
   const [fen, setFen] = useState(gameRef.current.fen());
   const [whitePlayer, setWhitePlayer] = useState("");
@@ -41,6 +52,9 @@ export function LiveGameBoard() {
   const [lastMove, setLastMove] = useState<[string, string] | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [gameResult, setGameResult] = useState("auto");
+  const [comments, setComments] = useState<Record<number, string>>({});
+  const [commentText, setCommentText] = useState("");
 
   const moves = useMemo(() => {
     return gameRef.current.history({ verbose: true });
@@ -51,41 +65,51 @@ export function LiveGameBoard() {
   const groupedMoves = useMemo(() => {
     const groups: Array<{
       moveNumber: number;
-      white?: { san: string };
-      black?: { san: string };
+      white?: { san: string; idx: number };
+      black?: { san: string; idx: number };
     }> = [];
     moves.forEach((move, i) => {
       const moveNumber = Math.floor(i / 2) + 1;
       if (move.color === "w") {
-        groups.push({ moveNumber, white: { san: move.san } });
+        groups.push({ moveNumber, white: { san: move.san, idx: i } });
       } else {
         const last = groups[groups.length - 1];
         if (last && last.moveNumber === moveNumber) {
-          last.black = { san: move.san };
+          last.black = { san: move.san, idx: i };
         } else {
-          groups.push({ moveNumber, black: { san: move.san } });
+          groups.push({ moveNumber, black: { san: move.san, idx: i } });
         }
       }
     });
     return groups;
   }, [moves]);
 
+  const effectiveResult = useMemo(() => {
+    if (gameResult !== "auto") return gameResult;
+    return resultFor(game);
+  }, [gameResult, game]);
+
   const pgnPreview = useMemo(() => {
     try {
       const history = gameRef.current.history();
       if (history.length === 0) return "";
-      const g = new Chess();
-      for (const san of history) {
-        g.move(san);
+      const parts: string[] = [];
+      for (let i = 0; i < history.length; i++) {
+        const san = history[i];
+        if (i % 2 === 0) {
+          parts.push(`${Math.floor(i / 2) + 1}.`);
+        }
+        parts.push(san);
+        if (comments[i]) {
+          parts.push(`{${comments[i]}}`);
+        }
       }
-      g.setHeader("White", whitePlayer.trim() || "Blancas");
-      g.setHeader("Black", blackPlayer.trim() || "Negras");
-      g.setHeader("Result", resultFor(g));
-      return g.pgn();
+      parts.push(effectiveResult);
+      return parts.join(" ");
     } catch {
       return "";
     }
-  }, [fen, whitePlayer, blackPlayer]);
+  }, [fen, whitePlayer, blackPlayer, comments, effectiveResult]);
 
   const status = useMemo(() => {
     if (game.isCheckmate()) {
@@ -95,9 +119,20 @@ export function LiveGameBoard() {
     return game.turn() === "w" ? "Juegan Blancas" : "Juegan Negras";
   }, [game]);
 
+  const addComment = useCallback(() => {
+    const text = commentText.trim();
+    if (!text || moves.length === 0) return;
+    const idx = moves.length - 1;
+    setComments((prev) => ({ ...prev, [idx]: text }));
+    setCommentText("");
+  }, [commentText, moves.length]);
+
+  const lastMoveIdx = moves.length > 0 ? moves.length - 1 : -1;
+  const existingComment = lastMoveIdx >= 0 ? comments[lastMoveIdx] : undefined;
+
   // Ctrl+V para pegar PGN desde portapapeles
-  useEffect(() => {
-    const handlePaste = (e: ClipboardEvent) => {
+  const handlePaste = useCallback(
+    (e: ClipboardEvent) => {
       const target = e.target as HTMLElement;
       if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") return;
       const text = e.clipboardData?.getData("text") || "";
@@ -123,10 +158,16 @@ export function LiveGameBoard() {
       setFen(gameRef.current.fen());
       setLastMove(null);
       setError(null);
-    };
+      setComments({});
+      setGameResult("auto");
+    },
+    []
+  );
+
+  useEffect(() => {
     document.addEventListener("paste", handlePaste);
     return () => document.removeEventListener("paste", handlePaste);
-  }, []);
+  }, [handlePaste]);
 
   const handleDrop = (
     sourceSquare: string,
@@ -169,6 +210,8 @@ export function LiveGameBoard() {
     setFen(gameRef.current.fen());
     setLastMove(null);
     setError(null);
+    setComments({});
+    setGameResult("auto");
   };
 
   const handleFinish = async () => {
@@ -185,9 +228,34 @@ export function LiveGameBoard() {
       g.setHeader("Date", today);
       g.setHeader("White", whiteName);
       g.setHeader("Black", blackName);
-      g.setHeader("Result", resultFor(g));
+      g.setHeader("Result", effectiveResult);
 
-      const pgn = g.pgn();
+      const h = g.getHeaders();
+      const headerLines = [
+        `[Event "${h.Event || ""}"]`,
+        `[Site "${h.Site || ""}"]`,
+        `[Date "${h.Date || ""}"]`,
+        `[White "${h.White || ""}"]`,
+        `[Black "${h.Black || ""}"]`,
+        `[Result "${effectiveResult}"]`,
+        "",
+      ].join("\n");
+
+      const history = g.history();
+      const pgnParts: string[] = [];
+      for (let i = 0; i < history.length; i++) {
+        const san = history[i];
+        if (i % 2 === 0) {
+          pgnParts.push(`${Math.floor(i / 2) + 1}.`);
+        }
+        pgnParts.push(san);
+        if (comments[i]) {
+          pgnParts.push(`{${comments[i]}}`);
+        }
+      }
+      pgnParts.push(effectiveResult);
+
+      const pgn = `${headerLines}\n${pgnParts.join(" ")}`;
 
       const analysis = await saveAnalysisDraft({
         game_type: "USER",
@@ -220,7 +288,7 @@ export function LiveGameBoard() {
         <div className="w-full lg:w-[55%] space-y-4">
           <Card>
             <CardContent className="p-4">
-              <div className="w-full aspect-square max-w-[720px] mx-auto">
+              <div ref={boardContainerRef} className="w-full aspect-square max-w-[720px] mx-auto">
                 <DynamicChessboard
                   position={fen}
                   onPieceDrop={handleDrop}
@@ -292,16 +360,48 @@ export function LiveGameBoard() {
 
           <Card>
             <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Resultado</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <select
+                id="game-result"
+                value={gameResult}
+                onChange={(e) => setGameResult(e.target.value)}
+                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              >
+                {RESULT_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
               <CardTitle className="text-lg">Notación (PGN)</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {hasMoves ? (
-                <div className="text-sm max-h-40 overflow-y-auto">
+                <div className="text-sm max-h-48 overflow-y-auto space-y-1">
                   {groupedMoves.map((group, i) => (
-                    <div key={i} className="flex flex-wrap gap-x-2 gap-y-1 mb-1">
-                      <span className="font-bold mr-1">{group.moveNumber}.</span>
-                      {group.white && <span>{group.white.san}</span>}
-                      {group.black && <span>{group.black.san}</span>}
+                    <div key={i}>
+                      <div className="flex flex-wrap gap-x-2 gap-y-1">
+                        <span className="font-bold mr-1">{group.moveNumber}.</span>
+                        {group.white && <span>{group.white.san}</span>}
+                        {group.black && <span>{group.black.san}</span>}
+                      </div>
+                      {group.white && comments[group.white.idx] && (
+                        <p className="ml-6 text-xs italic text-muted-foreground">
+                          {comments[group.white.idx]}
+                        </p>
+                      )}
+                      {group.black && comments[group.black.idx] && (
+                        <p className="ml-6 text-xs italic text-muted-foreground">
+                          {comments[group.black.idx]}
+                        </p>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -310,6 +410,38 @@ export function LiveGameBoard() {
                   Aún no hay movimientos. Mueve una pieza para comenzar.
                 </p>
               )}
+
+              {hasMoves && (
+                <div className="flex gap-2">
+                  <Input
+                    ref={commentInputRef}
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        addComment();
+                      }
+                    }}
+                    placeholder={
+                      existingComment
+                        ? `Último comentario: "${existingComment}"`
+                        : "Comentario para la última jugada..."
+                    }
+                    className="text-sm"
+                  />
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={addComment}
+                    disabled={!commentText.trim()}
+                    title="Añadir comentario"
+                  >
+                    <MessageSquarePlus className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+
               <Textarea
                 readOnly
                 value={pgnPreview}
@@ -356,6 +488,7 @@ export function LiveGameBoard() {
             <div className="rounded-lg border bg-muted/30 p-4 text-sm text-muted-foreground">
               <CheckCircle2 className="mr-1 inline h-4 w-4 text-green-500" />
               El tablero permite arrastrar las piezas libremente alternando turnos.
+              Puedes pegar un PGN con Ctrl+V.
             </div>
           )}
         </div>
