@@ -11,6 +11,7 @@ Plataforma integral de entrenamiento de ajedrez que combina **análisis de parti
 - **Análisis de partidas PGN** en segundo plano (`background_session`): filtrado, limpieza y análisis jugada a jugada con Stockfish.
 - **Informes de coaching con IA**: Gemini analiza el historial de errores y genera diagnósticos estructurados.
 - **Partidas de Grandes Maestros y Autodiagnóstico**: envío de autodiagnósticos de partidas de GM o propias, auditados de forma asíncrona por Gemini con reintentos automáticos ante saturación de la API.
+- **Dos modos de análisis de partida**: `Análisis por IA` (análisis maestro completo de la partida sin comentarios del alumno, disponible en partidas propias) y `Auditoría de Autodiagnóstico` (evalúa los comentarios del alumno). El feedback de apertura cita siempre el **código ECO y el nombre en español**, y cuando el diagnóstico es incorrecto se explica con claridad el motivo (campo `razon_insuficiente`).
 - **Academia de Finales Teóricos**: lecciones con posición inicial FEN, eventos de cronología, generación de guiones de podcast e infraestructura de audio mediante TTS (`edge-tts` / `gTTS`).
 - **Planes de entrenamiento semanales**: tareas de Táctica, Estrategia y Finales con puzles reales de Lichess adaptados por ELO.
 - **Módulo Legal / RGPD**: exportación completa de datos de usuario (10 tablas dependientes) y borrado explícito tabla por tabla.
@@ -35,6 +36,12 @@ Plataforma integral de entrenamiento de ajedrez que combina **análisis de parti
   - **Modelos de Base de Datos:** eliminación del modelo duplicado `app/models/training.py` que colisionaba con `app/models/exercise.py` (modelo canónico).
   - **Uso de `logging`:** sustitución general de llamadas a `print()` por logging estructurado con `logging.getLogger(__name__)`.
    - **Singleton de Gemini:** centralización en `gemini_client` (modelos primario `gemini-3.7-flash` y reserva `gemini-3.1-flash-lite`), usando `response_schema=False` en esquemas con diccionarios libres para evitar errores de propiedades adicionales.
+
+- **Análisis de partidas — modos IA y autodiagnóstico (mejora de claridad):**
+  - **Prompt bifurcado en `tutor_service`**: `_get_ai_system_prompt` (análisis maestro completo de la partida) y `_get_audit_system_prompt` (auditoría del autodiagnóstico del alumno), seleccionados por `analysis_mode` (`auto`/`ai`/`self_audit`) persistido en `UserGameAnalysis`.
+  - **Claridad en el error**: nuevo campo `razon_insuficiente` en `GeminiFeedback` (3-5 frases) que explica por qué un diagnóstico es incorrecto, mostrado en rojo en `GeminiFeedbackDisplay`.
+  - **Apertura con ECO**: la respuesta del GM cita siempre el código ECO y el nombre de la apertura en español (en el análisis y en las correcciones), sin pedírselo al alumno.
+  - **UI**: el botón "Análisis por IA (sin comentarios)" solo aparece en partidas propias (`USER`); en partidas de GM se oculta para priorizar el autodiagnóstico. Migración Alembic `f0a1b2c3d4e5` añade la columna `analysis_mode`.
 
 - **Últimas correcciones (ago 2026) — detección de tablas y persistencia de historial:**
   - **Práctica de finales (`EndgamePracticeBoard`):** `onDrop` no comprobaba `stalemate` en la condición de progreso, así que lecciones con objetivo `draw` que terminaban en ahogado no se marcaban `mastered`. Se añadió `result === "stalemate"` al igualar con `lesson.target_result === "draw"` (también en `fetchStockfishMove`).

@@ -56,6 +56,7 @@ interface PrintAnalysisReportProps {
   pgn?: string | null;
   form?: AnalysisFormState | null;
   feedback?: GeminiFeedback | null;
+  mode?: string | null;
 }
 
 function PrintField({ label, value }: { label: string; value: string }) {
@@ -157,6 +158,7 @@ export function PrintAnalysisReport({
   pgn,
   form,
   feedback,
+  mode,
 }: PrintAnalysisReportProps) {
   return (
     <div className="hidden print:block">
@@ -224,7 +226,7 @@ export function PrintAnalysisReport({
             Comentarios y Evaluación del Gran Maestro
           </h2>
           {feedback ? (
-            <GeminiFeedbackDisplay feedback={feedback} />
+            <GeminiFeedbackDisplay feedback={feedback} mode={mode} />
           ) : (
             <p className="text-sm">
               Esta partida aún no ha sido evaluada por el Gran Maestro.

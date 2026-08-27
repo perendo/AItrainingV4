@@ -290,9 +290,14 @@ export default function HistoricoDetailPage() {
               <div className="space-y-4">
                 <Separator />
                 <h2 className="text-xl font-semibold text-primary">
-                  Informe del Gran Maestro
+                  {analysis?.analysis_mode === "ai"
+                    ? "Análisis del Gran Maestro (IA)"
+                    : "Informe del Gran Maestro"}
                 </h2>
-                <GeminiFeedbackDisplay feedback={feedback} />
+                <GeminiFeedbackDisplay
+                  feedback={feedback}
+                  mode={analysis?.analysis_mode ?? null}
+                />
               </div>
             )}
           </div>
@@ -318,6 +323,7 @@ export default function HistoricoDetailPage() {
         pgn={pgn}
         form={initialForm}
         feedback={initialFeedback}
+        mode={analysis?.analysis_mode ?? null}
       />
     </>
   );

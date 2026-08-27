@@ -76,8 +76,12 @@ export function OwnGameAnalysisView() {
 
   // Informe del GM emitido por el panel, para renderizarlo al final de la página.
   const [feedback, setFeedback] = useState<GeminiFeedback | null>(null);
+  const [feedbackMode, setFeedbackMode] = useState<string | null>(null);
   const handleFeedback = useCallback(
-    (f: GeminiFeedback | null) => setFeedback(f),
+    (f: GeminiFeedback | null, mode?: string | null) => {
+      setFeedback(f);
+      setFeedbackMode(mode ?? null);
+    },
     [],
   );
 
@@ -522,9 +526,11 @@ export function OwnGameAnalysisView() {
         <div className="space-y-4">
           <Separator />
           <h2 className="text-xl font-semibold text-primary">
-            Informe del Gran Maestro
+            {feedbackMode === "ai"
+              ? "Análisis del Gran Maestro (IA)"
+              : "Informe del Gran Maestro"}
           </h2>
-          <GeminiFeedbackDisplay feedback={feedback} />
+          <GeminiFeedbackDisplay feedback={feedback} mode={feedbackMode} />
         </div>
       )}
         </>

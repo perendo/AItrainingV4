@@ -51,6 +51,9 @@ class GeminiFeedbackPosicional(BaseModel):
 class GeminiFeedbackConclusiones(BaseModel):
     plan_correcto: bool
     evaluacion_error: str
+    # Motivo concreto y claro de por qué el diagnóstico es insuficiente.
+    # Solo se rellena (y es obligatorio) cuando plan_correcto es False.
+    razon_insuficiente: str = ""
     concepto_reforzar: str
 
 
@@ -74,6 +77,19 @@ class GameAnalysisBase(BaseModel):
     pgn: Optional[str] = None
     player_username: Optional[str] = None
     user_side: Optional[str] = None
+    # Modo de análisis:
+    #   "auto"       -> el backend detecta si hay autodiagnóstico (auditoría) o no (análisis IA)
+    #   "ai"         -> análisis completo de la partida por el Gran Maestro (sin comentarios del alumno)
+    #   "self_audit" -> auditar el autodiagnóstico del alumno (requiere comentarios)
+    analysis_mode: Optional[str] = "auto"
+
+    @field_validator("analysis_mode")
+    @classmethod
+    def _validar_analysis_mode(cls, v: Optional[str]) -> str:
+        val = (v or "auto").strip().lower()
+        if val not in {"auto", "ai", "self_audit"}:
+            return "auto"
+        return val
 
     @field_validator("game_type")
     @classmethod
@@ -118,6 +134,7 @@ class GameAnalysisResponse(BaseModel):
     gemini_feedback: Optional[str] = None
     status: Optional[str] = None  # "processing" | "completed" | "failed"
     error_message: Optional[str] = None
+    analysis_mode: Optional[str] = None  # "auto" | "ai" | "self_audit"
     audit_attempts: int = 0
     created_at: str
     updated_at: Optional[datetime] = None

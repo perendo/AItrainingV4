@@ -65,7 +65,7 @@ interface AnalysisFormPanelProps {
   /** Si true, el informe del GM NO se renderiza aquí (lo renderiza el padre al final). */
   hideFeedback?: boolean;
   /** Notifica al padre el feedback activo para que lo renderice donde corresponda. */
-  onFeedbackChange?: (feedback: GeminiFeedback | null) => void;
+  onFeedbackChange?: (feedback: GeminiFeedback | null, mode?: string | null) => void;
   /** Tour: fuerza un bloque concreto abierto (ignora el toggle interno). */
   openBlock?: string | null;
   /** Tour: valores de ejemplo mostrados en los textareas (solo lectura). */
@@ -93,6 +93,23 @@ function hashCode(str: string): string {
     hash |= 0;
   }
   return Math.abs(hash).toString(36);
+}
+
+function isFormEmpty(form: AnalysisFormState): boolean {
+  const campos = [
+    form.fases.apertura,
+    form.fases.medio_juego,
+    form.fases.final,
+    form.momentos.pieza_a_mejorar,
+    form.momentos.amenaza_rival,
+    form.factores.material,
+    form.factores.seguridad_rey,
+    form.factores.espacio,
+    form.conclusiones.plan_estrategico,
+    form.conclusiones.error_conceptual_grave,
+    form.conclusiones.idea_a_repasar,
+  ];
+  return campos.every((c) => (c || "").trim() === "");
 }
 
 export function AnalysisFormPanel({
@@ -145,7 +162,10 @@ export function AnalysisFormPanel({
     onFeedbackChangeRef.current = onFeedbackChange;
   });
   useEffect(() => {
-    onFeedbackChangeRef.current?.(activeFeedback);
+    onFeedbackChangeRef.current?.(
+      activeFeedback,
+      activeFeedback ? analysisResult?.analysis_mode ?? null : null,
+    );
   }, [activeFeedback]);
 
   const draftKey = useMemo(() => {
@@ -254,6 +274,9 @@ export function AnalysisFormPanel({
     setError(null);
 
     try {
+      // Si el formulario está vacío, es un análisis de la partida por el GM (sin comentarios).
+      // Si hay comentarios, se audita el autodiagnóstico del alumno.
+      const mode: "ai" | "self_audit" = isFormEmpty(form) ? "ai" : "self_audit";
       const submitData: UserGameAnalysisSubmit = {
         gm_game_id: gameType === "GM" ? gmGameId : null,
         game_type: gameType,
@@ -261,6 +284,7 @@ export function AnalysisFormPanel({
         black_player: blackPlayer,
         pgn: gameType === "USER" ? pgn : undefined,
         analysis_id: analysisId ?? undefined,
+        analysis_mode: mode,
         fases_analisis: form.fases,
         momentos_criticos: form.momentos,
         factores_posicionales: form.factores,
@@ -283,6 +307,46 @@ export function AnalysisFormPanel({
         "El GM está analizando tu duda. Puedes seguir utilizando la app.",
         { duration: 5000 },
       );
+      trackAnalysis(submittedId, `/historico/${submittedId}`);
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Error al enviar análisis";
+      setError(message);
+      setStatus("error");
+    }
+  };
+
+  const handleSubmitAi = async () => {
+    // Análisis completo de la partida por el Gran Maestro, sin comentarios del alumno.
+    setForm({ ...EMPTY_FORM });
+    handleClearDraft();
+    setStatus("loading");
+    setError(null);
+    try {
+      const submitData: UserGameAnalysisSubmit = {
+        gm_game_id: gameType === "GM" ? gmGameId : null,
+        game_type: gameType,
+        white_player: whitePlayer,
+        black_player: blackPlayer,
+        pgn: gameType === "USER" ? pgn : undefined,
+        analysis_id: analysisId ?? undefined,
+        analysis_mode: "ai",
+        fases_analisis: { ...EMPTY_FORM.fases },
+        momentos_criticos: { ...EMPTY_FORM.momentos },
+        factores_posicionales: { ...EMPTY_FORM.factores },
+        conclusiones_plan: { ...EMPTY_FORM.conclusiones },
+      };
+      const submittedId = await submitAnalysis(submitData);
+      if (submittedId == null) {
+        setError("Error al enviar análisis");
+        setStatus("error");
+        return;
+      }
+      analysisIdRef.current = submittedId;
+      onComplete?.();
+      toast.info("El GM está analizando la partida. Puedes seguir utilizando la app.", {
+        duration: 5000,
+      });
       trackAnalysis(submittedId, `/historico/${submittedId}`);
     } catch (err: unknown) {
       const message =
@@ -615,38 +679,63 @@ export function AnalysisFormPanel({
         </Badge>
       )}
 
-      <Button
-        onClick={() => {
-          if (demoMode) {
-            onDemoSubmit?.();
-            return;
+      <div className="flex flex-col sm:flex-row gap-3 print:hidden">
+        <Button
+          onClick={() => {
+            if (demoMode) {
+              onDemoSubmit?.();
+              return;
+            }
+            handleSubmit();
+          }}
+          data-tour="submit"
+          disabled={status === "loading" || isPolling || submitDisabled}
+          title={
+            submitDisabled
+              ? "Este análisis ya ha sido evaluado correctamente"
+              : undefined
           }
-          handleSubmit();
-        }}
-        data-tour="submit"
-        disabled={status === "loading" || isPolling || submitDisabled}
-        title={
-          submitDisabled
-            ? "Este análisis ya ha sido evaluado correctamente"
-            : undefined
-        }
-        className="w-full py-3 text-lg font-semibold bg-primary hover:bg-primary/90 print:hidden"
-        size="lg"
-      >
-        {status === "loading" ? (
-          <>
-            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-            Enviando al Gran Maestro...
-          </>
-        ) : isPolling ? (
-          <>
-            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-            El GM está analizando tu duda...
-          </>
-        ) : (
-          "Enviar a Evaluación del Gran Maestro"
+          className="flex-1 py-3 text-lg font-semibold bg-primary hover:bg-primary/90"
+          size="lg"
+        >
+          {status === "loading" ? (
+            <>
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+              Enviando al Gran Maestro...
+            </>
+          ) : isPolling ? (
+            <>
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+              El GM está analizando tu duda...
+            </>
+          ) : (
+            "Enviar a Evaluación del Gran Maestro"
+          )}
+        </Button>
+
+        {gameType === "USER" && (
+          <Button
+            onClick={handleSubmitAi}
+            disabled={status === "loading" || isPolling || submitDisabled}
+            variant="outline"
+            className="flex-1 py-3 text-lg font-semibold"
+            size="lg"
+            title="Análisis completo de la partida por el Gran Maestro, sin tus comentarios"
+          >
+            {status === "loading" ? (
+              <>
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                Analizando...
+              </>
+            ) : (
+              <>
+                <BookOpen className="mr-2 h-5 w-5" />
+                Análisis por IA (sin comentarios)
+              </>
+            )}
+          </Button>
         )}
-      </Button>
+      </div>
 
       {submitDisabled && (
         <div className="p-3 rounded-lg border border-green-200 bg-green-50 dark:bg-green-900/20 text-sm text-green-700 dark:text-green-300 flex items-center gap-2 print:hidden">
@@ -668,9 +757,14 @@ export function AnalysisFormPanel({
         <div className="space-y-4">
           <Separator />
           <h2 className="text-xl font-semibold text-primary">
-            Auditoría del Gran Maestro
+            {analysisResult?.analysis_mode === "ai"
+              ? "Análisis del Gran Maestro (IA)"
+              : "Auditoría del Gran Maestro"}
           </h2>
-          <GeminiFeedbackDisplay feedback={activeFeedback} />
+          <GeminiFeedbackDisplay
+            feedback={activeFeedback}
+            mode={analysisResult?.analysis_mode ?? null}
+          />
         </div>
       )}
     </div>
@@ -678,7 +772,13 @@ export function AnalysisFormPanel({
 }
 
 // Separate component for the feedback display
-export function GeminiFeedbackDisplay({ feedback }: { feedback: GeminiFeedback }) {
+export function GeminiFeedbackDisplay({
+  feedback,
+  mode,
+}: {
+  feedback: GeminiFeedback;
+  mode?: string | null;
+}) {
   const {
     feedback_fases,
     respuestas_preguntas_criticas,
@@ -686,27 +786,37 @@ export function GeminiFeedbackDisplay({ feedback }: { feedback: GeminiFeedback }
     auditoria_conclusiones,
   } = feedback;
 
+  const isAi = mode === "ai";
+  const razon = (auditoria_conclusiones.razon_insuficiente || "").trim();
+  const mostrarRazon = !isAi && !auditoria_conclusiones.plan_correcto && razon.length > 0;
+
   return (
     <div className="space-y-4">
-      {/* Plan Badge */}
+      {/* Badge principal */}
       <div
         className={cn(
           "p-4 rounded-lg border text-center font-medium",
-          auditoria_conclusiones.plan_correcto
-            ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-700 dark:text-green-300"
-            : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300"
+          isAi
+            ? "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300"
+            : auditoria_conclusiones.plan_correcto
+              ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-700 dark:text-green-300"
+              : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300"
         )}
       >
         <div className="flex items-center justify-center gap-2">
-          {auditoria_conclusiones.plan_correcto ? (
+          {isAi ? (
+            <Info className="h-5 w-5" />
+          ) : auditoria_conclusiones.plan_correcto ? (
             <CheckCircle className="h-5 w-5" />
           ) : (
             <XCircle className="h-5 w-5" />
           )}
           <span className="text-lg">
-            {auditoria_conclusiones.plan_correcto
-              ? "Plan Estratégico CORRECTO"
-              : "Plan Estratégico INCORRECTO"}
+            {isAi
+              ? "Análisis del Gran Maestro (IA)"
+              : auditoria_conclusiones.plan_correcto
+                ? "Plan Estratégico CORRECTO"
+                : "Plan Estratégico INCORRECTO"}
           </span>
         </div>
       </div>
@@ -716,7 +826,7 @@ export function GeminiFeedbackDisplay({ feedback }: { feedback: GeminiFeedback }
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <Info className="h-4 w-4" />
-            Feedback por Fases
+            {isAi ? "Análisis por Fases" : "Feedback por Fases"}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -740,7 +850,7 @@ export function GeminiFeedbackDisplay({ feedback }: { feedback: GeminiFeedback }
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <AlertCircle className="h-4 w-4" />
-            Corrección Preguntas Críticas
+            {isAi ? "Preguntas Críticas" : "Corrección Preguntas Críticas"}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -783,17 +893,28 @@ export function GeminiFeedbackDisplay({ feedback }: { feedback: GeminiFeedback }
         </CardContent>
       </Card>
 
-      {/* Auditoría Conclusiones */}
+      {/* Auditoría / Análisis de Conclusiones */}
       <Card className="border-amber-200 dark:border-amber-800">
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2 text-amber-700 dark:text-amber-300">
             <AlertCircle className="h-4 w-4" />
-            Auditoría de Conclusiones
+            {isAi ? "Análisis del Gran Maestro" : "Auditoría de Conclusiones"}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
+          {mostrarRazon && (
+            <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded border border-red-300 dark:border-red-700">
+              <p className="font-medium text-sm flex items-center gap-1">
+                <XCircle className="h-4 w-4 shrink-0" />
+                Por qué es insuficiente
+              </p>
+              <p className="text-sm mt-1">{razon}</p>
+            </div>
+          )}
           <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded border border-amber-200 dark:border-amber-800">
-            <p className="font-medium text-sm">Evaluación del Error</p>
+            <p className="font-medium text-sm">
+              {isAi ? "Valoración de la partida" : "Evaluación del Error"}
+            </p>
             <p className="text-sm mt-1">
               {auditoria_conclusiones.evaluacion_error}
             </p>

@@ -184,6 +184,7 @@ export interface UserGameAnalysisSubmit {
   black_player?: string;
   pgn?: string;
   analysis_id?: number;
+  analysis_mode?: "auto" | "ai" | "self_audit";
   fases_analisis: FasesAnalisis;
   momentos_criticos: MomentosCriticos;
   factores_posicionales: FactoresPosicionales;
@@ -197,6 +198,7 @@ export interface UserGameAnalysisDraft {
   black_player?: string;
   pgn?: string;
   analysis_id?: number;
+  analysis_mode?: "auto" | "ai" | "self_audit";
   fases_analisis?: FasesAnalisis;
   momentos_criticos?: MomentosCriticos;
   factores_posicionales?: FactoresPosicionales;
@@ -223,6 +225,7 @@ export interface MatrizPosicional {
 export interface AuditoriaConclusiones {
   plan_correcto: boolean;
   evaluacion_error: string;
+  razon_insuficiente: string;
   concepto_reforzar: string;
 }
 
@@ -248,6 +251,7 @@ export interface UserGameAnalysisResponse {
   gemini_feedback: string | null;
   status?: "processing" | "completed" | "failed" | null;
   error_message?: string | null;
+  analysis_mode?: string | null;
   audit_attempts?: number;
   created_at: string;
   updated_at?: string | null;

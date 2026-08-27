@@ -24,6 +24,7 @@ class UserGameAnalysis(Base):
     error_message = Column(Text, nullable=True)
     audit_attempts = Column(Integer, nullable=False, default=0, doc="Intentos de auditoría Gemini realizados en la última ronda")
     audit_payload = Column(Text, nullable=True, doc="Snapshot JSON del GameAnalysisCreate enviado, para relanzar la auditoría tras un reinicio")
+    analysis_mode = Column(String(12), nullable=True, default="auto", doc="Modo de análisis: 'auto', 'ai' (análisis del GM sin comentarios) o 'self_audit' (auditoría del autodiagnóstico)")
     created_at = Column(Text, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 

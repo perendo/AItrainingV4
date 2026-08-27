@@ -37,8 +37,11 @@ class TutorGeminiService:
             db, analysis_data
         )
 
-        system_prompt = self._get_system_prompt()
-        user_prompt = self._build_user_prompt(pgn, white_player, black_player, analysis_data, player_username, user_side)
+        mode = self._resolve_mode(analysis_data)
+        system_prompt = self._get_system_prompt(mode)
+        user_prompt = self._build_user_prompt(
+            pgn, white_player, black_player, analysis_data, player_username, user_side, mode
+        )
 
         try:
             logger.info("Enviando autodiagnóstico a Gemini para auditoría...")
@@ -62,6 +65,7 @@ class TutorGeminiService:
             )
             new_analysis.game_id = game_id
             new_analysis.game_type = game_type
+            new_analysis.analysis_mode = mode
             new_analysis.white_player = white_player
             new_analysis.black_player = black_player
             new_analysis.pgn = pgn
@@ -198,9 +202,10 @@ class TutorGeminiService:
                 game_type, game_id, pgn, white_player, black_player, player_username, user_side = self._resolve_source(
                     db, analysis_data
                 )
-                system_prompt = self._get_system_prompt()
+                mode = self._resolve_mode(analysis_data)
+                system_prompt = self._get_system_prompt(mode)
                 user_prompt = self._build_user_prompt(
-                    pgn, white_player, black_player, analysis_data, player_username, user_side
+                    pgn, white_player, black_player, analysis_data, player_username, user_side, mode
                 )
 
                 max_intentos = max(1, settings.GEMINI_TASK_RETRIES)
@@ -251,6 +256,7 @@ class TutorGeminiService:
                 analysis.error_message = None
                 analysis.game_type = game_type
                 analysis.game_id = game_id
+                analysis.analysis_mode = mode
                 analysis.white_player = white_player
                 analysis.black_player = black_player
                 analysis.pgn = pgn
@@ -390,7 +396,68 @@ class TutorGeminiService:
             return existing
         return UserGameAnalysis(user_id=user_id)
 
-    def _get_system_prompt(self) -> str:
+    def _get_system_prompt(self, mode: str = "audit") -> str:
+        if mode == "ai":
+            return self._get_ai_system_prompt()
+        return self._get_audit_system_prompt()
+
+    def _get_ai_system_prompt(self) -> str:
+        return """
+ACTÚA COMO UN GRAN MAESTRO DE AJEDREZ Y TUTOR PEDAGÓGICO DE LA ESCUELA SOVIÉTICA.
+El alumno NO ha aportado autodiagnóstico: entrega un ANÁLISIS MAESTRO COMPLETO de la partida.
+Tu método: análisis concreto, exigencia de precisión, enfoque en conceptos fundamentales.
+
+RECIBIRÁS:
+1. La partida completa en PGN (de un GM o de la propia partida del alumno).
+2. Si aplica, el jugador concreto que debe evaluarse (nick/bando).
+
+TAREA:
+Genera EXCLUSIVAMENTE un JSON válido con este esquema exacto. CONTRATO OBLIGATORIO de
+estructura: usa ÚNICAMENTE estas claves y sus nombres tal cual, sin añadir ni omitir ninguna.
+Está PROHIBIDO agregar claves extra (resumen_partida, comentarios, markdown u otros campos).
+Todos los bloques y claves deben estar presentes:
+
+{
+  "feedback_fases": {
+    "apertura": "string",
+    "medio_juego": "string",
+    "final": "string"
+  },
+  "respuestas_preguntas_criticas": {
+    "mejora_piezas": "string",
+    "amenaza_real": "string"
+  },
+  "matriz_posicional": {
+    "material": "string",
+    "rey": "string",
+    "espacio": "string"
+  },
+  "auditoria_conclusiones": {
+    "plan_correcto": true,
+    "evaluacion_error": "string",
+    "razon_insuficiente": "",
+    "concepto_reforzar": "string"
+  }
+}
+
+CÓMO RELLENAR (modo análisis de la partida, sin alumno que corregir):
+- feedback_fases:
+    * apertura: identifica PRIMERO el código ECO y el nombre de la apertura en español (p. ej. "ECO C65 – Ruy López"), y luego 1-2 frases de comentario pedagógico y concreto.
+    * medio_juego / final: 2-3 frases directas con ideas, planes y errores de ambos bandos.
+- respuestas_preguntas_criticas: la pieza que más se pudo mejorar en la partida y la amenaza real del rival en el momento crítico, citando jugadas concretas.
+- matriz_posicional: tu evaluación de material/rey/espacio con precisión.
+- auditoria_conclusiones:
+    * plan_correcto: true (no hay diagnóstico del alumno que corregir).
+    * evaluacion_error: tu valoración global de la partida (1-3 frases).
+    * razon_insuficiente: "" (vacío en modo análisis).
+    * concepto_reforzar: la idea o técnica clave que el alumno debe estudiar de esta partida (concreta y estudiable).
+
+CONCISIÓN Y PEDAGOGÍA: cada campo 2-3 frases, directas, con jugadas concretas cuando sea posible; tono pedagógico, con la retórica justa y nada de relleno.
+Nunca dejes el JSON a medias: la respuesta DEBE ser un JSON completo y cerrado.
+Responde SOLO el JSON, con exactamente los 4 bloques y todas las claves descritas, y nada más.
+"""
+
+    def _get_audit_system_prompt(self) -> str:
         return """
 ACTÚA COMO UN GRAN MAESTRO DE AJEDREZ Y TUTOR PEDAGÓGICO DE LA ESCUELA SOVIÉTICA.
 Tu método: Análisis concreto, exigencia de precisión, enfoque en conceptos fundamentales.
@@ -399,10 +466,10 @@ No des elogios vacíos. Señala el error conceptual grave. Exige claridad en el 
 RECIBIRÁS:
 1. La partida completa en PGN (de un GM o de la propia partida del alumno).
 2. El autodiagnóstico del alumno estructurado en 4 bloques:
-   - Fases: apertura, medio_juego, final
-   - Momentos críticos: pieza_a_mejorar, amenaza_rival
-   - Factores posicionales: material, seguridad_rey, espacio
-   - Conclusiones: plan_estrategico, error_conceptual_grave, idea_a_repasar
+    - Fases: apertura, medio_juego, final
+    - Momentos críticos: pieza_a_mejorar, amenaza_rival
+    - Factores posicionales: material, seguridad_rey, espacio
+    - Conclusiones: plan_estrategico, error_conceptual_grave, idea_a_repasar
 
 TAREA:
 Audita el autodiagnóstico del alumno comparándolo con la realidad de la partida.
@@ -429,6 +496,7 @@ comentarios, markdown u otros campos). Todos los bloques y claves deben estar pr
   "auditoria_conclusiones": {
     "plan_correcto": boolean,
     "evaluacion_error": "string",
+    "razon_insuficiente": "string",
     "concepto_reforzar": "string"
   }
 }
@@ -442,14 +510,65 @@ CRITERIOS DE AUDITORÍA (Escuela Soviética):
 - ¿El "error conceptual grave" es VERDADERAMENTE conceptual (no táctico)?
 - ¿La "idea a repasar" es estudiable (ej: "finales de torres Vancura", "estructura Carlsbad")?
 
-CONCISIÓN OBLIGATORIA:
-- Cada campo de texto debe tener MÁXIMO 2-3 frases cortas y directas, al grano.
-- Prohibido rodearse con preámbulos, rellenos, lugares comunes o párrafos extensos.
+CLARIDAD EN EL ERROR (clave):
+- Cuando el diagnóstico del alumno sea INCORRECTO o INSUFICIENTE, no te limites a decir
+  "incorrecto": explica CLARAMENTE el motivo, con retórica pedagógica, concreta y concisa.
+- En cada bloque que corrijas (feedback_fases, respuestas_preguntas_criticas, matriz_posicional),
+  si la respuesta del alumno es errónea indica en 1-2 frases QUÉ dijo mal y CUÁL es el punto correcto,
+  citando la jugada o el concepto concreto.
+- En feedback_fases.apertura, cuando la respuesta del alumno sobre la apertura sea errónea o
+  incompleta, corrige citando el código ECO y el nombre en español de la apertura (p. ej.
+  "ECO C65 – Ruy López"). NO le pidas al alumno que identifique el ECO: es parte de tu corrección.
+- En auditoria_conclusiones:
+    * plan_correcto: true si el plan estratégico del alumno es acertado; false en caso contrario.
+    * evaluacion_error: veredicto breve (1 frase) sobre el error conceptual.
+    * razon_insuficiente: OBLIGATORIO y detallado SOLO cuando plan_correcto es false. Debe explicar
+      el error con esta estructura: (a) qué afirmó el alumno, (b) qué ocurre realmente en la posición,
+      (c) la jugada o el concepto concreto que lo demuestra, (d) por qué es insuficiente. Usa 3-5 frases.
+      Si plan_correcto es true, déjalo como "".
+    * concepto_reforzar: la idea o técnica concreta y estudiable que debe repasar el alumno.
+
+CONCISIÓN:
+- Los bloques feedback_fases / respuestas_preguntas_criticas / matriz_posicional: MÁXIMO 2-3 frases cada uno.
+- razon_insuficiente (solo si hay error) es la EXCEPCIÓN y puede usar 3-5 frases para ser claro: no lo recortes.
+- Prohibido rodearse con preámbulos, rellenos o párrafos extensos fuera de lo indicado.
 - El JSON completo debe caber holgadamente en la ventana de tokens de salida.
 - Nunca dejes el JSON a medias: la respuesta DEBE ser un JSON completo y cerrado.
 
 Sé severo pero constructivo. Responde SOLO el JSON, con exactamente los 4 bloques y todas las claves descritas, y nada más.
 """
+
+    def _is_form_empty(self, data: GameAnalysisCreate) -> bool:
+        """Devuelve True si todos los campos de autodiagnóstico del alumno están vacíos."""
+        campos = [
+            data.fases_analisis.apertura,
+            data.fases_analisis.medio_juego,
+            data.fases_analisis.final,
+            data.momentos_criticos.pieza_a_mejorar,
+            data.momentos_criticos.amenaza_rival,
+            data.factores_posicionales.material,
+            data.factores_posicionales.seguridad_rey,
+            data.factores_posicionales.espacio,
+            data.conclusiones_plan.plan_estrategico,
+            data.conclusiones_plan.error_conceptual_grave,
+            data.conclusiones_plan.idea_a_repasar,
+        ]
+        return all((c or "").strip() == "" for c in campos)
+
+    def _resolve_mode(self, data: GameAnalysisCreate) -> str:
+        """Calcula el modo efectivo de análisis: 'ai' o 'audit'.
+
+        - analysis_mode 'ai'       -> análisis de la partida por el GM (sin comentarios).
+        - analysis_mode 'self_audit' -> auditar el autodiagnóstico del alumno.
+        - analysis_mode 'auto'     -> si el formulario está vacío -> 'ai'; si tiene contenido -> 'audit'.
+        """
+        modo = (getattr(data, "analysis_mode", None) or "auto").strip().lower()
+        if modo == "ai":
+            return "ai"
+        if modo == "self_audit":
+            return "audit"
+        # auto
+        return "ai" if self._is_form_empty(data) else "audit"
 
     def _build_user_prompt(
         self,
@@ -459,6 +578,7 @@ Sé severo pero constructivo. Responde SOLO el JSON, con exactamente los 4 bloqu
         analysis_data: GameAnalysisCreate,
         player_username: Optional[str] = None,
         user_side: Optional[str] = None,
+        mode: str = "audit",
     ) -> str:
         fases = analysis_data.fases_analisis
         momentos = analysis_data.momentos_criticos
@@ -471,6 +591,17 @@ Sé severo pero constructivo. Responde SOLO el JSON, con exactamente los 4 bloqu
             nick_str = f" con nick/usuario '{player_username}'" if player_username else ""
             user_context_line = f"\nIMPORTANTE: El usuario a evaluar es el jugador de {side_str}{nick_str}.\n"
 
+        if mode == "ai":
+            mode_line = (
+                "MODO: ANÁLISIS DE LA PARTIDA por el Gran Maestro (el alumno no aporta "
+                "autodiagnóstico; entrega tu análisis maestro completo de la partida).\n"
+            )
+        else:
+            mode_line = (
+                "MODO: AUDITORÍA del autodiagnóstico del alumno (compara su respuesta con la "
+                "realidad de la partida y corrige con claridad cuando se equivoque).\n"
+            )
+
         return f"""
 PARTIDA (PGN):
 {pgn}
@@ -479,6 +610,7 @@ JUGADORES:
 - Blancas: {white_player}
 - Negras: {black_player}
 {user_context_line}
+{mode_line}
 AUTODIAGNÓSTICO DEL ALUMNO:
 
 === FASES ===
