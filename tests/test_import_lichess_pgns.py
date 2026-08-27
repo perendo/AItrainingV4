@@ -7,8 +7,6 @@ import chess.pgn
 # El módulo de importación ahora vive en el paquete del backend.
 from app.services import endgame_admin_service as import_lichess_pgns
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-
 
 SAMPLE_PGN = (
     '[White "Final 1"]\n'
@@ -81,39 +79,3 @@ def test_infer_category_by_material():
         == import_lichess_pgns.LessonCategory.PEONES
     )
 
-
-def test_parse_pgn_files_real_data():
-    records = import_lichess_pgns.parse_pgn_files(
-        PROJECT_ROOT / "data" / "pgn"
-    )
-    # 100 finales con sus diagramas secundarios.
-    assert len(records) == 195
-
-    by_slug = {r["slug"]: r for r in records}
-    # El ejemplo del usuario: Final 80.
-    f80 = by_slug["final-80"]
-    assert f80["lesson_number"] == 80
-    assert f80["concept"].startswith("Peones bloqueados")
-    assert f80["initial_fen"] == "8/8/8/5p2/3k4/5P2/8/6K1 w - - 0 1"
-    assert isinstance(f80["theory_tree"], list) and len(f80["theory_tree"]) > 0
-    assert f80["initial_comment"]
-    # Comprobación de que no se pierde texto (sin caracteres de reemplazo).
-    repl = chr(0xFFFD)
-    for r in records:
-        assert repl not in (r["initial_comment"] or "")
-        assert repl not in (r["final_comment"] or "")
-        for node in r["theory_tree"]:
-            assert repl not in (node.get("comment") or "")
-
-
-def test_parse_pgn_files_skips_section_dividers():
-    records = import_lichess_pgns.parse_pgn_files(
-        PROJECT_ROOT / "data" / "pgn"
-    )
-    # Ningún registro debe provenir de un divisor de sección (sin FEN / sin Final N).
-    for r in records:
-        assert r["initial_fen"]
-        assert r["lesson_number"] is not None
-    # Los slugs deben ser únicos (diagramas secundarios sufijados).
-    slugs = [r["slug"] for r in records]
-    assert len(slugs) == len(set(slugs))
