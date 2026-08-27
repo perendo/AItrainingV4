@@ -61,7 +61,12 @@ export function LiveGameBoard() {
     return gameRef.current.history({ verbose: true });
   }, [fen]);
 
-  const game = useMemo(() => new Chess(fen), [fen]);
+  // Usar gameRef.current (no new Chess(fen)) para que el historial de
+  // jugadas persista y chess.js detecte la triple repetición. new Chess(fen)
+  // reconstruye la posición sin historial, así que solo funciona la regla de
+  // 50 movimientos (que viene en el FEN). Al depender de [fen], se recalcula
+  // en cada jugada.
+  const game = useMemo(() => gameRef.current, [fen]);
 
   const groupedMoves = useMemo(() => {
     const groups: Array<{

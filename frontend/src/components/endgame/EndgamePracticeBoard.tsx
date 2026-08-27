@@ -184,7 +184,9 @@ export function EndgamePracticeBoard({
           0.5
         );
 
-        const game = new Chess(fen);
+        // Usar la instancia persistente (no new Chess(fen)) para conservar el
+        // historial de posiciones y que chess.js detecte la triple repetición.
+        const game = gameRef.current;
         const move = game.move({
           from: response.move_uci.substring(0, 2),
           to: response.move_uci.substring(2, 4),
@@ -268,7 +270,9 @@ export function EndgamePracticeBoard({
       const promotionChar =
         !isPawnPiece && piece ? piece[1].toLowerCase() : undefined;
 
-      const game = new Chess(position);
+      // Instancia persistente: así el contador de posiciones de chess.js
+      // acumula y detecta la triple repetición (new Chess(position) lo pierde).
+      const game = gameRef.current;
       let move;
       try {
         move = game.move({
