@@ -34,7 +34,12 @@ Plataforma integral de entrenamiento de ajedrez que combina **análisis de parti
   - **Sidebar adaptable:** soporte de drawer móvil con overlay y cierre por gestos/Escape, evitando solapamientos en pantallas pequeñas.
   - **Modelos de Base de Datos:** eliminación del modelo duplicado `app/models/training.py` que colisionaba con `app/models/exercise.py` (modelo canónico).
   - **Uso de `logging`:** sustitución general de llamadas a `print()` por logging estructurado con `logging.getLogger(__name__)`.
-  - **Singleton de Gemini:** centralización en `gemini_client` (modelos primario `gemini-3.7-flash` y reserva `gemini-3.1-flash-lite`), usando `response_schema=False` en esquemas con diccionarios libres para evitar errores de propiedades adicionales.
+   - **Singleton de Gemini:** centralización en `gemini_client` (modelos primario `gemini-3.7-flash` y reserva `gemini-3.1-flash-lite`), usando `response_schema=False` en esquemas con diccionarios libres para evitar errores de propiedades adicionales.
+
+- **Últimas correcciones (ago 2026) — detección de tablas y persistencia de historial:**
+  - **Práctica de finales (`EndgamePracticeBoard`):** `onDrop` no comprobaba `stalemate` en la condición de progreso, así que lecciones con objetivo `draw` que terminaban en ahogado no se marcaban `mastered`. Se añadió `result === "stalemate"` al igualar con `lesson.target_result === "draw"` (también en `fetchStockfishMove`).
+  - **Triple repetición no detectada:** `status`/`resultFor`/`detectGameResult` reconstruían la partida con `new Chess(fen)`, perdiendo el historial de posiciones de `chess.js` (`_positionCount`) y dejando sin efecto la regla de triple repetición (la regla de 50 movimientos sí funcionaba porque viene en el FEN). Corregido usando la instancia persistente `gameRef.current` en `LiveGameBoard.tsx` y `EndgamePracticeBoard.tsx`. Cubierto por `EndgamePracticeBoard.test.tsx` (triple repetición R vs R, 4 ciclos; regla de 50 con halfmove clock 99 + 1 jugada).
+  - **Jugar 1 contra 1 (`LiveGameBoard`):** `pgnPreview`, `moves` y `groupedMoves` se derivaban de `new Chess(fen)` perdiendo el historial de jugadas (mostraba solo headers o vacío). Ahora se derivan de `gameRef.current.history()`. Se añadió Ctrl+V para pegar PGN desde portapapeles (extrae headers White/Black), selector de resultado manual (1-0/0-1/1/2-1/2/*) y campo de comentarios por jugada (sintaxis PGN `{comentario}`). El guardado usa `upload-pgn` (Stockfish + historial) en vez de `save-draft`.
 
 ---
 
