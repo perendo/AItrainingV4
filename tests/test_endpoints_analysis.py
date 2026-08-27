@@ -4,7 +4,9 @@ from unittest.mock import patch, MagicMock, PropertyMock
 import pytest
 
 from app.models.gm_game import GMGame
+from app.schemas.analysis import GameAnalysisCreate
 from app.services.gemini_client import GeminiClient
+from app.services.tutor_service import tutor_gemini_service
 
 VALID_FEEDBACK = {
     "feedback_fases": {"apertura": "OK", "medio_juego": "OK", "final": "OK"},
@@ -18,6 +20,20 @@ FORM_BLOCKS = {
     "momentos_criticos": {"pieza_a_mejorar": "Caballo", "amenaza_rival": "Dama en h5"},
     "factores_posicionales": {"material": "Igual", "seguridad_rey": "Enrocado", "espacio": "Ventaja"},
     "conclusiones_plan": {"plan_estrategico": "Avanzar d4", "error_conceptual_grave": "Peones doblados", "idea_a_repasar": "Finales de torres"},
+}
+
+EMPTY_FORM_BLOCKS = {
+    "fases_analisis": {"apertura": "", "medio_juego": "", "final": ""},
+    "momentos_criticos": {"pieza_a_mejorar": "", "amenaza_rival": ""},
+    "factores_posicionales": {"material": "", "seguridad_rey": "", "espacio": ""},
+    "conclusiones_plan": {"plan_estrategico": "", "error_conceptual_grave": "", "idea_a_repasar": ""},
+}
+
+WHITESPACE_FORM_BLOCKS = {
+    "fases_analisis": {"apertura": "   ", "medio_juego": "", "final": "  "},
+    "momentos_criticos": {"pieza_a_mejorar": "", "amenaza_rival": " "},
+    "factores_posicionales": {"material": "", "seguridad_rey": "", "espacio": ""},
+    "conclusiones_plan": {"plan_estrategico": "", "error_conceptual_grave": "", "idea_a_repasar": ""},
 }
 
 USER_PGN = """[Event "Liga"]
@@ -311,3 +327,97 @@ class TestHistory:
 
         historial = client.get("/api/v1/game-analysis/history", headers=auth_headers).json()
         assert len(historial) == 1
+
+
+def _build_analysis_data(form_blocks, analysis_mode="auto", game_type="USER"):
+    """Construye un GameAnalysisCreate a partir de un dict de bloques de formulario."""
+    return GameAnalysisCreate(
+        gm_game_id=None,
+        game_type=game_type,
+        pgn=USER_PGN,
+        white_player="Pedro",
+        black_player="Rival",
+        analysis_mode=analysis_mode,
+        fases_analisis=form_blocks["fases_analisis"],
+        momentos_criticos=form_blocks["momentos_criticos"],
+        factores_posicionales=form_blocks["factores_posicionales"],
+        conclusiones_plan=form_blocks["conclusiones_plan"],
+    )
+
+
+class TestResolveMode:
+    """Unidad: _resolve_mode y _is_form_empty resuelven bien 'auto' -> 'ai'/'self_audit'."""
+
+    def test_auto_form_vacio_resuelve_ai(self):
+        data = _build_analysis_data(EMPTY_FORM_BLOCKS, analysis_mode="auto")
+        assert tutor_gemini_service._is_form_empty(data) is True
+        assert tutor_gemini_service._resolve_mode(data) == "ai"
+
+    def test_auto_whitespace_cuenta_como_vacio(self):
+        data = _build_analysis_data(WHITESPACE_FORM_BLOCKS, analysis_mode="auto")
+        assert tutor_gemini_service._is_form_empty(data) is True
+        assert tutor_gemini_service._resolve_mode(data) == "ai"
+
+    def test_auto_form_relleno_resuelve_self_audit(self):
+        data = _build_analysis_data(FORM_BLOCKS, analysis_mode="auto")
+        assert tutor_gemini_service._is_form_empty(data) is False
+        assert tutor_gemini_service._resolve_mode(data) == "self_audit"
+
+    def test_ai_explicito_se_mantiene_aunque_form_vacio(self):
+        data = _build_analysis_data(EMPTY_FORM_BLOCKS, analysis_mode="ai")
+        assert tutor_gemini_service._resolve_mode(data) == "ai"
+
+    def test_ai_explicito_ignora_form_relleno(self):
+        data = _build_analysis_data(FORM_BLOCKS, analysis_mode="ai")
+        assert tutor_gemini_service._resolve_mode(data) == "ai"
+
+    def test_self_audit_explicito_audita_aunque_form_vacio(self):
+        data = _build_analysis_data(EMPTY_FORM_BLOCKS, analysis_mode="self_audit")
+        assert tutor_gemini_service._resolve_mode(data) == "self_audit"
+
+    def test_valor_invalido_cae_a_auto(self):
+        data = _build_analysis_data(FORM_BLOCKS, analysis_mode="desconocido")
+        assert data.analysis_mode == "auto"
+        assert tutor_gemini_service._resolve_mode(data) == "self_audit"
+
+
+class TestAnalysisModes:
+    """Endpoint: el analysis_mode resuelto/persistido se expone en GameAnalysisResponse."""
+
+    def _submit(self, client, auth_headers, gm_game_id, form_blocks, analysis_mode=None):
+        payload = {"gm_game_id": gm_game_id, "game_type": "GM", **form_blocks}
+        if analysis_mode is not None:
+            payload["analysis_mode"] = analysis_mode
+        with patch.object(GeminiClient, "model", new_callable=PropertyMock) as mock_model:
+            _mock_gemini(mock_model)
+            resp = client.post("/api/v1/game-analysis/submit", json=payload, headers=auth_headers)
+        assert resp.status_code == 202
+        analysis_id = resp.json()["analysis_id"]
+        full = client.get(f"/api/v1/game-analysis/{analysis_id}", headers=auth_headers).json()
+        assert full["status"] == "completed"
+        return full
+
+    def test_auto_form_vacio_queda_ai(self, client, db_session, auth_headers):
+        gm_game = _create_gm_game(db_session)
+        full = self._submit(client, auth_headers, gm_game.id, EMPTY_FORM_BLOCKS)
+        assert full["analysis_mode"] == "ai"
+
+    def test_auto_form_relleno_queda_self_audit(self, client, db_session, auth_headers):
+        gm_game = _create_gm_game(db_session)
+        full = self._submit(client, auth_headers, gm_game.id, FORM_BLOCKS)
+        assert full["analysis_mode"] == "self_audit"
+
+    def test_ai_explicito_con_form_relleno_prevalece(self, client, db_session, auth_headers):
+        gm_game = _create_gm_game(db_session)
+        full = self._submit(client, auth_headers, gm_game.id, FORM_BLOCKS, analysis_mode="ai")
+        assert full["analysis_mode"] == "ai"
+
+    def test_self_audit_explicito_con_form_vacio_prevalece(self, client, db_session, auth_headers):
+        gm_game = _create_gm_game(db_session)
+        full = self._submit(client, auth_headers, gm_game.id, EMPTY_FORM_BLOCKS, analysis_mode="self_audit")
+        assert full["analysis_mode"] == "self_audit"
+
+    def test_modo_invalido_en_payload_cae_a_auto(self, client, db_session, auth_headers):
+        gm_game = _create_gm_game(db_session)
+        full = self._submit(client, auth_headers, gm_game.id, FORM_BLOCKS, analysis_mode="desconocido")
+        assert full["analysis_mode"] == "self_audit"

@@ -556,19 +556,19 @@ Sé severo pero constructivo. Responde SOLO el JSON, con exactamente los 4 bloqu
         return all((c or "").strip() == "" for c in campos)
 
     def _resolve_mode(self, data: GameAnalysisCreate) -> str:
-        """Calcula el modo efectivo de análisis: 'ai' o 'audit'.
+        """Calcula el modo efectivo de análisis: 'ai' o 'self_audit'.
 
         - analysis_mode 'ai'       -> análisis de la partida por el GM (sin comentarios).
         - analysis_mode 'self_audit' -> auditar el autodiagnóstico del alumno.
-        - analysis_mode 'auto'     -> si el formulario está vacío -> 'ai'; si tiene contenido -> 'audit'.
+        - analysis_mode 'auto'     -> si el formulario está vacío -> 'ai'; si tiene contenido -> 'self_audit'.
         """
         modo = (getattr(data, "analysis_mode", None) or "auto").strip().lower()
         if modo == "ai":
             return "ai"
         if modo == "self_audit":
-            return "audit"
+            return "self_audit"
         # auto
-        return "ai" if self._is_form_empty(data) else "audit"
+        return "ai" if self._is_form_empty(data) else "self_audit"
 
     def _build_user_prompt(
         self,
