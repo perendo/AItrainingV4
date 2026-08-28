@@ -1,7 +1,7 @@
 import { getToken, removeToken } from "./auth";
-import { 
-  TrainingTask, 
-  WeeklyPlanResponse, 
+import {
+  TrainingTask,
+  WeeklyPlanResponse,
   PuzzleResponse,
   UserGameAnalysisSubmit,
   UserGameAnalysisResponse,
@@ -10,6 +10,7 @@ import {
   GameResponse,
   GMConsultationStatusResponse,
   GMConsultationResponse,
+  BookMoveResponse,
 } from "./types";
 
 export const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -303,4 +304,20 @@ export const getStockfishMove = (
       },
     },
   );
+};
+
+// Partidas Guiadas de Apertura — jugadas del libro de aperturas
+export const getBookMove = (
+  fen: string,
+  maxMoves: number = 5,
+  minWeight: number = 1,
+): Promise<BookMoveResponse> => {
+  return apiFetch<BookMoveResponse>("/api/v1/openings/book-move", {
+    method: "POST",
+    body: {
+      fen,
+      min_weight: minWeight,
+      max_moves: maxMoves,
+    },
+  });
 };

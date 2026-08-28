@@ -706,3 +706,100 @@ export function pathPly(path: number[]): number {
   }
   return ply;
 }
+
+// ---------------------------------------------------------------------- #
+// PGN anotado de las Partidas Guiadas de Apertura
+//
+// Las evaluaciones del Gran Maestro (momentos críticos, regla de oro y
+// veredicto) se incrustan como comentarios `{...}` en el propio PGN, ya sea
+// para visualizarlo en el tablero de Reproducción como para guardarlo en el
+// histórico del alumno.
+// ---------------------------------------------------------------------- //
+
+export interface GuidedOpeningPgnInput {
+  /** Jugadas SAN completas desde la posición inicial (incluye la línea de la apertura). */
+  moves: { san: string }[];
+  whitePlayer: string;
+  blackPlayer: string;
+  openingName?: string;
+  ecoCode?: string;
+  result?: string;
+  /** Feedback del Gran Maestro para incrustar las anotaciones. */
+  feedback?: import("./types").AuditGameAnalysisResponse | null;
+}
+
+function safePgnComment(text: string): string {
+  return (text || "").replace(/[{}]/g, "").replace(/\s+/g, " ").trim();
+}
+
+function formatEval(value: number): string {
+  if (!Number.isFinite(value)) return "0.00";
+  return `${value >= 0 ? "+" : ""}${value.toFixed(2)}`;
+}
+
+/**
+ * Construye el PGN completo de una partida guiada con las anotaciones del
+ * Gran Maestro incrustadas como comentarios:
+ *  - comentario inicial con la apertura (ECO + nombre);
+ *  - un comentario `{Momento crítico …}` tras cada jugada señalada;
+ *  - la "regla de oro" y el veredicto del autodiagnóstico al final.
+ */
+export function buildGuidedOpeningPgn(input: GuidedOpeningPgnInput): string {
+  const { moves, whitePlayer, blackPlayer } = input;
+  const today = new Date().toISOString().slice(0, 10).replace(/-/g, ".");
+  const result = input.result || "*";
+
+  const headerLines = [
+    `[Event "Partida Guiada de Apertura"]`,
+    `[Site "EntrenadorIA"]`,
+    `[Date "${today}"]`,
+    `[White "${whitePlayer || "Blancas"}"]`,
+    `[Black "${blackPlayer || "Negras"}"]`,
+    `[Result "${result}"]`,
+  ];
+  if (input.openingName) {
+    const openingHeader = input.ecoCode
+      ? `${input.ecoCode} – ${input.openingName}`
+      : input.openingName;
+    headerLines.push(`[Opening "${openingHeader}"]`);
+  }
+
+  const parts: string[] = [];
+  if (input.openingName) {
+    const intro = input.ecoCode
+      ? `Apertura: ${input.ecoCode} – ${input.openingName}. Partida guiada contra el libro de aperturas.`
+      : `Apertura: ${input.openingName}. Partida guiada contra el libro de aperturas.`;
+    parts.push(`{${safePgnComment(intro)}}`);
+  }
+
+  const commentsByPly: Map<number, string> = new Map();
+  if (input.feedback) {
+    for (const cm of input.feedback.general_ai_analysis.critical_moments) {
+      if (!cm || !cm.ply || cm.ply < 1 || cm.ply > moves.length) continue;
+      const text = safePgnComment(
+        `Momento crítico (ev. ${formatEval(cm.eval_change)}): ${cm.explanation}`,
+      );
+      if (text) commentsByPly.set(cm.ply, `{${text}}`);
+    }
+  }
+
+  for (let i = 0; i < moves.length; i++) {
+    if (i % 2 === 0) parts.push(`${Math.floor(i / 2) + 1}.`);
+    parts.push(moves[i].san);
+    const comment = commentsByPly.get(i + 1);
+    if (comment) parts.push(comment);
+  }
+
+  if (input.feedback) {
+    const takeaway = safePgnComment(input.feedback.tutor_feedback.takeaway_lesson);
+    if (takeaway) parts.push(`{Regla de oro: ${takeaway}}`);
+    parts.push(
+      input.feedback.is_user_analysis_sufficient
+        ? `{El autodiagnóstico fue suficiente.}`
+        : `{El autodiagnóstico fue insuficiente: revisa la corrección del tutor.}`,
+    );
+  }
+
+  parts.push(result);
+  return `${headerLines.join("\n")}\n\n${parts.join(" ")}`;
+}

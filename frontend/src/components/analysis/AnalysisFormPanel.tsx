@@ -73,6 +73,8 @@ interface AnalysisFormPanelProps {
   /** Tour: desactiva el envío real y usa onDemoSubmit. */
   demoMode?: boolean;
   onDemoSubmit?: () => void;
+  /** Notifica al padre cada cambio del formulario (para el informe imprimible). */
+  onFormChange?: (form: AnalysisFormState) => void;
 }
 
 const EMPTY_FORM: AnalysisFormState = {
@@ -129,6 +131,7 @@ export function AnalysisFormPanel({
   controlledValues,
   demoMode,
   onDemoSubmit,
+  onFormChange,
 }: AnalysisFormPanelProps) {
   const { trackAnalysis } = useGMConsultation();
   const [form, setForm] = useState<AnalysisFormState>(() => ({
@@ -161,6 +164,15 @@ export function AnalysisFormPanel({
   useEffect(() => {
     onFeedbackChangeRef.current = onFeedbackChange;
   });
+
+  // Emitimos el formulario al padre para el informe imprimible (Exportar a PDF).
+  const onFormChangeRef = useRef(onFormChange);
+  useEffect(() => {
+    onFormChangeRef.current = onFormChange;
+  });
+  useEffect(() => {
+    onFormChangeRef.current?.(form);
+  }, [form]);
   useEffect(() => {
     onFeedbackChangeRef.current?.(
       activeFeedback,

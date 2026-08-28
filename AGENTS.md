@@ -73,6 +73,18 @@ Las auditorías de autodiagnóstico (`tutor_service.audit_existing_analysis`) y 
 - **Recuperación tras reinicio** (`cleanup_stuck_background_tasks` en `app/main.py`): al arrancar, las tareas a mitad de reintentos (con `audit_attempts`/`attempts` < máximo y recientes) se **relanzan** en un hilo daemon usando un snapshot `audit_payload` persistido con el envío; solo se marcan `failed` las agotadas o antiguas. Nunca dejan la tarea colgada sin red de seguridad.
 - **Tests**: `tests/test_endpoints_analysis.py` y `tests/test_endpoints_gm_consultations.py` cubren reintento puntual, agotamiento (attempts==2) y relanzamiento en limpieza. En tests el wait se pone a 0 vía fixture en `tests/conftest.py`.
 
+### Módulo de Partidas Guiadas y Consultas al GM (Histórico y PDF)
+
+- **Partidas Guiadas de Apertura** (`/estudio-aperturas`):
+  - Servicio backend `TheoryService` y endpoints `/openings/book-move` utilizando la base de datos de aperturas PolyGlot.
+  - Al salir de la teórica, el frontend pausa la partida, consulta automáticamente al GM con la posición FEN y movimientos, y solicita al alumno su contestación (bloque único).
+  - El prompt en `tutor_service.py` (`_get_guided_opening_system_prompt`) incluye directrices pedagógicas estrictas para exigir explicaciones detalladas con el *porqué*, casillas clave y maniobras, evitando respuestas telegráficas.
+  - Al completar la auditoría, se muestra un pop-up de aviso y la fase pasa a "done", permitiendo exportar a PDF con la posición final generada de forma robusta mediante `parsePgnMoves`.
+- **Consultas al GM (`/consulta-gm`)**:
+  - Histórico de consultas organizado por días (**"Hoy"**, **"Ayer"**, **"Anteriores"**) con el texto de la primera pregunta como título.
+  - Botón **"Nueva consulta"** que limpia la vista activa para realizar una consulta sin saturar la pantalla con el historial.
+  - Vista completa de la conversación seleccionada y opción de **"Exportar a PDF"**.
+
 ## Levantar ambos servidores
 
 ```bash

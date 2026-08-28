@@ -20,13 +20,19 @@ import {
   XCircle,
   RefreshCw,
   FileText,
+  FileDown,
   Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { searchGmGames, listMyGames } from "@/lib/api";
 import { GMGameResponse, GameResponse, GeminiFeedback } from "@/lib/types";
 import { ReplayBoard } from "./ReplayBoard";
-import { AnalysisFormPanel, GeminiFeedbackDisplay } from "./AnalysisFormPanel";
+import {
+  AnalysisFormPanel,
+  AnalysisFormState,
+  GeminiFeedbackDisplay,
+} from "./AnalysisFormPanel";
+import { PrintAnalysisReport } from "./PrintAnalysisReport";
 import { InteractiveDemo } from "./InteractiveDemo";
 
 type Mode = "GM" | "USER" | "DB";
@@ -41,6 +47,11 @@ function formatDate(iso: string): string {
   } catch {
     return iso;
   }
+}
+
+function pgnResultOf(pgn: string): string {
+  const match = pgn.match(/\[Result\s+"([^"]+)"\]/);
+  return match ? match[1] : "—";
 }
 
 export function OwnGameAnalysisView() {
@@ -77,6 +88,7 @@ export function OwnGameAnalysisView() {
   // Informe del GM emitido por el panel, para renderizarlo al final de la página.
   const [feedback, setFeedback] = useState<GeminiFeedback | null>(null);
   const [feedbackMode, setFeedbackMode] = useState<string | null>(null);
+  const [printableForm, setPrintableForm] = useState<AnalysisFormState | null>(null);
   const handleFeedback = useCallback(
     (f: GeminiFeedback | null, mode?: string | null) => {
       setFeedback(f);
@@ -171,7 +183,8 @@ export function OwnGameAnalysisView() {
     mode === "GM" ? selectedGmGame : mode === "DB" ? selectedDbGame : loadedPgn;
 
   return (
-    <div className="space-y-6">
+    <>
+      <div className="space-y-6 print:hidden">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight">
@@ -480,6 +493,7 @@ export function OwnGameAnalysisView() {
               blackPlayer={selectedGmGame.black}
               hideFeedback
               onFeedbackChange={handleFeedback}
+              onFormChange={setPrintableForm}
             />
           </div>
         </div>
@@ -498,6 +512,7 @@ export function OwnGameAnalysisView() {
               blackPlayer={blackPlayer.trim() || "Negras"}
               hideFeedback
               onFeedbackChange={handleFeedback}
+              onFormChange={setPrintableForm}
             />
           </div>
         </div>
@@ -516,6 +531,7 @@ export function OwnGameAnalysisView() {
               blackPlayer={selectedDbGame.black_player || "Negras"}
               hideFeedback
               onFeedbackChange={handleFeedback}
+              onFormChange={setPrintableForm}
             />
           </div>
         </div>
@@ -524,17 +540,65 @@ export function OwnGameAnalysisView() {
       {/* Informe del GM: siempre al final, a todo ancho */}
       {gameLoaded && feedback && (
         <div className="space-y-4">
-          <Separator />
-          <h2 className="text-xl font-semibold text-primary">
-            {feedbackMode === "ai"
-              ? "Análisis del Gran Maestro (IA)"
-              : "Informe del Gran Maestro"}
-          </h2>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-xl font-semibold text-primary">
+              {feedbackMode === "ai"
+                ? "Análisis del Gran Maestro (IA)"
+                : "Informe del Gran Maestro"}
+            </h2>
+            <Button
+              variant="outline"
+              onClick={() => window.print()}
+              className="gap-2 no-print"
+            >
+              <FileDown className="h-4 w-4" />
+              Exportar a PDF
+            </Button>
+          </div>
           <GeminiFeedbackDisplay feedback={feedback} mode={feedbackMode} />
         </div>
       )}
         </>
       )}
-    </div>
+      </div>
+
+      {gameLoaded && feedback && (
+        <PrintAnalysisReport
+          white={
+            mode === "GM"
+              ? (selectedGmGame?.white ?? "Blancas")
+              : mode === "DB"
+                ? (selectedDbGame?.white_player || "Blancas")
+                : whitePlayer.trim() || "Blancas"
+          }
+          black={
+            mode === "GM"
+              ? (selectedGmGame?.black ?? "Negras")
+              : mode === "DB"
+                ? (selectedDbGame?.black_player || "Negras")
+                : blackPlayer.trim() || "Negras"
+          }
+          result={
+            mode === "GM"
+              ? (selectedGmGame?.result ?? "—")
+              : mode === "DB"
+                ? (selectedDbGame?.result || "—")
+                : (loadedPgn ? pgnResultOf(loadedPgn) : "—")
+          }
+          analysisDate={formatDate(new Date().toISOString())}
+          gameType={mode === "GM" ? "GM" : "USER"}
+          pgn={
+            mode === "GM"
+              ? selectedGmGame?.pgn
+              : mode === "DB"
+                ? selectedDbGame?.pgn_content
+                : loadedPgn
+          }
+          form={printableForm}
+          feedback={feedback}
+          mode={feedbackMode}
+        />
+      )}
+    </>
   );
 }

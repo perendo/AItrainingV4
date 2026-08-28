@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, FileText, ChevronRight, Crown, UserRound, Clock, AlertTriangle } from "lucide-react";
+import { Loader2, FileText, ChevronRight, Crown, UserRound, Clock, AlertTriangle, BookMarked } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { listGameAnalyses } from "@/lib/api";
@@ -147,12 +147,18 @@ export function AnalysisHistoryList() {
                     variant="outline"
                     className="gap-1 text-xs"
                   >
-                    {analysis.game_type === "GM" ? (
+                    {analysis.analysis_mode === "guided_opening" ? (
+                      <BookMarked className="h-3 w-3 text-primary" />
+                    ) : analysis.game_type === "GM" ? (
                       <Crown className="h-3 w-3 text-primary" />
                     ) : (
                       <UserRound className="h-3 w-3 text-primary" />
                     )}
-                    {analysis.game_type === "GM" ? "GM" : "PROPIA / LIGA"}
+                    {analysis.analysis_mode === "guided_opening"
+                      ? "PARTIDA GUIADA"
+                      : analysis.game_type === "GM"
+                        ? "GM"
+                        : "PROPIA / LIGA"}
                   </Badge>
                   <StatusBadge status={status} />
                   <ChevronRight className="h-4 w-4 text-muted-foreground" />

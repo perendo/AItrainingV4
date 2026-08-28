@@ -27,6 +27,10 @@ Plataforma integral de entrenamiento de ajedrez que combina **análisis de parti
 
 ## 📌 Novedades Recientes y Corrección de Bugs
 
+- **Partida Guiada de Apertura (`/estudio-aperturas`) & Mejoras de Consultas al GM / PDF:**
+  - Módulo interactivo de Partidas Guiadas contra el libro de aperturas (PolyGlot) con pausa automática al salir de la teórica, consulta automática al GM y contestación única auditada por Gemini con prompts pedagógicos estrictos (exigiendo explicaciones con el *porqué*, casillas clave y maniobras).
+  - Exportación a PDF en Partida Guiada, `/analisis` (capturando dinámicamente el formulario del usuario) e histórico, solucionando el renderizado de la posición final mediante `parsePgnMoves` y evitando omisiones de impresión en bloques largos.
+  - Reestructuración de Consultas al GM (`/consulta-gm`) con histórico agrupado por días ("Hoy", "Ayer", "Anteriores"), visualización de conversaciones completas, botón de exportar conversación a PDF y pantalla limpia para realizar nuevas consultas sin sobrecargar el flujo.
 - **Módulo de Finales Teóricos:** incorporación de modelos `EndgameLesson`, `EndgameTimelineEvent`, `UserEndgameProgress`, CLI de población/audio, endpoints REST y visor con audio TTS adaptado a voz masculina en español (`selectSpanishMaleVoice`).
 - **Módulo Legal / RGPD:** integración del texto maestro (`Docs/legal.md`), migración de aceptación de términos en usuarios, endpoints de exportación y borrado de cuenta robusto para SQLite.
 - **Robustez de IA y Reintentos:** reintentos automáticos en tareas en segundo plano (`audit_existing_analysis`, `process_consultation`) ante fallos transitorios de Gemini (hasta 3 intentos con espera configurable), con recuperación de tareas colgadas al arrancar (`cleanup_stuck_background_tasks`).

@@ -2,14 +2,16 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Loader2, ChevronLeft, Crown, UserRound, FileDown, AlertTriangle } from "lucide-react";
+import { Loader2, ChevronLeft, Crown, UserRound, FileDown, AlertTriangle, BookMarked, MessageSquareText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { getGameAnalysis, getGmGameById } from "@/lib/api";
 import {
   UserGameAnalysisResponse,
   GeminiFeedback,
+  AuditGameAnalysisResponse,
   GMGameResponse,
   gameAnalysisStatus,
   GameAnalysisStatus,
@@ -22,6 +24,7 @@ import {
   AnalysisFormState,
 } from "@/components/analysis/AnalysisFormPanel";
 import { PrintAnalysisReport } from "@/components/analysis/PrintAnalysisReport";
+import { GuidedOpeningFeedbackDisplay } from "@/components/openings/GuidedOpeningFeedback";
 
 
 function formatDate(iso: string): string {
@@ -157,6 +160,20 @@ export default function HistoricoDetailPage() {
     [analysis]
   );
 
+  const isGuided = analysis?.analysis_mode === "guided_opening";
+
+  const guidedFeedback = useMemo<AuditGameAnalysisResponse | null>(
+    () =>
+      analysis && isGuided
+        ? parseJson<AuditGameAnalysisResponse>(analysis.gemini_feedback)
+        : null,
+    [analysis, isGuided]
+  );
+
+  const guidedUserAnswer = isGuided
+    ? (initialForm?.conclusiones?.plan_estrategico?.trim() || null)
+    : null;
+
   const headers = useMemo(() => getPgnHeaders(pgn), [pgn]);
 
   const result = useMemo<string>(() => {
@@ -214,7 +231,9 @@ export default function HistoricoDetailPage() {
             <p className="mt-1 text-sm text-muted-foreground">
               {gmGame
                 ? `${gmGame.event} · ${gmGame.year} · ${gmGame.result} · GM: ${gmGame.gm_name}`
-                : `Analizado el ${new Date(analysis.created_at).toLocaleString("es-ES")}`}
+                : isGuided && guidedFeedback
+                  ? `Partida guiada · ${guidedFeedback.eco_code} – ${guidedFeedback.opening_name} · Analizada el ${new Date(analysis.created_at).toLocaleString("es-ES")}`
+                  : `Analizado el ${new Date(analysis.created_at).toLocaleString("es-ES")}`}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -227,12 +246,18 @@ export default function HistoricoDetailPage() {
               Exportar a PDF
             </Button>
             <Badge variant="outline" className="gap-1 text-xs">
-              {gameType === "GM" ? (
+              {isGuided ? (
+                <BookMarked className="h-3 w-3 text-primary" />
+              ) : gameType === "GM" ? (
                 <Crown className="h-3 w-3 text-primary" />
               ) : (
                 <UserRound className="h-3 w-3 text-primary" />
               )}
-              {gameType === "GM" ? "Partida de GM" : "Mi Partida / Liga"}
+              {isGuided
+                ? "Partida Guiada de Apertura"
+                : gameType === "GM"
+                  ? "Partida de GM"
+                  : "Mi Partida / Liga"}
             </Badge>
             <StatusBadge status={status} />
           </div>
@@ -240,8 +265,9 @@ export default function HistoricoDetailPage() {
 
         {status === "pending" && (
           <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
-            Esta partida aún no se ha enviado al Gran Maestro. Completa el formulario de
-            autodiagnóstico y pulsa &quot;Enviar a Evaluación del Gran Maestro&quot;.
+            {isGuided
+              ? "Esta partida guiada quedó sin auditar. Vuelve a la página de Partida Guiada de Apertura para terminarla."
+              : "Esta partida aún no se ha enviado al Gran Maestro. Completa el formulario de autodiagnóstico y pulsa &quot;Enviar a Evaluación del Gran Maestro&quot;."}
           </div>
         )}
 
@@ -251,14 +277,46 @@ export default function HistoricoDetailPage() {
             <p className="mt-1">
               {analysis.error_message ||
                 "El Gran Maestro no pudo completar la auditoría: la IA no respondió tras varios intentos."}{" "}
-              Tus respuestas están guardadas: revisa el formulario y vuelve a pulsar
-              &quot;Enviar a Evaluación del Gran Maestro&quot; cuando quieras reintentarlo.
+              {isGuided
+                ? "Vuelve a la página de Partida Guiada de Apertura y reenvía tu contestación cuando quieras."
+                : "Tus respuestas están guardadas: revisa el formulario y vuelve a pulsar &quot;Enviar a Evaluación del Gran Maestro&quot; cuando quieras reintentarlo."}
             </p>
           </div>
         )}
 
         {pgn ? (
-          <div className="space-y-8">
+          isGuided ? (
+            guidedFeedback ? (
+              <div className="flex flex-col lg:flex-row gap-6">
+                <div className="w-full lg:w-[55%]">
+                  <ReplayBoard pgn={pgn} />
+                </div>
+                <div className="w-full lg:w-[45%]">
+                  {guidedUserAnswer && (
+                    <Card className="mb-4">
+                      <CardContent className="p-4">
+                        <p className="flex items-center gap-2 text-sm font-semibold">
+                          <MessageSquareText className="h-4 w-4 text-primary" />
+                          Tu contestación
+                        </p>
+                        <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">
+                          {guidedUserAnswer}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  )}
+                  <GuidedOpeningFeedbackDisplay feedback={guidedFeedback} />
+                </div>
+              </div>
+            ) : (
+              <div className="rounded-xl border bg-white p-10 text-center shadow-sm dark:bg-slate-900">
+                <p className="text-muted-foreground">
+                  Esta partida guiada no tiene un informe del Gran Maestro guardado.
+                </p>
+              </div>
+            )
+          ) : (
+            <div className="space-y-8">
             {/* Layout de 2 columnas igual que el análisis de partida de GM */}
             <div className="flex flex-col lg:flex-row gap-6">
               {/* Columna izquierda: tablero (55%) */}
@@ -301,6 +359,7 @@ export default function HistoricoDetailPage() {
               </div>
             )}
           </div>
+          )
         ) : (
           <div className="rounded-xl border bg-white p-10 text-center shadow-sm dark:bg-slate-900">
             <p className="text-muted-foreground">
@@ -318,12 +377,16 @@ export default function HistoricoDetailPage() {
         whiteElo={whiteElo}
         blackElo={blackElo}
         result={result}
+        guidedResultLabel={isGuided ? "Partida guiada de apertura" : undefined}
         analysisDate={formatDate(analysis.created_at)}
         gameType={gameType}
         pgn={pgn}
-        form={initialForm}
-        feedback={feedback ?? initialFeedback}
+        form={isGuided ? null : initialForm}
+        feedback={isGuided ? null : (feedback ?? initialFeedback)}
         mode={analysis?.analysis_mode ?? null}
+        guided={isGuided}
+        guidedFeedback={guidedFeedback}
+        guidedAnswer={guidedUserAnswer}
       />
     </>
   );

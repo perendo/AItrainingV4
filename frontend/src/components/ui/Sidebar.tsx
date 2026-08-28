@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useEffect } from "react"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils" 
-import { Trophy, Brain, Target, User, LogOut, History, Gamepad2, ClipboardList, MessageCircleQuestion, Crown, DoorOpen, X, BookOpen } from "lucide-react"
+import { Trophy, Brain, Target, User, LogOut, History, Gamepad2, ClipboardList, MessageCircleQuestion, Crown, DoorOpen, X, BookOpen, BookMarked } from "lucide-react"
 import { useGMConsultation } from "@/context/GMConsultationContext"
 import { exitToDesktop } from "@/lib/kiosk"
 import { LEGAL_LINKS, CONTACT_EMAIL } from "@/lib/legal"
@@ -18,6 +18,7 @@ const menuOptions = [
   { name: "Coach IA", href: "/coach", icon: Brain },
   { name: "Entrenamiento", href: "/entrenamiento", icon: Target },
   { name: "Academia de Finales", href: "/entrenamiento/finales", icon: Crown },
+  { name: "Partida Guiada de Apertura", href: "/estudio-aperturas", icon: BookMarked },
   { name: "Consultar al GM", href: "/consulta-gm", icon: MessageCircleQuestion },
   { name: "Mi Perfil", href: "/perfil", icon: User },
 ]

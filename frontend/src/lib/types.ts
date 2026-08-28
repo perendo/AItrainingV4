@@ -177,6 +177,8 @@ export interface ConclusionesPlan {
   idea_a_repasar: string;
 }
 
+export type AnalysisMode = "auto" | "ai" | "self_audit" | "guided_opening";
+
 export interface UserGameAnalysisSubmit {
   gm_game_id?: string | number | null;
   game_type: "GM" | "USER";
@@ -184,7 +186,7 @@ export interface UserGameAnalysisSubmit {
   black_player?: string;
   pgn?: string;
   analysis_id?: number;
-  analysis_mode?: "auto" | "ai" | "self_audit";
+  analysis_mode?: AnalysisMode;
   fases_analisis: FasesAnalisis;
   momentos_criticos: MomentosCriticos;
   factores_posicionales: FactoresPosicionales;
@@ -198,7 +200,7 @@ export interface UserGameAnalysisDraft {
   black_player?: string;
   pgn?: string;
   analysis_id?: number;
-  analysis_mode?: "auto" | "ai" | "self_audit";
+  analysis_mode?: AnalysisMode;
   fases_analisis?: FasesAnalisis;
   momentos_criticos?: MomentosCriticos;
   factores_posicionales?: FactoresPosicionales;
@@ -259,6 +261,37 @@ export interface UserGameAnalysisResponse {
 
 export type GameAnalysisGameType = "GM" | "USER";
 
+// --- Respuesta estructurada de la Partida Guiada de Apertura ---
+// Capa A: feedback pedagógico del tutor sobre el autodiagnóstico del alumno.
+export interface TutorFeedback {
+  user_summary: string;
+  conceptual_error: string;
+  takeaway_lesson: string;
+}
+
+// Capa B: punto crítico de la partida según Stockfish.
+export interface CriticalMoment {
+  ply: number;
+  san_move: string;
+  eval_change: number;
+  explanation: string;
+}
+
+// Capa B: análisis general de la IA, limpio y técnico.
+export interface GeneralAIAnalysis {
+  summary: string;
+  critical_moments: CriticalMoment[];
+  strategic_plans: string[];
+}
+
+export interface AuditGameAnalysisResponse {
+  eco_code: string;
+  opening_name: string;
+  is_user_analysis_sufficient: boolean;
+  tutor_feedback: TutorFeedback;
+  general_ai_analysis: GeneralAIAnalysis;
+}
+
 export type GameAnalysisStatus =
   | "pending"
   | "audit_failed"
@@ -275,6 +308,16 @@ export function gameAnalysisStatus(analysis: UserGameAnalysisResponse): GameAnal
   // dice "failed" por un flag obsoleto de una auditoría previa).
   if (analysis.gemini_feedback) {
     try {
+      if (analysis.analysis_mode === "guided_opening") {
+        // La partida guiada devuelve AuditGameAnalysisResponse, cuyo veredicto
+        // es is_user_analysis_sufficient (el esquema GeminiFeedback no aplica).
+        const feedback = JSON.parse(analysis.gemini_feedback) as AuditGameAnalysisResponse;
+        if (typeof feedback.is_user_analysis_sufficient === "boolean") {
+          return feedback.is_user_analysis_sufficient
+            ? "evaluated_correct"
+            : "evaluated_incorrect";
+        }
+      }
       const feedback = JSON.parse(analysis.gemini_feedback) as GeminiFeedback;
       return feedback.auditoria_conclusiones.plan_correcto
         ? "evaluated_correct"
@@ -390,4 +433,18 @@ export interface StockfishMoveResponse {
   move_uci: string;
   move_san: string;
   fen_after: string;
+}
+
+// Partidas Guiadas de Apertura — jugadas del libro de aperturas (PolyGlot)
+export interface BookMoveItem {
+  san: string;
+  uci: string;
+  weight: number;
+}
+
+export interface BookMoveResponse {
+  in_theory: boolean;
+  moves: BookMoveItem[];
+  best_move: BookMoveItem | null;
+  fen_after: string | null;
 }

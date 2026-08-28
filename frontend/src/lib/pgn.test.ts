@@ -10,7 +10,9 @@ import {
   pathsEqual,
   prevPath,
   resolvePosition,
+  buildGuidedOpeningPgn,
 } from "./pgn";
+import type { AuditGameAnalysisResponse } from "./types";
 
 // Muestra realista basada en el PGN de "final-1" (Lichess study export):
 // cabeceras, comentario inicial, NAGs, comentarios con directivas [%csl]/[%cal]
@@ -258,5 +260,98 @@ describe("fixEncoding", () => {
       `[FEN "6k1/8/8/8/8/8/P7/7K w - - 0 1"]\n\n1. a4 { El peÃ³n avanza } 1... Kf7`
     );
     expect(parsed.mainLine[0].commentAfter?.text).toBe("El peón avanza");
+  });
+});
+
+describe("buildGuidedOpeningPgn", () => {
+  const moves = [{ san: "e4" }, { san: "e5" }, { san: "Nf3" }, { san: "Nc6" }];
+
+  const feedback: AuditGameAnalysisResponse = {
+    eco_code: "C50",
+    opening_name: "Apertura Italiana",
+    is_user_analysis_sufficient: false,
+    tutor_feedback: {
+      user_summary: "Detectaste bien la amenaza.",
+      conceptual_error: "El plan de las blancas es diferente.",
+      takeaway_lesson: "Controla el centro antes de atacar en el flanco.",
+    },
+    general_ai_analysis: {
+      summary: "Las blancas mantienen la iniciativa.",
+      critical_moments: [
+        { ply: 3, san_move: "Nf3", eval_change: 0.32, explanation: "El caballo apoya d4." },
+      ],
+      strategic_plans: ["Domina el centro"],
+    },
+  };
+
+  it("incluye cabeceras, numeración y resultado", () => {
+    const pgn = buildGuidedOpeningPgn({
+      moves,
+      whitePlayer: "Tú (Alumno)",
+      blackPlayer: "Libro de Aperturas",
+      openingName: "Apertura Italiana",
+      ecoCode: "C50",
+    });
+
+    expect(pgn).toContain('[Event "Partida Guiada de Apertura"]');
+    expect(pgn).toContain('[White "Tú (Alumno)"]');
+    expect(pgn).toContain('[Black "Libro de Aperturas"]');
+    expect(pgn).toContain('[Opening "C50 – Apertura Italiana"]');
+    expect(pgn).toMatch(/\[Date "20\d\d\.\d\d\.\d\d"\]/);
+    expect(pgn).toContain("1. e4 e5 2. Nf3 Nc6 *");
+  });
+
+  it("sin feedback no incluye anotaciones del GM", () => {
+    const pgn = buildGuidedOpeningPgn({
+      moves,
+      whitePlayer: "A",
+      blackPlayer: "B",
+    });
+
+    expect(pgn).not.toContain("Momento crítico");
+    expect(pgn).not.toContain("Regla de oro");
+    expect(pgn).toContain("1. e4 e5 2. Nf3 Nc6 *");
+  });
+
+  it("incrusta el momento crítico, la regla de oro y el veredicto", () => {
+    const pgn = buildGuidedOpeningPgn({
+      moves,
+      whitePlayer: "A",
+      blackPlayer: "B",
+      openingName: "Italiana",
+      ecoCode: "C50",
+      feedback,
+    });
+
+    expect(pgn).toContain(
+      "{Momento crítico (ev. +0.32): El caballo apoya d4.}",
+    );
+    expect(pgn).toContain("{Regla de oro: Controla el centro antes de atacar en el flanco.}");
+    expect(pgn).toContain("{El autodiagnóstico fue insuficiente: revisa la corrección del tutor.}");
+  });
+
+  it("marca el veredicto como suficiente cuando el plan es correcto", () => {
+    const ok: AuditGameAnalysisResponse = {
+      ...feedback,
+      is_user_analysis_sufficient: true,
+    };
+    const pgn = buildGuidedOpeningPgn({ moves, whitePlayer: "A", blackPlayer: "B", feedback: ok });
+    expect(pgn).toContain("{El autodiagnóstico fue suficiente.}");
+  });
+
+  it("ignora momentos críticos fuera de rango o sin ply", () => {
+    const bad = {
+      ...feedback,
+      general_ai_analysis: {
+        ...feedback.general_ai_analysis,
+        critical_moments: [
+          { ply: 99, san_move: "Nf3", eval_change: 1, explanation: "Fuera de rango" },
+          { ply: 0, san_move: "e5", eval_change: 1, explanation: "Sin ply" },
+        ],
+      },
+    };
+    const pgn = buildGuidedOpeningPgn({ moves, whitePlayer: "A", blackPlayer: "B", feedback: bad });
+    expect(pgn).not.toContain("Fuera de rango");
+    expect(pgn).not.toContain("Sin ply");
   });
 });

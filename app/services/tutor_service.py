@@ -11,10 +11,11 @@ from app.models.user_analyzed_gm_game import UserAnalyzedGMGame
 from app.models.user import User
 from app.schemas.analysis import (
     FasesAnalisis, MomentosCriticos, FactoresPosicionales,
-    ConclusionesPlan, GeminiFeedback, GameAnalysisCreate,
-    GameAnalysisDraftCreate,
+    ConclusionesPlan, GeminiFeedback, AuditGameAnalysisResponse,
+    GameAnalysisCreate, GameAnalysisDraftCreate,
 )
 from app.services.gemini_client import gemini_client
+from app.services.theory_service import theory_service
 
 logger = logging.getLogger("EntrenadorIA")
 
@@ -38,10 +39,10 @@ class TutorGeminiService:
         )
 
         mode = self._resolve_mode(analysis_data)
-        system_prompt = self._get_system_prompt(mode)
-        user_prompt = self._build_user_prompt(
+        system_prompt, user_prompt = self._build_prompts(
             pgn, white_player, black_player, analysis_data, player_username, user_side, mode
         )
+        schema = self._get_feedback_schema(mode)
 
         try:
             logger.info("Enviando autodiagnóstico a Gemini para auditoría...")
@@ -49,7 +50,8 @@ class TutorGeminiService:
             feedback_data = gemini_client.generate_json(
                 user_prompt,
                 system_prompt=system_prompt,
-                schema=GeminiFeedback,
+                schema=schema,
+                response_schema=False if mode == "guided_opening" else None,
                 temperature=0.3,
                 max_output_tokens=4096,
             )
@@ -203,10 +205,10 @@ class TutorGeminiService:
                     db, analysis_data
                 )
                 mode = self._resolve_mode(analysis_data)
-                system_prompt = self._get_system_prompt(mode)
-                user_prompt = self._build_user_prompt(
+                system_prompt, user_prompt = self._build_prompts(
                     pgn, white_player, black_player, analysis_data, player_username, user_side, mode
                 )
+                schema = self._get_feedback_schema(mode)
 
                 max_intentos = max(1, settings.GEMINI_TASK_RETRIES)
                 espera = settings.GEMINI_TASK_RETRY_WAIT_SECONDS
@@ -220,7 +222,8 @@ class TutorGeminiService:
                         feedback_data = gemini_client.generate_json(
                             user_prompt,
                             system_prompt=system_prompt,
-                            schema=GeminiFeedback,
+                            schema=schema,
+                            response_schema=False if mode == "guided_opening" else None,
                             temperature=0.3,
                             max_output_tokens=4096,
                         )
@@ -399,7 +402,277 @@ class TutorGeminiService:
     def _get_system_prompt(self, mode: str = "audit") -> str:
         if mode == "ai":
             return self._get_ai_system_prompt()
+        if mode == "guided_opening":
+            return self._get_guided_opening_system_prompt()
         return self._get_audit_system_prompt()
+
+    def _build_prompts(
+        self,
+        pgn: str,
+        white_player: str,
+        black_player: str,
+        analysis_data: GameAnalysisCreate,
+        player_username: Optional[str] = None,
+        user_side: Optional[str] = None,
+        mode: str = "audit",
+    ) -> tuple:
+        """Devuelve (system_prompt, user_prompt) según el modo de análisis.
+
+        El modo 'guided_opening' añade el contexto de la teórica detectado por
+        ``theory_service`` (Punto de Pausa Principal, FEN de salida del libro, etc.).
+        """
+        if mode == "guided_opening":
+            theory_context = self._get_theory_context(pgn)
+            return (
+                self._get_guided_opening_system_prompt(),
+                self._build_guided_opening_user_prompt(
+                    pgn, white_player, black_player, analysis_data,
+                    player_username, user_side, theory_context,
+                ),
+            )
+        return (
+            self._get_system_prompt(mode),
+            self._build_user_prompt(
+                pgn, white_player, black_player, analysis_data,
+                player_username, user_side, mode,
+            ),
+        )
+
+    @staticmethod
+    def _get_feedback_schema(mode: str):
+        """Esquema Pydantic que valida la respuesta de Gemini según el modo."""
+        if mode == "guided_opening":
+            return AuditGameAnalysisResponse
+        return GeminiFeedback
+
+    # ------------------------------------------------------------------ #
+    # Partida Guiada de Apertura: contexto de la teórica y prompts
+    # ------------------------------------------------------------------ #
+
+    def _get_theory_context(self, pgn: str) -> dict:
+        """Detecta el fin de la teórica con ``theory_service`` y prepara el contexto.
+
+        Devuelve un dict con las jugadas SAN, la salida del libro (Punto de
+        Pausa Principal FEN) y, si está disponible, la evaluación de Stockfish
+        de la posición de salida.
+        """
+        san_moves = theory_service.extract_san_moves(pgn)
+        end = theory_service.find_end_of_theory(san_moves)
+        context: dict = {
+            "san_moves": san_moves,
+            "end_of_theory": end,
+        }
+        if end.get("end_ply") is not None:
+            context["last_theory_fen"] = end["last_theory_fen"]
+            context["out_of_theory_fen"] = end["out_of_theory_fen"]
+            context["deviation_move"] = end["deviation_move"]
+            context["move_number"] = end["move_number"]
+            context["end_ply"] = end["end_ply"]
+            context["stockfish"] = self._evaluate_position(end["out_of_theory_fen"])
+        return context
+
+    def _evaluate_position(self, fen: str) -> Optional[dict]:
+        """Evalúa una posición con Stockfish (0.1s/move) para respaldar los
+        momentos críticos. Devuelve {"cp": int, "best_move": str} o None si el
+        motor no está disponible. Nunca lanza: la teórica guiada depende solo del libro."""
+        try:
+            import chess
+            import chess.engine
+
+            engine = chess.engine.SimpleEngine.popen_uci(settings.STOCKFISH_PATH)
+            try:
+                board = chess.Board(fen)
+                info = engine.analyse(board, chess.engine.Limit(time=0.1))
+                score = info["score"].white()
+                if score.is_mate():
+                    cp = 10000 if score.mate() > 0 else -10000
+                else:
+                    cp = score.score()
+                best_move = None
+                pv = info.get("pv")
+                if pv:
+                    best_move = board.san(pv[0])
+                return {"cp": int(cp), "best_move": best_move}
+            finally:
+                engine.quit()
+        except Exception as e:
+            logger.debug(f"No se pudo evaluar con Stockfish ({fen}): {e}")
+            return None
+
+    def _get_guided_opening_system_prompt(self) -> str:
+        return """
+ACTÚAS COMO UN GRAN MAESTRO Y ENTRENADOR PEDAGÓGICO DE AJEDREZ.
+Tu tarea es analizar el PGN adjunto, explicar qué se pretende con la jugada
+que sacó al alumno del libro de aperturas y auditar la contestación que el
+alumno redacta sobre sus intenciones con esa jugada.
+
+RECIBIRÁS:
+1. La partida completa en PGN.
+2. El Punto de Pausa Principal: el FEN exacto y la jugada donde el alumno
+   salió de la teórica (detectado con el libro de aperturas PolyGlot).
+3. La evaluación de Stockfish de la posición de salida de la teórica
+   (si el motor estuvo disponible) y las mejores alternativas.
+4. La CONTESTACIÓN del alumno (un ÚNICO texto) a la pregunta:
+   "¿Qué pretendías conseguir con la jugada de salida de la teoría?".
+
+ESTILO PEDAGÓGICO (OBLIGATORIO):
+- Explica SIEMPRE el PORQUÉ de cada afirmación, mencionando las piezas, casillas
+  y amenazas concretas de ESA posición. Evita frases telegráficas o imperativos
+  sueltos sin justificación.
+- tutor_feedback.conceptual_error: 2-4 frases detalladas que citen la jugada
+  de salida, las casillas clave (p. ej. la debilidad de f2, la diagonal del alfil)
+  y por qué el razonamiento del alumno es insuficiente.
+- tutor_feedback.takeaway_lesson: expresa el PRINCIPIO subyacente de la jugada
+  (qué ventaja busca, qué debilidad cuida y por qué) en una regla de oro memorable
+  aplicable a futuras partidas (no una lista de jugadas).
+- general_ai_analysis.strategic_plans: cada plan de la lista debe constar de
+  2-3 frases explicando: (1) el objetivo estratégico, (2) la maniobra concreta
+  de piezas con sus casillas, y (3) el porqué / qué amenaza o defiende. Nunca
+  apuntes ítems sueltos o telegráficos.
+
+PROCEDIMIENTO (clave):
+a) Determina TÚ primero qué se pretende realmente con la jugada de salida
+   de la teórica: razona la idea/temática de esa jugada con el PGN, los FEN
+   y la evaluación de Stockfish. NO te limites a lo que escriba el alumno.
+b) Audita después la contestación del alumno comparándola con esa idea real.
+c) Si la contestación es vaga, imprecisa, errónea o está vacía, considera
+   is_user_analysis_sufficient=false y explica con claridad el fallo.
+   Si está vacía, sustituye su respuesta por la explicación correcta del
+   propósito de la jugada.
+
+ESTRUCTURA OBLIGATORIA DE SALIDA:
+Genera EXCLUSIVAMENTE un JSON válido con este esquema exacto (es un CONTRATO
+de estructura: usa ÚNICAMENTE estas claves y sus nombres tal cual, sin añadir
+ni omitir ninguna):
+
+{
+  "eco_code": "String (ej: C89)",
+  "opening_name": "String (Nombre de la apertura y variante)",
+  "is_user_analysis_sufficient": boolean,
+  "tutor_feedback": {
+    "user_summary": "Resumen de la idea expresada por el alumno",
+    "conceptual_error": "Explicación detallada y argumentada de por qué su razonamiento es erróneo o incompleto",
+    "takeaway_lesson": "Principio estratégico claro y desarrollado que debe recordar"
+  },
+  "general_ai_analysis": {
+    "summary": "Resumen técnico de la partida",
+    "critical_moments": [
+      {
+        "ply": int,
+        "san_move": "String",
+        "eval_change": "Float",
+        "explanation": "Explicación de la jugada crítica vinculada al motivo táctico o estratégico"
+      }
+    ],
+    "strategic_plans": ["Lista de 2 a 3 planes estratégicos, cada uno desarrollado en 2-3 frases con objetivo, maniobra y porqué"]
+  }
+}
+
+DOBLE CAPA DE ANÁLISIS (CLAVE):
+- Capa A (tutor_feedback): feedback PEDAGÓGICO del tutor sobre la contestación
+  del alumno (qué pretendía con la jugada de salida). Tiene 3 puntos obligatorios:
+    a) user_summary: qué entendió el jugador: recoge la idea que expresó en su
+       contestación (si está vacía, indícalo y resume la idea correcta).
+    b) conceptual_error: error conceptual: explicación de la falla estratégica/táctica
+       respaldada por el motor (cita la jugada de salida y jugadas concretas del PGN).
+    c) takeaway_lesson: regla de oro / lección a recordar: principio pedagógico
+       sobre el propósito de la jugada de salida para futuras partidas.
+  Si la contestación del alumno es incorrecta, vaga o insuficiente, NO respondas
+  con una negativa escueta: explica con claridad y concreción qué falló y por qué.
+- Capa B (general_ai_analysis): análisis general de la IA, LIMPIO y técnico, con
+  los momentos críticos de Stockfish y las mejores alternativas. No se mezcla con
+  la corrección pedagógica del alumno.
+
+IDENTIFICACIÓN TEÓRICA:
+- eco_code: código ECO de la apertura (p. ej. "C89").
+- opening_name: nombre oficial de la apertura y la variante en español
+  (p. ej. "Ruy López: Ataque Marshall").
+- En critical_moments, ply es el semicompás (ply) de la jugada en la partida,
+  san_move su notación SAN, eval_change la variación de evaluación en centipawns
+  respecto a la jugada anterior, y explanation una frase clara.
+
+Sé severo pero constructivo y pedagógico. Responde SOLO el JSON, con exactamente la estructura
+descrita, y nada más. Nunca dejes el JSON a medias.
+"""
+
+    def _build_guided_opening_user_prompt(
+        self,
+        pgn: str,
+        white_player: str,
+        black_player: str,
+        analysis_data: GameAnalysisCreate,
+        player_username: Optional[str] = None,
+        user_side: Optional[str] = None,
+        theory_context: Optional[dict] = None,
+    ) -> str:
+        conclusiones = analysis_data.conclusiones_plan
+
+        user_context_line = ""
+        if player_username or user_side:
+            side_str = f"las {user_side}" if user_side else "el bando correspondiente"
+            nick_str = f" con nick/usuario '{player_username}'" if player_username else ""
+            user_context_line = f"\nIMPORTANTE: El usuario a evaluar es el jugador de {side_str}{nick_str}.\n"
+
+        theory_lines = self._format_theory_context(theory_context)
+
+        deviation = (theory_context or {}).get("deviation_move")
+        contestacion_label = (
+            f"¿Qué pretendías conseguir con la jugada {deviation} tras salir del "
+            "libro de aperturas?"
+            if deviation
+            else "¿Qué pretendías conseguir con tu última jugada?"
+        )
+
+        return f"""
+PARTIDA (PGN):
+{pgn}
+
+JUGADORES:
+- Blancas: {white_player}
+- Negras: {black_player}
+{user_context_line}
+CONTEXTO DE LA TEÓRICA (libro de aperturas PolyGlot):
+{theory_lines}
+CONTESTACIÓN DEL ALUMNO sobre la jugada de salida de la teoría
+({contestacion_label}):
+{conclusiones.plan_estrategico}
+
+---
+Procede en dos pasos: 1) explica qué se pretende realmente con la jugada de
+salida de la teoría en esta posición; 2) audita la contestación del alumno
+comparándola con esa idea. Genera tu respuesta en el JSON estricto solicitado
+(eco_code, opening_name, is_user_analysis_sufficient, tutor_feedback y
+general_ai_analysis).
+"""
+
+    def _format_theory_context(self, theory_context: Optional[dict]) -> str:
+        """Formatea el contexto de la teórica para incluirlo en el prompt de Gemini."""
+        if not theory_context:
+            return "- No se pudo detectar el contexto de apertura (partida vacía o ilegible)."
+        end = theory_context.get("end_of_theory") or {}
+        san_moves = theory_context.get("san_moves") or []
+        if end.get("end_ply") is None:
+            msg = end.get("message", "Sin salida de teórica detectada")
+            return (
+                f"- Número de jugadas SAN: {len(san_moves)}\n"
+                f"- {msg}"
+            )
+        stockfish_lines = "- Eval de Stockfish: no disponible."
+        sf = theory_context.get("stockfish")
+        if sf:
+            stockfish_lines = (
+                f"- Eval de Stockfish (centipawns, favor de blancas): {sf['cp']}\n"
+                f"- Mejor jugada según Stockfish: {sf['best_move']}"
+            )
+        return (
+            f"- Número de jugadas SAN: {len(san_moves)}\n"
+            f"- Punto de Pausa Principal (fin de la teórica): jugada "
+            f"{theory_context.get('move_number')} (ply {theory_context.get('end_ply')}, "
+            f"jugada {theory_context.get('deviation_move')})\n"
+            f"- Última posición dentro del libro (FEN): {theory_context.get('last_theory_fen')}\n"
+            f"- Posición de salida de la teórica (FEN): {theory_context.get('out_of_theory_fen')}\n"
+            f"{stockfish_lines}"
+        )
 
     def _get_ai_system_prompt(self) -> str:
         return """
@@ -556,17 +829,20 @@ Sé severo pero constructivo. Responde SOLO el JSON, con exactamente los 4 bloqu
         return all((c or "").strip() == "" for c in campos)
 
     def _resolve_mode(self, data: GameAnalysisCreate) -> str:
-        """Calcula el modo efectivo de análisis: 'ai' o 'self_audit'.
+        """Calcula el modo efectivo de análisis: 'ai', 'self_audit' o 'guided_opening'.
 
-        - analysis_mode 'ai'       -> análisis de la partida por el GM (sin comentarios).
-        - analysis_mode 'self_audit' -> auditar el autodiagnóstico del alumno.
-        - analysis_mode 'auto'     -> si el formulario está vacío -> 'ai'; si tiene contenido -> 'self_audit'.
+        - analysis_mode 'ai'             -> análisis de la partida por el GM (sin comentarios).
+        - analysis_mode 'self_audit'     -> auditar el autodiagnóstico del alumno.
+        - analysis_mode 'guided_opening' -> Partida Guiada de Apertura (auditoría tras salir de la teórica).
+        - analysis_mode 'auto'           -> si el formulario está vacío -> 'ai'; si tiene contenido -> 'self_audit'.
         """
         modo = (getattr(data, "analysis_mode", None) or "auto").strip().lower()
         if modo == "ai":
             return "ai"
         if modo == "self_audit":
             return "self_audit"
+        if modo == "guided_opening":
+            return "guided_opening"
         # auto
         return "ai" if self._is_form_empty(data) else "self_audit"
 
