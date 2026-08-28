@@ -322,7 +322,7 @@ export default function HistoricoDetailPage() {
         gameType={gameType}
         pgn={pgn}
         form={initialForm}
-        feedback={initialFeedback}
+        feedback={feedback ?? initialFeedback}
         mode={analysis?.analysis_mode ?? null}
       />
     </>

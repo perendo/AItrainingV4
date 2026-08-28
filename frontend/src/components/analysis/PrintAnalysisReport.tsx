@@ -210,18 +210,20 @@ export function PrintAnalysisReport({
           )}
         </section>
 
-        <section className="mt-6">
-          <h2 className="text-lg font-bold uppercase tracking-wide border-b-2 border-slate-800 pb-1 mb-3">
-            Comentarios del Usuario
-          </h2>
-          {form ? (
-            <UserCommentsPrint form={form} />
-          ) : (
-            <p className="text-sm">No se registraron comentarios del usuario.</p>
-          )}
-        </section>
+        {mode !== "ai" && (
+          <section className="mt-6">
+            <h2 className="text-lg font-bold uppercase tracking-wide border-b-2 border-slate-800 pb-1 mb-3">
+              Comentarios del Usuario
+            </h2>
+            {form ? (
+              <UserCommentsPrint form={form} />
+            ) : (
+              <p className="text-sm">No se registraron comentarios del usuario.</p>
+            )}
+          </section>
+        )}
 
-        <section className="print-block mt-6">
+        <section className="mt-6">
           <h2 className="text-lg font-bold uppercase tracking-wide border-b-2 border-slate-800 pb-1 mb-3">
             Comentarios y Evaluación del Gran Maestro
           </h2>
