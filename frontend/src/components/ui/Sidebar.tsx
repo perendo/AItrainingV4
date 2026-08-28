@@ -18,7 +18,7 @@ const menuOptions = [
   { name: "Coach IA", href: "/coach", icon: Brain },
   { name: "Entrenamiento", href: "/entrenamiento", icon: Target },
   { name: "Academia de Finales", href: "/entrenamiento/finales", icon: Crown },
-  { name: "Partida Guiada de Apertura", href: "/estudio-aperturas", icon: BookMarked },
+  { name: "Estudio Activo de Aperturas", href: "/estudio-aperturas", icon: BookMarked },
   { name: "Consultar al GM", href: "/consulta-gm", icon: MessageCircleQuestion },
   { name: "Mi Perfil", href: "/perfil", icon: User },
 ]

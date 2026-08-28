@@ -298,7 +298,7 @@ export default function EstudioAperturasPage() {
     <>
       <div className="space-y-6 print:hidden">
       <div>
-        <h1 className="text-3xl font-semibold tracking-tight">Partida Guiada de Apertura</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">Estudio Activo de Aperturas</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Juega contra el libro de aperturas: mantente en la teoría el máximo de jugadas posible.
           Cuando salgas del libro, el Gran Maestro te explicará qué se pretendía con la jugada y
