@@ -148,9 +148,15 @@ export function EndgamePracticeBoard({
     requestAnimationFrame(() => setBoardReady(true));
   }, [lesson.slug, lesson.initial_fen, lesson.target_result, lesson.pgn_content]);
 
+  // `position` no se usa en el cuerpo pero actúa como señal reactiva: gameRef
+  // es un ref no reactivo y el turno debe recalcularse tras cada jugada (que
+  // actualiza `position`). Por eso se mantiene como dependencia (y la regla de
+  // dependencias exhaustivas se desactiva para este bloque).
+  /* eslint-disable react-hooks/exhaustive-deps */
   const isUserTurn = useMemo(() => {
     return gameRef.current.turn() === userColor.charAt(0);
   }, [userColor, position]);
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   // Detectar resultado de la partida
   const detectGameResult = useCallback(
@@ -316,7 +322,9 @@ export function EndgamePracticeBoard({
       fetchStockfishMove(game.fen());
       return true;
     },
-    [status, isUserTurn, position, detectGameResult, fetchStockfishMove, playMoveSound, lesson.slug, lesson.target_result, onMastered]
+    // `position` no está aquí: la reactividad del turno la aporta `isUserTurn`
+    // (que sí depende de `position`), por lo que añadirla sería redundante.
+    [status, isUserTurn, detectGameResult, fetchStockfishMove, playMoveSound, lesson.slug, lesson.target_result, onMastered]
   );
 
   const handleReset = useCallback(() => {

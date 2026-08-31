@@ -292,6 +292,7 @@ export const getStockfishMove = (
   fen: string,
   skillLevel: number = 8,
   timeLimit: number = 0.5,
+  depth?: number,
 ): Promise<import("./types").StockfishMoveResponse> => {
   return apiFetch<import("./types").StockfishMoveResponse>(
     "/api/v1/endgames/stockfish-move",
@@ -301,6 +302,7 @@ export const getStockfishMove = (
         fen,
         skill_level: skillLevel,
         time_limit: timeLimit,
+        ...(depth != null ? { depth } : {}),
       },
     },
   );

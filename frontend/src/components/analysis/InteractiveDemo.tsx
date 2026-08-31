@@ -262,7 +262,9 @@ export function InteractiveDemo({
       window.removeEventListener("resize", measure);
       window.removeEventListener("scroll", measure, true);
     };
-  }, [measure, values]);
+    // `current.target` se lista explícitamente aunque `measure` ya dependa de
+    // él: hace explícita la recalibración al cambiar de paso del tour.
+  }, [measure, values, current.target]);
 
   const handleReset = () => {
     setValues(EMPTY_VALUES);

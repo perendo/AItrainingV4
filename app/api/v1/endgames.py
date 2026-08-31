@@ -252,7 +252,11 @@ class StockfishMoveRequest(BaseModel):
     )
     time_limit: float = Field(
         default=0.5, ge=0.05, le=2.0,
-        description="Tiempo máximo de cálculo en segundos",
+        description="Tiempo máximo de cálculo en segundos (usado si depth no se provee)",
+    )
+    depth: Optional[int] = Field(
+        default=None, ge=1, le=15,
+        description="Profundidad máxima de búsqueda (1-15). Si se provee, tiene prioridad sobre time_limit.",
     )
 
 
@@ -294,10 +298,12 @@ def get_stockfish_move(payload: StockfishMoveRequest):
         engine = chess.engine.SimpleEngine.popen_uci(settings.STOCKFISH_PATH)
         engine.configure({"Skill Level": payload.skill_level})
 
-        result = engine.play(
-            board,
-            chess.engine.Limit(time=payload.time_limit),
-        )
+        if payload.depth is not None:
+            limit = chess.engine.Limit(depth=payload.depth)
+        else:
+            limit = chess.engine.Limit(time=payload.time_limit)
+
+        result = engine.play(board, limit)
 
         move_uci = result.move.uci()
         move_san = board.san(result.move)

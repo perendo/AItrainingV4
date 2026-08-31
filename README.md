@@ -53,6 +53,15 @@ Plataforma integral de entrenamiento de ajedrez que combina **análisis de parti
   - **Jugar 1 contra 1 (`LiveGameBoard`):** `pgnPreview`, `moves` y `groupedMoves` se derivaban de `new Chess(fen)` perdiendo el historial de jugadas (mostraba solo headers o vacío). Ahora se derivan de `gameRef.current.history()`. Se añadió Ctrl+V para pegar PGN desde portapapeles (extrae headers White/Black), selector de resultado manual (1-0/0-1/1/2-1/2/*) y campo de comentarios por jugada (sintaxis PGN `{comentario}`). El guardado usa `upload-pgn` (Stockfish + historial) en vez de `save-draft`.
   - **Exportar a PDF del histórico (`historico/[analysisId]` → `window.print()`):** la evaluación del Gran Maestro no aparecía en el PDF. Causa: la sección "Comentarios y Evaluación del Gran Maestro" en `PrintAnalysisReport` llevaba `print-block` (`break-inside: avoid`); al ser más alta que una página, Chromium omitía todo el bloque en la impresión. Se eliminó `print-block` de esa sección para que fluya y nunca se descarte. Además, en modo `ai` se oculta el bloque "Comentarios del Usuario" (el análisis IA va sin comentarios del alumno) y el export usa el `feedback` en vivo (igual que en pantalla). Test de regresión: `PrintAnalysisReport.print.test.tsx`.
 
+- **Estudio Activo de Aperturas — continuar contra Stockfish y guardado automático (ago 2026):**
+  - Tras enviar el plan al GM, el alumno elige **"Finalizar Estudio"** (ver el informe) o **"Continuar Jugando contra Stockfish"** desde el `out_of_theory_fen` (**`OpeningStockfishBoard.tsx`**) mientras la auditoría corre en segundo plano; un banner avisa cuando el informe queda listo.
+  - **La partida SIEMPRE se guarda en el histórico al salir del tablero Stockfish.** Tres caminos:
+    - *Guardar partida y ver informe*: persiste el PGN completo (apertura + medio juego) con su resultado real y sale.
+    - *Abandonar partida (gana el motor) y guardar*: registra el PGN con derrota forzada del usuario (`0-1`/`1-0` según color) antes de salir.
+    - *Fin natural* (mate/ahogado/50 jugadas/triple repetición): se auto-guarda una sola vez con el resultado real, incluyendo la jugada final.
+  - **Histórico desdoblado** (`AnalysisHistoryList.tsx`): selector segmentado **"Todos / Estudio de Aperturas / Otras partidas"** con contadores que separa los análisis `guided_opening` del resto (mantienen el badge "PARTIDA GUIADA").
+  - **Dificultad de Stockfish**: el endpoint `POST /endgames/stockfish-move` acepta `depth` (1-15) que tiene prioridad sobre `time_limit`; el tablero ofrece niveles 3/8/13/18.
+
 ---
 
 ## 🧱 Stack Tecnológico

@@ -178,7 +178,9 @@ export function AnalysisFormPanel({
       activeFeedback,
       activeFeedback ? analysisResult?.analysis_mode ?? null : null,
     );
-  }, [activeFeedback]);
+    // Se incluye analysis_mode por si cambia sin variar activeFeedback (p. ej.
+    // al cargar la respuesta del análisis), para re-emitir el modo correcto.
+  }, [activeFeedback, analysisResult?.analysis_mode]);
 
   const draftKey = useMemo(() => {
     if (analysisId) return `${DRAFT_KEY_PREFIX}${analysisId}`;

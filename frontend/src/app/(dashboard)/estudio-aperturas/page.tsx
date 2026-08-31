@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { Loader2, BookOpen, Flag, Save, RefreshCw, ExternalLink, AlertCircle, CheckCircle2, XCircle, FileDown } from "lucide-react";
+import { Loader2, BookOpen, Flag, Save, RefreshCw, ExternalLink, AlertCircle, CheckCircle2, XCircle, FileDown, Play, Eye } from "lucide-react";
 import { OpeningSetup } from "@/components/openings/OpeningSetup";
 import { GuidedOpeningBoard } from "@/components/openings/GuidedOpeningBoard";
 import {
@@ -16,6 +16,7 @@ import {
   GuidedConsultationStatus,
 } from "@/components/openings/GuidedOpeningAnswer";
 import { GuidedOpeningFeedbackDisplay } from "@/components/openings/GuidedOpeningFeedback";
+import { OpeningStockfishBoard } from "@/components/openings/OpeningStockfishBoard";
 import { useGuidedOpening, UseGuidedOpeningReturn } from "@/hooks/useGuidedOpening";
 import { useChessAnalysis } from "@/hooks/useChessAnalysis";
 import { useChessSounds } from "@/hooks/useChessSounds";
@@ -23,7 +24,7 @@ import { useGMConsultation } from "@/context/GMConsultationContext";
 import { ReplayBoard } from "@/components/analysis/ReplayBoard";
 import { PrintAnalysisReport } from "@/components/analysis/PrintAnalysisReport";
 import { buildGuidedOpeningPgn } from "@/lib/pgn";
-import { getGameAnalysis, saveAnalysisDraft } from "@/lib/api";
+import { getGameAnalysis, getCurrentUser, saveAnalysisDraft } from "@/lib/api";
 import {
   AuditGameAnalysisResponse,
   UserGameAnalysisSubmit,
@@ -92,9 +93,52 @@ export default function EstudioAperturasPage() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [savedToHistory, setSavedToHistory] = useState(false);
+  const [stockfishMode, setStockfishMode] = useState(false);
+  const [stockfishSaved, setStockfishSaved] = useState(false);
+  const [stockfishAuditDone, setStockfishAuditDone] = useState(false);
+  const [showChoice, setShowChoice] = useState(false);
+  const [userName, setUserName] = useState(USER_NAME);
+  const [stockfishPgn, setStockfishPgn] = useState("");
+  const [stockfishResult, setStockfishResult] = useState<string>("*");
   const analysisIdRef = useRef<number | null>(null);
   const consultationIdRef = useRef<number | null>(null);
   const consultationSendingRef = useRef(false);
+  const stockfishModeRef = useRef(false);
+
+  // Cargar el nombre real del usuario para registrar la partida en el histórico.
+  useEffect(() => {
+    let active = true;
+    getCurrentUser()
+      .then((u) => {
+        if (!active) return;
+        const name = (u.full_name || u.username || "").trim();
+        if (name) setUserName(name);
+      })
+      .catch(() => {
+        // Mantener el nombre por defecto "Tú (Alumno)" si no se puede obtener.
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const auditCompletedInStockfish = useMemo(
+    () => stockfishMode && !!feedback,
+    [stockfishMode, feedback],
+  );
+
+  const stockfishProps = useMemo(() => {
+    if (guided.phase !== "paused" || !guided.theoryEnd || !stockfishMode) return null;
+    return {
+      initialFen: guided.theoryEnd.outOfTheoryFen,
+      userColor: (guided.userColor ?? "w") as "w" | "b",
+      basePgnMoves: guided.moves.map((m) => ({ san: m.san })),
+      openingName: guided.opening?.name,
+      ecoCode: guided.opening?.eco,
+      userName,
+      auditDone: auditCompletedInStockfish,
+    };
+  }, [guided, stockfishMode, userName, auditCompletedInStockfish]);
 
   const handleSubmit = useCallback(
     (resp: { status: string }) => {
@@ -104,10 +148,21 @@ export default function EstudioAperturasPage() {
             const parsed = parseJson<AuditGameAnalysisResponse>(full.gemini_feedback);
             if (!parsed) throw new Error("Feedback inválido");
             setFeedback(parsed);
-            setNoticeOpen(true);
-            playNotifySound();
-            toast.success("Auditoría del Gran Maestro completada.");
-            guided.markDone();
+            // Si el usuario sigue jugando contra Stockfish, se mantiene en el
+            // tablero interactivo: solo notificamos, no abrimos el modal ni
+            // pasamos a "done".
+            if (stockfishModeRef.current) {
+              setStockfishAuditDone(true);
+              playNotifySound();
+              toast.info(
+                "El informe del Gran Maestro ya está listo. Guarda tu partida contra Stockfish para verlo.",
+              );
+            } else {
+              setNoticeOpen(true);
+              playNotifySound();
+              toast.success("Auditoría del Gran Maestro completada.");
+              guided.markDone();
+            }
           })
           .catch(() => {
             setSubmitError("No se pudo obtener la auditoría completa de la partida.");
@@ -224,6 +279,7 @@ export default function EstudioAperturasPage() {
         return;
       }
       analysisIdRef.current = submittedId;
+      setShowChoice(true);
       toast.info("El GM está analizando tu partida guiada. Puedes seguir navegando.", {
         duration: 5000,
       });
@@ -235,6 +291,148 @@ export default function EstudioAperturasPage() {
       playErrorSound();
     }
   }, [guided, answerText, submitAnalysis, trackAnalysis, playErrorSound]);
+
+  // "Finalizar Estudio": espera el informe del GM en la vista de auditoría.
+  const finishStudy = useCallback(() => {
+    setStockfishMode(false);
+    stockfishModeRef.current = false;
+    setShowChoice(false);
+  }, []);
+
+  // "Continuar Jugando contra Stockfish": habilita el tablero interactivo.
+  const continueWithStockfish = useCallback(() => {
+    setStockfishMode(true);
+    stockfishModeRef.current = true;
+    setShowChoice(false);
+    setStockfishSaved(false);
+  }, []);
+
+  // Guarda el PGN completo y su resultado real cada vez que el tablero cambia
+  // (para poder persistarlos cuando el usuario guarde o abandone la partida).
+  const storeStockfishPgn = useCallback((pgn: string, result: string) => {
+    setStockfishPgn(pgn);
+    setStockfishResult(result || "*");
+  }, []);
+
+  // Persiste la partida completa (apertura + medio juego) contra Stockfish en
+  // el histórico, con el PGN dado y su resultado.
+  const persistStockfishGame = useCallback(
+    async (pgn: string) => {
+      if (!guided.opening) return;
+      const white =
+        guided.userColor === "w" ? userName : "Stockfish";
+      const black =
+        guided.userColor === "b" ? userName : "Stockfish";
+      await saveAnalysisDraft({
+        game_type: "USER",
+        analysis_mode: "guided_opening",
+        analysis_id: analysisIdRef.current ?? undefined,
+        white_player: white,
+        black_player: black,
+        pgn,
+        fases_analisis: { apertura: "", medio_juego: "", final: "" },
+        momentos_criticos: { pieza_a_mejorar: "", amenaza_rival: "" },
+        factores_posicionales: { material: "", seguridad_rey: "", espacio: "" },
+        conclusiones_plan: {
+          plan_estrategico: answerText.trim(),
+          error_conceptual_grave: "",
+          idea_a_repasar: "",
+        },
+      });
+    },
+    [guided, userName, answerText, analysisIdRef],
+  );
+
+  // Al abandonar el tablero tras guardar: si el GM ya terminó se muestra el
+  // informe completo; si no, se vuelve a la vista de espera del informe (que,
+  // al completarse, lleva a la vista final).
+  const leaveStockfishAfterSave = useCallback(() => {
+    if (feedback) {
+      guided.markDone();
+    } else {
+      stockfishModeRef.current = false;
+      setStockfishMode(false);
+      setShowChoice(false);
+    }
+  }, [feedback, guided]);
+
+  // "Guardar partida": registra el último PGN (con su resultado real) y sale.
+  const handleSaveStockfishGame = useCallback(() => {
+    if (!stockfishPgn) return;
+    setStockfishSaved(false);
+    setSubmitError(null);
+    persistStockfishGame(stockfishPgn)
+      .then(() => {
+        setStockfishSaved(true);
+        playNotifySound();
+        toast.success("Partida completa guardada en tu histórico.");
+        leaveStockfishAfterSave();
+      })
+      .catch((err: unknown) => {
+        const message =
+          err instanceof Error
+            ? err.message
+            : "No se pudo guardar la partida en el histórico.";
+        setSubmitError(message);
+        playErrorSound();
+      });
+  }, [stockfishPgn, persistStockfishGame, leaveStockfishAfterSave, playNotifySound, playErrorSound]);
+
+  // "Abandonar": el motor gana automáticamente, así que el componente ya pasa
+  // un PGN con derrota forzada del usuario. Se guarda igualmente en el
+  // histórico y se sale del tablero.
+  const handleAbandonStockfish = useCallback(
+    (pgn: string) => {
+      setSubmitError(null);
+      setStockfishPgn(pgn);
+      setStockfishResult(guided.userColor === "w" ? "0-1" : "1-0");
+      persistStockfishGame(pgn)
+        .then(() => {
+          setStockfishSaved(true);
+          toast.info("Partida abandonada: guardada en tu histórico con derrota.", {
+            duration: 5000,
+          });
+          leaveStockfishAfterSave();
+        })
+        .catch((err: unknown) => {
+          const message =
+            err instanceof Error
+              ? err.message
+              : "No se pudo guardar la partida en el histórico.";
+          setSubmitError(message);
+          playErrorSound();
+        });
+    },
+    [guided.userColor, persistStockfishGame, leaveStockfishAfterSave, playErrorSound],
+  );
+
+  // La partida terminó de forma natural (mate/ahogado/tablas): se registra el
+  // resultado real automáticamente y se avisa al usuario.
+  const handleStockfishGameEnded = useCallback(
+    (pgn: string, result: string) => {
+      setStockfishPgn(pgn);
+      setStockfishResult(result || "*");
+      setSubmitError(null);
+      persistStockfishGame(pgn)
+        .then(() => {
+          setStockfishSaved(true);
+          playNotifySound();
+          toast.success(
+            "La partida terminó y se ha guardado en tu histórico. Pulsa guardar de nuevo para ver tu informe.",
+            { duration: 6000 },
+          );
+        })
+        .catch((err: unknown) => {
+          const message =
+            err instanceof Error
+              ? err.message
+              : "No se pudo guardar la partida en el histórico.";
+          setSubmitError(message);
+          playErrorSound();
+        });
+    },
+    [persistStockfishGame, playNotifySound, playErrorSound],
+  );
 
   const handleSaveToHistory = useCallback(async () => {
     if (guided.phase !== "done" || !guided.opening || !feedback) return;
@@ -315,6 +513,13 @@ export default function EstudioAperturasPage() {
             setFeedback(null);
             setSubmitError(null);
             setSavedToHistory(false);
+            setStockfishMode(false);
+            stockfishModeRef.current = false;
+            setStockfishSaved(false);
+            setStockfishAuditDone(false);
+            setShowChoice(false);
+            setStockfishPgn("");
+            setStockfishResult("*");
             analysisIdRef.current = null;
             consultationIdRef.current = null;
             consultationSendingRef.current = false;
@@ -343,7 +548,19 @@ export default function EstudioAperturasPage() {
           {isPolling && (
             <div className="flex items-center gap-3 rounded-lg border border-primary/30 bg-primary/10 p-4 text-sm text-primary">
               <Loader2 className="h-5 w-5 animate-spin" />
-              El Gran Maestro está auditando tu partida guiada y sus momentos críticos…
+              {stockfishMode
+                ? "Analizando tu plan... Puedes seguir jugando contra Stockfish, te avisaremos cuando el informe esté listo."
+                : "El Gran Maestro está auditando tu partida guiada y sus momentos críticos…"}
+            </div>
+          )}
+
+          {stockfishAuditDone && stockfishMode && (
+            <div className="flex items-start gap-2 rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-200">
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+              <span>
+                El informe del Gran Maestro ya está listo. Termina tu partida contra
+                Stockfish y pulsa &quot;Guardar partida y ver informe&quot; para verlo.
+              </span>
             </div>
           )}
 
@@ -357,7 +574,23 @@ export default function EstudioAperturasPage() {
           <div className="flex flex-col gap-6 lg:flex-row">
             {/* Tablero (55%) */}
             <div className="w-full lg:w-[55%]">
-              <GuidedOpeningBoard guided={guided} />
+              {stockfishProps ? (
+                <OpeningStockfishBoard
+                  initialFen={stockfishProps.initialFen}
+                  userColor={stockfishProps.userColor}
+                  basePgnMoves={stockfishProps.basePgnMoves}
+                  openingName={stockfishProps.openingName}
+                  ecoCode={stockfishProps.ecoCode}
+                  userName={stockfishProps.userName}
+                  auditDone={stockfishProps.auditDone}
+                  onPgnChange={storeStockfishPgn}
+                  onGameEnded={handleStockfishGameEnded}
+                  onSave={handleSaveStockfishGame}
+                  onAbandon={handleAbandonStockfish}
+                />
+              ) : (
+                <GuidedOpeningBoard guided={guided} />
+              )}
             </div>
 
             {/* Panel derecho (45%) */}
@@ -391,7 +624,7 @@ export default function EstudioAperturasPage() {
                 </Card>
               )}
 
-              {guided.phase === "paused" && isPolling && (
+              {guided.phase === "paused" && isPolling && !stockfishMode && (
                 <Card>
                   <CardContent className="space-y-3 p-6">
                     <div className="flex items-center gap-3 text-primary">
@@ -403,11 +636,94 @@ export default function EstudioAperturasPage() {
                         </p>
                       </div>
                     </div>
+
+                    {showChoice && (
+                      <div className="mt-2 border-t pt-4">
+                        <p className="mb-3 text-sm font-medium">
+                          Mientras el GM analiza, ¿qué quieres hacer?
+                        </p>
+                        <div className="flex flex-col gap-2 sm:flex-row">
+                          <Button
+                            size="lg"
+                            className="flex-1 gap-2"
+                            onClick={finishStudy}
+                          >
+                            <Eye className="h-5 w-5" />
+                            Finalizar Estudio
+                          </Button>
+                          <Button
+                            size="lg"
+                            variant="outline"
+                            className="flex-1 gap-2"
+                            onClick={continueWithStockfish}
+                          >
+                            <Play className="h-5 w-5" />
+                            Continuar Jugando contra Stockfish
+                          </Button>
+                        </div>
+                        <p className="mt-2 text-xs text-muted-foreground">
+                          Puedes aplicar tu plan estratégico en el tablero mientras se
+                          termina la auditoría.
+                        </p>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               )}
 
-              {guided.phase === "paused" && !isPolling && (
+              {guided.phase === "paused" && stockfishMode && (
+                <Card>
+                  <CardContent className="space-y-3 p-6">
+                    <div className="flex items-center gap-3">
+                      <BookOpen className="h-5 w-5 text-primary" />
+                      <div>
+                        <p className="font-semibold">
+                          Juegas contra Stockfish desde la salida de la teoría
+                        </p>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          {isPolling
+                            ? "El GM está auditando tu plan. Termina la partida y guarda para ver el informe."
+                            : stockfishAuditDone
+                            ? "El informe del GM ya está listo. Al guardar y salir lo verás."
+                            : "Analiza la posición y aplica tu plan estratégico."}
+                        </p>
+                      </div>
+                    </div>
+
+                    {stockfishSaved && (
+                      <p className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
+                        <CheckCircle2 className="h-4 w-4" />
+                        Partida completa guardada en tu histórico.
+                      </p>
+                    )}
+
+                    {stockfishResult !== "*" && (
+                      <p className="flex items-center gap-2 rounded-lg border border-slate-200 bg-muted/30 p-2 text-sm font-medium text-muted-foreground">
+                        <Flag className="h-4 w-4" />
+                        Resultado:{" "}
+                        {stockfishResult === "1/2-1/2"
+                          ? "Tablas"
+                          : (stockfishResult === "1-0") === (guided.userColor === "w")
+                            ? "Victoria"
+                            : "Derrota"}
+                      </p>
+                    )}
+
+                    {!isPolling && !stockfishAuditDone && !showChoice && (
+                      <Button
+                        className="w-full gap-2"
+                        variant="outline"
+                        onClick={finishStudy}
+                      >
+                        <Eye className="h-5 w-5" />
+                        Volver a esperar el informe del GM
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              {guided.phase === "paused" && !isPolling && !stockfishMode && !showChoice && (
                 <Card>
                   <CardHeaderTitle
                     icon={<Flag className="h-5 w-5 text-primary" />}

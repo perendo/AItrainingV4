@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, FileText, ChevronRight, Crown, UserRound, Clock, AlertTriangle, BookMarked } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -66,6 +66,26 @@ export function AnalysisHistoryList() {
   const [analyses, setAnalyses] = useState<UserGameAnalysisResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filter, setFilter] = useState<"todos" | "aperturas" | "otras">("todos");
+
+  // Separa las partidas procedentes del Estudio Activo de Aperturas
+  // (analysis_mode === "guided_opening") del resto de análisis, para poder
+  // mostrarlas en secciones independientes.
+  const openingAnalyses = useMemo(
+    () => analyses.filter((a) => a.analysis_mode === "guided_opening"),
+    [analyses],
+  );
+  const otherAnalyses = useMemo(
+    () => analyses.filter((a) => a.analysis_mode !== "guided_opening"),
+    [analyses],
+  );
+
+  const visibleAnalyses =
+    filter === "aperturas"
+      ? openingAnalyses
+      : filter === "otras"
+        ? otherAnalyses
+        : analyses;
 
   const fetchHistory = useCallback(async () => {
     setLoading(true);
@@ -114,9 +134,69 @@ export function AnalysisHistoryList() {
     );
   }
 
+  if (
+    visibleAnalyses.length === 0 &&
+    filter === "aperturas" &&
+    openingAnalyses.length === 0
+  ) {
+    return (
+      <div className="rounded-xl border bg-white p-10 text-center shadow-sm dark:bg-slate-900">
+        <BookMarked className="mx-auto mb-3 h-10 w-10 text-muted-foreground/40" />
+        <p className="font-medium">Aún no hay estudios de apertura.</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Las partidas que guardes desde el Estudio Activo de Aperturas aparecerán aquí.
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div className="grid gap-4">
-      {analyses.map((analysis) => {
+    <div className="space-y-4">
+      {/* Selector de categoría: separa los estudios de apertura del resto. */}
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() => setFilter("todos")}
+          className={cn(
+            "inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-medium transition-colors",
+            filter === "todos"
+              ? "border-primary bg-primary text-primary-foreground"
+              : "border-input bg-background text-muted-foreground hover:bg-muted",
+          )}
+        >
+          <FileText className="h-4 w-4" />
+          Todos ({analyses.length})
+        </button>
+        <button
+          type="button"
+          onClick={() => setFilter("aperturas")}
+          className={cn(
+            "inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-medium transition-colors",
+            filter === "aperturas"
+              ? "border-primary bg-primary text-primary-foreground"
+              : "border-input bg-background text-muted-foreground hover:bg-muted",
+          )}
+        >
+          <BookMarked className="h-4 w-4" />
+          Estudio de Aperturas ({openingAnalyses.length})
+        </button>
+        <button
+          type="button"
+          onClick={() => setFilter("otras")}
+          className={cn(
+            "inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-medium transition-colors",
+            filter === "otras"
+              ? "border-primary bg-primary text-primary-foreground"
+              : "border-input bg-background text-muted-foreground hover:bg-muted",
+          )}
+        >
+          <UserRound className="h-4 w-4" />
+          Otras partidas ({otherAnalyses.length})
+        </button>
+      </div>
+
+      <div className="grid gap-4">
+        {visibleAnalyses.map((analysis) => {
         const white = analysis.white_player || "Blancas";
         const black = analysis.black_player || "Negras";
         const status = gameAnalysisStatus(analysis);
@@ -168,6 +248,7 @@ export function AnalysisHistoryList() {
           </button>
         );
       })}
+      </div>
     </div>
   );
 }

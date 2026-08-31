@@ -225,7 +225,7 @@ export function InteractiveChessBoard({
           </Alert>
         );
     }
-  }, [status, message, currentFen]);
+  }, [status, currentFen]);
 
   return (
     <div className="flex flex-col lg:flex-row gap-4">

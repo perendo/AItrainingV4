@@ -57,6 +57,12 @@ export function LiveGameBoard() {
   const [comments, setComments] = useState<Record<number, string>>({});
   const [commentText, setCommentText] = useState("");
 
+  // `fen` se usa como señal reactiva: gameRef.current es un ref no reactivo,
+  // así que el recálculo del historial se dispara con cada jugada (que actualiza
+  // el estado `fen`). La variable `fen` no se referencia en el cuerpo, de ahí
+  // que ESLint la marque como "innecesaria"; es intencional y necesaria, por lo
+  // que se desactiva la regla para este bloque.
+  /* eslint-disable react-hooks/exhaustive-deps */
   const moves = useMemo(() => {
     return gameRef.current.history({ verbose: true });
   }, [fen]);
@@ -64,9 +70,9 @@ export function LiveGameBoard() {
   // Usar gameRef.current (no new Chess(fen)) para que el historial de
   // jugadas persista y chess.js detecte la triple repetición. new Chess(fen)
   // reconstruye la posición sin historial, así que solo funciona la regla de
-  // 50 movimientos (que viene en el FEN). Al depender de [fen], se recalcula
-  // en cada jugada.
+  // 50 movimientos (que viene en el FEN). Misma señal reactiva que `moves`.
   const game = useMemo(() => gameRef.current, [fen]);
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   const groupedMoves = useMemo(() => {
     const groups: Array<{
@@ -95,6 +101,10 @@ export function LiveGameBoard() {
     return resultFor(game);
   }, [gameResult, game]);
 
+  // `fen` es de nuevo la señal reactiva del historial; `whitePlayer`/`blackPlayer`
+  // no participan en el cálculo de la notación, solo en los headers (que se
+  // añaden aparte al guardar), por lo que no son dependencias reales.
+  /* eslint-disable react-hooks/exhaustive-deps */
   const pgnPreview = useMemo(() => {
     try {
       const history = gameRef.current.history();
@@ -115,7 +125,8 @@ export function LiveGameBoard() {
     } catch {
       return "";
     }
-  }, [fen, whitePlayer, blackPlayer, comments, effectiveResult]);
+  }, [fen, comments, effectiveResult]);
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   const status = useMemo(() => {
     if (game.isCheckmate()) {
