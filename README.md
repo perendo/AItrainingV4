@@ -10,17 +10,20 @@ Plataforma integral de entrenamiento de ajedrez que combina **análisis de parti
 - **Autenticación JWT** con bcrypt (registro, login, perfil, control de versión legal RGPD).
 - **Análisis de partidas PGN** en segundo plano (`background_session`): filtrado, limpieza y análisis jugada a jugada con Stockfish.
 - **Informes de coaching con IA**: Gemini analiza el historial de errores y genera diagnósticos estructurados.
-- **Partidas de Grandes Maestros y Autodiagnóstico**: envío de autodiagnósticos de partidas de GM o propias, auditados de forma asíncrona por Gemini con reintentos automáticos ante saturación de la API.
+- **Partidas de Grandes Maestros y Autodiagnóstico**: buscador de partidas de GM (caché local en SQLite con generación por Gemini ante fallos) y envío de autodiagnósticos de partidas de GM o propias, auditados de forma asíncrona por Gemini con reintentos automáticos ante saturación de la API.
 - **Dos modos de análisis de partida**: `Análisis por IA` (análisis maestro completo de la partida sin comentarios del alumno, disponible en partidas propias) y `Auditoría de Autodiagnóstico` (evalúa los comentarios del alumno). El feedback de apertura cita siempre el **código ECO y el nombre en español**, y cuando el diagnóstico es incorrecto se explica con claridad el motivo (campo `razon_insuficiente`).
 - **Academia de Finales Teóricos**: lecciones con posición inicial FEN, eventos de cronología, generación de guiones de podcast e infraestructura de audio mediante TTS (`edge-tts` / `gTTS`).
 - **Planes de entrenamiento semanales**: tareas de Táctica, Estrategia y Finales con puzles reales de Lichess adaptados por ELO.
 - **Módulo Legal / RGPD**: exportación completa de datos de usuario (10 tablas dependientes) y borrado explícito tabla por tabla.
+- **Middleware e infraestructura**: `RequestLogMiddleware` (registro de peticiones) y `GlobalExceptionMiddleware` (errores normalizados), CORS configurable y endpoint raíz de estado. Migraciones Alembic aplicadas automáticamente al arrancar (`alembic upgrade head`).
 
 ### 🖥️ Frontend (Next.js 14 App Router)
-- **Autenticación y Registro**: validación con Zod y checkbox obligatorio de términos legales (`acceptedTerms`).
-- **Gestión de partidas e Histórico**: subida de PGN con progreso en vivo, estados robustos (`processing`, `completed`, `failed` con reenvío manual) y visor interactivo.
+- **Autenticación y Registro**: validación con Zod, campo de visibilidad de contraseña y checkbox obligatorio de términos legales (`acceptedTerms`).
+- **Gestión de partidas e Histórico**: subida de PGN con progreso en vivo, importación de partidas públicas desde **Lichess** por usuario (encoladas en análisis de fondo), estados robustos (`processing`, `completed`, `failed` con reenvío manual) y visor interactivo.
+- **Jugar 1 contra 1** (`/jugar`, `LiveGameBoard`): partida local 1v1 en el mismo dispositivo con PGN en vivo, pegado de PGN desde portapapeles (Ctrl+V), selector manual de resultado (1-0/0-1/1/2-1/2/*) y comentarios por jugada (sintaxis PGN `{comentario}`).
 - **Tutorial Guiado Interactivo ("Cómo analizar una partida")**: walkthrough paso a paso sobre partida real (Carlsen-Anand) con síntesis de voz en español (`speechSynthesis`) y panel interactivo en modo demo.
 - **Visor PgnStudyViewer y Práctica de Finales (`EndgamePracticeBoard`)**: reproducción automática con audio TTS y sonido de jugada, conectada a validación de movimientos con Stockfish.
+- **Modo oscuro** (`next-themes`) con toggle, **efectos de sonido** (Web Audio en `useChessSounds`) e **indicador de actividad del GM**.
 - **Perfil de usuario**: gestión de datos, exportación de datos RGPD y borrado de cuenta en dos pasos.
 
 ---
@@ -31,6 +34,7 @@ Plataforma integral de entrenamiento de ajedrez que combina **análisis de parti
   - Módulo interactivo de Partidas Guiadas contra el libro de aperturas (PolyGlot) con pausa automática al salir de la teórica, consulta automática al GM y contestación única auditada por Gemini con prompts pedagógicos estrictos (exigiendo explicaciones con el *porqué*, casillas clave y maniobras).
   - Exportación a PDF en Partida Guiada, `/analisis` (capturando dinámicamente el formulario del usuario) e histórico, solucionando el renderizado de la posición final mediante `parsePgnMoves` y evitando omisiones de impresión en bloques largos.
   - Reestructuración de Consultas al GM (`/consulta-gm`) con histórico agrupado por días ("Hoy", "Ayer", "Anteriores"), visualización de conversaciones completas, botón de exportar conversación a PDF y pantalla limpia para realizar nuevas consultas sin sobrecargar el flujo.
+  - **Importación de partidas desde Lichess** (`LichessImport.tsx` + `src/lib/lichess.ts`): descarga de partidas públicas de un usuario de Lichess y encolado de su análisis en background con progreso en vivo.
 - **Módulo de Finales Teóricos:** incorporación de modelos `EndgameLesson`, `EndgameTimelineEvent`, `UserEndgameProgress`, CLI de población/audio, endpoints REST y visor con audio TTS adaptado a voz masculina en español (`selectSpanishMaleVoice`).
 - **Módulo Legal / RGPD:** integración del texto maestro (`Docs/legal.md`), migración de aceptación de términos en usuarios, endpoints de exportación y borrado de cuenta robusto para SQLite.
 - **Robustez de IA y Reintentos:** reintentos automáticos en tareas en segundo plano (`audit_existing_analysis`, `process_consultation`) ante fallos transitorios de Gemini (hasta 3 intentos con espera configurable), con recuperación de tareas colgadas al arrancar (`cleanup_stuck_background_tasks`).
@@ -54,6 +58,7 @@ Plataforma integral de entrenamiento de ajedrez que combina **análisis de parti
   - **Exportar a PDF del histórico (`historico/[analysisId]` → `window.print()`):** la evaluación del Gran Maestro no aparecía en el PDF. Causa: la sección "Comentarios y Evaluación del Gran Maestro" en `PrintAnalysisReport` llevaba `print-block` (`break-inside: avoid`); al ser más alta que una página, Chromium omitía todo el bloque en la impresión. Se eliminó `print-block` de esa sección para que fluya y nunca se descarte. Además, en modo `ai` se oculta el bloque "Comentarios del Usuario" (el análisis IA va sin comentarios del alumno) y el export usa el `feedback` en vivo (igual que en pantalla). Test de regresión: `PrintAnalysisReport.print.test.tsx`.
 
 - **Estudio Activo de Aperturas — continuar contra Stockfish y guardado automático (ago 2026):**
+  - Catálogo de **10 aperturas verificadas** contra el libro PolyGlot (`GUIDED_OPENINGS` en `openings.ts`), cada una con código ECO, descripción y línea SAN de posiciones teóricas confirmadas (Italiana, Ruy López Morphy, Escocesa, Siciliana Abierta/Najdorf/Ataque Torre, Francesa Avance, Caro-Kann Avance, Gambito de Dama, India de Rey).
   - Tras enviar el plan al GM, el alumno elige **"Finalizar Estudio"** (ver el informe) o **"Continuar Jugando contra Stockfish"** desde el `out_of_theory_fen` (**`OpeningStockfishBoard.tsx`**) mientras la auditoría corre en segundo plano; un banner avisa cuando el informe queda listo.
   - **La partida SIEMPRE se guarda en el histórico al salir del tablero Stockfish.** Tres caminos:
     - *Guardar partida y ver informe*: persiste el PGN completo (apertura + medio juego) con su resultado real y sale.
@@ -135,6 +140,13 @@ python start_servers.py        # backend :8000 + frontend :3000 en paralelo
 # O en Windows:
 start.bat
 ```
+
+### 4. Empaquetado de escritorio (PyInstaller)
+```bash
+python build_dist.py           # frontend standalone + backend .exe → ./dist/entrenador.exe
+python build_dist.py --skip-frontend   # recompila solo el backend si ya hay dist/frontend
+```
+Genera `dist/entrenador.exe` (vía `entrenador.spec`) con el frontend embebido (`output: "standalone"` en `next.config.mjs`), el binario de Stockfish y la base de datos, más los lanzadores `dist/start.bat` / `dist/start.sh`. Los testers lanzan `dist/start.bat`. La aplicación de escritorio incluye **modo kiosk** con salida rápida a escritorio (`exitToDesktop` → control local `127.0.0.1:18999`).
 
 ---
 
