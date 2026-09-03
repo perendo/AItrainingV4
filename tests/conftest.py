@@ -12,6 +12,7 @@ if sys.platform == "win32":
 else:
     os.environ["STOCKFISH_PATH"] = shutil.which("stockfish") or "/usr/games/stockfish"
 os.environ["GEMINI_API_KEY"] = "test-key"
+os.environ["GROQ_API_KEY"] = ""  # desactivado por defecto en tests (respaldo no probado aquí)
 os.environ["SECRET_KEY"] = "test-secret-key-for-testing-only"
 
 from app.core.database import Base, get_db

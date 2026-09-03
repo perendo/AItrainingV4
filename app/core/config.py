@@ -64,6 +64,15 @@ class Settings(BaseSettings):
     GEMINI_TASK_RETRIES: int = 2
     GEMINI_TASK_RETRY_WAIT_SECONDS: int = 10
 
+    # Fallback gratuito a Groq (xAI) cuando Gemini agota primario + reserva.
+    # Si GROQ_API_KEY está vacía, Groq se omite silenciosamente del failover.
+    # API key gratis: console.groq.com → Sign up → API Keys.
+    # Modelo: "openai/gpt-oss-120b" (el más capaz de la lista actual; el antiguo
+    # "llama-3.3-70b-versatile" ya fue retirado de las cuentas nuevas).
+    GROQ_API_KEY: str = ""
+    GROQ_MODEL: str = "openai/gpt-oss-120b"
+    GROQ_TIMEOUT_SECONDS: int = 30
+
     # Versión vigente de los textos legales (Docs/legal.md). Al cambiarla, los usuarios
     # deberán re-aceptar términos vía POST /users/me/legal-accept.
     LEGAL_VERSION: str = "2026-08-v1"

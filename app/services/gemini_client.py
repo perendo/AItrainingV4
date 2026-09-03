@@ -31,6 +31,12 @@ try:  # google-api-core llega como dependencia transitiva; se defiende su ausenc
 except ImportError:  # pragma: no cover
     _ApiCoreUnavailable = None
 
+try:  # Proveedor de respaldo Groq: opcional. Si no está, el failover salta a Groq cuando sea.
+    from app.services.grok_client import GrokClient, _es_error_transitorio as _es_error_groq_transitorio
+except ImportError:  # pragma: no cover
+    GrokClient = None
+    _es_error_groq_transitorio = None
+
 from app.core.config import settings
 
 logger = logging.getLogger("GeminiClient")
@@ -71,6 +77,15 @@ class GeminiClient:
     def __init__(self, model_name: str = DEFAULT_MODEL_NAME):
         self.model_name = model_name
         self._client: Optional[genai.Client] = None
+        self._grok: Optional[Any] = None
+
+    def _obtener_grok(self) -> Optional[Any]:
+        """Instancia lazily el cliente Groq si hay API key configurada; si no, None."""
+        if GrokClient is None or not settings.GROQ_API_KEY:
+            return None
+        if self._grok is None:
+            self._grok = GrokClient(model_name=settings.GROQ_MODEL)
+        return self._grok
 
     # ------------------------------------------------------------------ #
     # Inicialización
@@ -174,10 +189,79 @@ class GeminiClient:
         )
         return None, ultimo_error
 
+    def _intentar_grok(
+        self,
+        prompt: str,
+        *,
+        system_prompt: Optional[str],
+        json_mode: bool,
+        schema: Optional[Type[Any]],
+        temperature: float,
+        max_output_tokens: int,
+    ) -> Tuple[Optional[Any], Optional[Exception]]:
+        """Llama a Groq reintentando con backoff exponencial si hay sobrecarga.
+
+        Devuelve ``(respuesta, None)`` en caso de éxito o ``(None, ultimo_error)``
+        si se agotaron los intentos por errores transitorios. Los errores no
+        transitorios se relanzan inmediatamente. Si no hay API key → (None, None)
+        para no consumir el último error (salta silenciosamente).
+        """
+        grok = self._obtener_grok()
+        if grok is None or _es_error_groq_transitorio is None:
+            return None, None
+
+        esperas = settings.gemini_retry_waits_list
+        total_intentos = len(esperas) + 1
+        ultimo_error: Optional[Exception] = None
+        llamada = grok.generate_json if json_mode else grok.generate_text
+
+        for intento in range(1, total_intentos + 1):
+            if intento > 1:
+                espera = esperas[min(intento - 2, len(esperas) - 1)]
+                logger.warning(
+                    "Groq: saturado (%s). Reintento %d/%d en %.0fs...",
+                    ultimo_error,
+                    intento,
+                    total_intentos,
+                    espera,
+                )
+                time.sleep(espera)
+            try:
+                kwargs = {
+                    "system_prompt": system_prompt,
+                    "temperature": temperature,
+                    "max_output_tokens": max_output_tokens,
+                }
+                if json_mode:
+                    kwargs["schema"] = schema
+                respuesta = llamada(prompt, **kwargs)
+                if intento > 1:
+                    logger.info("Groq: respondió en el intento %d/%d.", intento, total_intentos)
+                return respuesta, None
+            except Exception as exc:  # noqa: BLE001 - se clasifica abajo
+                if not _es_error_groq_transitorio(exc):
+                    raise  # error permanente: no es cuestión de reintentar
+                ultimo_error = exc
+
+        logger.error("Groq: agotó sus %d intentos por indisponibilidad.", total_intentos)
+        return None, ultimo_error
+
     def _generar_con_failover(
-        self, prompt: str, config: types.GenerateContentConfig
+        self,
+        prompt: str,
+        config: types.GenerateContentConfig,
+        *,
+        json_mode: bool,
+        schema: Optional[Type[Any]],
+        temperature: float,
+        max_output_tokens: int,
     ) -> Any:
-        """Prueba el modelo primario y, si sigue saturado, conmuta al de reserva."""
+        """Prueba el modelo primario y, si sigue saturado, conmuta al de reserva.
+
+        Si tanto el primario como el reserva agotan sus reintentos, se intenta
+        Groq (proveedor de respaldo gratuito). Solo si TODO falla se lanza
+        :class:`GeminiSaturadoError`.
+        """
         ultimo_error: Optional[Exception] = None
         for nombre_modelo in self._cadena_de_modelos():
             respuesta, ultimo_error = self._intentar_modelo(nombre_modelo, prompt, config)
@@ -187,7 +271,22 @@ class GeminiClient:
                 "Gemini: conmutando del modelo %s al modelo de reserva...",
                 nombre_modelo,
             )
-        logger.error("Gemini: primario y reserva saturados. Se informa al cliente.")
+
+        # Último escalón: proveedor de respaldo (Groq) si está configurado.
+        respuesta_grok, error_grok = self._intentar_grok(
+            prompt,
+            system_prompt=config.system_instruction,
+            json_mode=json_mode,
+            schema=schema,
+            temperature=temperature,
+            max_output_tokens=max_output_tokens,
+        )
+        if respuesta_grok is not None:
+            return respuesta_grok
+        if error_grok is not None:
+            ultimo_error = error_grok
+
+        logger.error("Gemini: primario, reserva y Groq saturados. Se informa al cliente.")
         raise GeminiSaturadoError() from ultimo_error
 
     def _generate(
@@ -199,7 +298,21 @@ class GeminiClient:
         timeout: Optional[int] = None,
     ) -> Any:
         config = self._construir_config(system_prompt, generation_config, timeout)
-        return self._generar_con_failover(prompt, config)
+
+        generation_config = generation_config or {}
+        json_mode = generation_config.get("response_mime_type") == "application/json"
+        schema = generation_config.get("schema")
+        temperature = generation_config.get("temperature") or 0.3
+        max_output_tokens = generation_config.get("max_output_tokens") or 4096
+
+        return self._generar_con_failover(
+            prompt,
+            config,
+            json_mode=json_mode,
+            schema=schema,
+            temperature=temperature,
+            max_output_tokens=max_output_tokens,
+        )
 
     def _construir_config(
         self,
@@ -250,6 +363,7 @@ class GeminiClient:
             "response_mime_type": "application/json",
             "temperature": temperature,
             "max_output_tokens": max_output_tokens,
+            "schema": schema,  # usado por el proveedor de respaldo (Groq) para validar localmente
         }
         gemini_schema = response_schema if response_schema is not None else schema
         if gemini_schema is not None and gemini_schema is not False:
@@ -260,6 +374,10 @@ class GeminiClient:
             generation_config=generation_config,
             timeout=timeout,
         )
+        # Si vino de Groq (respaldo), ya está validado con `schema` localmente:
+        # es un dict o un modelo Pydantic, no un objeto response de Gemini.
+        if isinstance(response, (dict, list)) or not hasattr(response, "text"):
+            return response
         return self.parse_json_response(response, schema)
 
     def generate_text(
@@ -282,6 +400,9 @@ class GeminiClient:
             generation_config=generation_config,
             timeout=timeout,
         )
+        # Si vino de Groq (respaldo), ya es un string limpio.
+        if isinstance(response, str):
+            return response
         return (response.text or "").strip()
 
     # ------------------------------------------------------------------ #
